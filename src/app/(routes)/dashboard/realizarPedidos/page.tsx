@@ -153,7 +153,7 @@ const RealizarPedidos = () => {
     }
 
     useEffect(() => {
-        setValue(`precioSemanal`, "7.80")
+        setValue(`precioSemanal`, "4.70")
         setValue(`fechaPedido`, `Hoy ${moment.tz("America/Lima").format("DD-MM-YYYY")}`)
         setValue(`fechaEntregaPedido`, obtenerSabado())
     }, [])

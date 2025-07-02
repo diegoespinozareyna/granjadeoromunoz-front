@@ -315,7 +315,7 @@ export const formRealizaPedidos = [
     {
         id: 7,
         name: "pagoTotal",
-        label: "Total a pagar S/.",
+        label: "Total a pagar S/. Pago Contraentrega",
         type: "number",
         options: [{ value: "1", label: "Domicilio" }, { value: "2", label: "Oficina Orbes" }],
         placeholder: "Total a pagar S/.",
