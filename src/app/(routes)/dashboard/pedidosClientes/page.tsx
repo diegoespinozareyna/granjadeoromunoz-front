@@ -13,7 +13,7 @@ const PedidosClientes = () => {
 
     const oneRender = useRef(true);
 
-    const { apiCall, loading, error } = useApi()
+    const { apiCall } = useApi()
 
     const [session, setSession] = useState<any>(null);
     const [datos, setDatos] = useState<any>([]);
