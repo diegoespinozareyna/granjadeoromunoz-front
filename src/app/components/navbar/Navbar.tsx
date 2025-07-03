@@ -57,7 +57,7 @@ export const Navbar = () => {
             <h2 className="text-lg font-bold text-gray-300 text-center">Bienvenido</h2>
             <h2 className="text-xl font-bold text-[#efefef] text-center">{session !== null ? `${session?.nombres ?? ""} ${session?.apellidoPaterno ?? ""} ${session?.apellidoMaterno ?? ""}` : "Cargando..."}</h2>
             <div className="flex justify-center items-center md:w-[370px] w-[300px]">
-                <h2 className="text-xl font-bold text-[#efefef] text-center">{session !== null ? `${session.membresia == "500" ? "EMPRESARIO" : "ASESOR"}` : "Cargando..."}</h2>
+                <h2 className="text-xl font-bold text-[#efefef] text-center">{session !== null ? `${session.membresia == "500" ? "EMPRESARIO" : "EMPRENDEDOR"}` : "Cargando..."}</h2>
             </div>
         </div>
     )
