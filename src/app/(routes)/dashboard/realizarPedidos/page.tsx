@@ -44,7 +44,7 @@ const RealizarPedidos = () => {
 
             const jsonSend = {
                 status: "0",
-                fechaPedido: moment.tz(getValues()?.fechaPedido?.split?.("Hoy ")[1], "DD-MM-YYYY", "America/Lima").toISOString(),
+                fechaPedido: moment.tz(getValues()?.fechaPedido?.split?.("Hoy ")[1], "DD-MM-YYYY", "").toISOString(),
                 fechaEntregaPedido: getValues()?.fechaEntregaPedido,
                 cantidadPaquetes: getValues()?.cantidadPaquetes,
                 kilos: getValues()?.kilos,
