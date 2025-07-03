@@ -21,6 +21,8 @@ const RealizarPedidos = () => {
 
     const [session, setSession] = useState<any>(null);
 
+    const [limitePEdidos, setLimitePEdidos] = useState<any>(null);
+
     useEffect(() => {
         try {
             const token = localStorage.getItem('auth-token');
@@ -42,7 +44,7 @@ const RealizarPedidos = () => {
 
             const jsonSend = {
                 status: "0",
-                fechaPedido: getValues()?.fechaPedido,
+                fechaPedido: moment.tz(getValues()?.fechaPedido?.split?.("Hoy ")[1], "DD-MM-YYYY", "America/Lima").toISOString(),
                 fechaEntregaPedido: getValues()?.fechaEntregaPedido,
                 cantidadPaquetes: getValues()?.cantidadPaquetes,
                 kilos: getValues()?.kilos,
@@ -152,11 +154,49 @@ const RealizarPedidos = () => {
         return `Sábado ${nextSaturday.format("DD-MM-YYYY")}`;
     }
 
+    const obtenerSemana = async () => {
+        const today = moment().tz("America/Lima");
+
+        // Día de la semana (0: domingo, 6: sábado)
+        const dayOfWeek = today.day();
+
+        // Si hoy es sábado, la semana empieza hoy
+        const fechaInicio = dayOfWeek === 6
+            ? today.clone().startOf('day')
+            : today.clone().subtract((dayOfWeek + 1) % 7, 'days').startOf('day'); // Restamos hasta el sábado anterior
+
+        const fechaFin = fechaInicio.clone().add(6, 'days').endOf('day'); // Hasta el viernes siguiente
+
+        const jsonFechas = {
+            fechaInicio: fechaInicio.format('DD-MM-YYYY'),
+            fechaFin: fechaFin.format('DD-MM-YYYY'),
+            documentoUsuario: session?.documentoUsuario,
+        };
+
+        const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/pedidosSemana`
+
+        const response = await apiCall({
+            method: 'POST',
+            endpoint: url,
+            data: jsonFechas
+        })
+
+        console.log("response pedidos seman: ", response?.data?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0))
+        const numPedidos = response?.data?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0)
+        console.log("limite pedidos", session.membresia == "500" ? (3 * Number(session?.repeticionUsuario) - numPedidos)
+            : (1 * Number(session?.repeticionUsuario) - numPedidos))
+        setValue("limitePedidos", session.membresia == "500" ? (3 * Number(session?.repeticionUsuario) - numPedidos)
+            : (1 * Number(session?.repeticionUsuario) - numPedidos))
+        setLimitePEdidos(session.membresia == "500" ? (3 * Number(session?.repeticionUsuario) - numPedidos)
+            : (1 * Number(session?.repeticionUsuario) - numPedidos))
+    }
+
     useEffect(() => {
         setValue(`precioSemanal`, "4.70")
         setValue(`fechaPedido`, `Hoy ${moment.tz("America/Lima").format("DD-MM-YYYY")}`)
         setValue(`fechaEntregaPedido`, obtenerSabado())
-    }, [])
+        obtenerSemana()
+    }, [session])
 
     return (
         <div className="flex flex-col items-start justify-start mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">
@@ -168,10 +208,23 @@ const RealizarPedidos = () => {
             <div className="md:ml-0 border-0 border-[#006060] rounded-lg p-3 px-10 mt-1 bg-[rgba(255,255,255,0.1)]">
                 <h2 className="text-xl font-bold text-gray-800 my-4 uppercase text-center">Datos de Pedido</h2>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <FormRealizaPedidos {...{ getValues, setValue, control, apiCall }} />
-                    <Button disabled={loading} loading={loading} sx={{ width: "100%", backgroundColor: "#22b2aa", ":hover": { backgroundColor: "#006060", color: "white" }, fontWeight: "bold", color: "black" }} variant="contained" color="success" type="submit">
-                        Realizar Pedido
-                    </Button>
+                    {
+                        limitePEdidos == "0" ?
+                            <div className="flex flex-col items-center justify-center gap-2 w-full">
+                                <div className="font-bold text-3xl text-red-300">{"Lo sentimos..."}</div>
+                                <div className="font-bold text-base text-red-300">{"Límite de pedidos semanales alcanzado! Debe esperar hasta el próximo sábado para poder realizar otro pedido."}</div>
+                            </div>
+                            :
+                            limitePEdidos !== null &&
+                            <FormRealizaPedidos {...{ getValues, setValue, control, apiCall }} />
+                    }
+                    {
+                        limitePEdidos == "0" ? ""
+                            :
+                            <Button disabled={loading} loading={loading} sx={{ width: "100%", backgroundColor: "#22b2aa", ":hover": { backgroundColor: "#006060", color: "white" }, fontWeight: "bold", color: "black" }} variant="contained" color="success" type="submit">
+                                Realizar Pedido
+                            </Button>
+                    }
                 </form>
             </div>
         </div>

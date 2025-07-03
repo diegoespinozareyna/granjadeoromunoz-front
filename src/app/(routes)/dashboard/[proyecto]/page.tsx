@@ -43,10 +43,10 @@ const Dashboard = () => {
 
     return (
         <>
-            <div className="grid grid-cols-2 gap-4 mt-10 !overflow-x-hidden">
+            <div className="grid grid-cols-1 gap-2 mt-5 !overflow-x-hidden">
                 {images.map((image, index) => (
                     <div key={index} className="flex justify-center items-center">
-                        <div onClick={() => router.push(`/dashboard/${image.push}`)} className="relative w-48 h-w-48 overflow-hidden shadow-lg group cursor-pointer">
+                        <div onClick={() => router.push(`/dashboard/${image.push}`)} className="relative w-80 h-w-80 overflow-hidden shadow-lg group cursor-pointer">
                             <img
                                 src={image.src}
                                 alt="Imagen"

@@ -11,6 +11,14 @@ export const FormRealizaPedidos = ({ getValues, setValue, control, apiCall }: an
 
     const [direccionObligatoria, setDireccionObligatoria] = useState(false);
 
+    const handleGenerarArray = (cantidad: any) => {
+        if (!cantidad || isNaN(cantidad)) return [];
+        return Array.from({ length: cantidad }, (_, i) => ({
+            value: String(i + 1),  // <-- asegúrate de que sean strings
+            label: String(i + 1),
+        }));
+    }
+
     return (
         <>
             <div className="flex flex-col justify-center items-center gap-2 w-full">
@@ -107,10 +115,14 @@ export const FormRealizaPedidos = ({ getValues, setValue, control, apiCall }: an
                                                     render={({ field, fieldState }) => (
                                                         <Autocomplete
                                                             disabled={(item.disabled)}
-                                                            options={item.options}
-                                                            getOptionLabel={(option) => option.label}
+                                                            options={item.name == "cantidadPaquetes" ?
+                                                                handleGenerarArray(getValues()?.limitePedidos)
+                                                                :
+                                                                item.options
+                                                            }
+                                                            getOptionLabel={(option) => option?.label}
                                                             isOptionEqualToValue={(option, value) => option.value === value.value}
-                                                            value={item.options.find(opt => opt.value === field.value) || null}
+                                                            value={item.options.find(opt => opt.value === String(field.value)) || null}
                                                             onChange={(_, selectedOption) => {
                                                                 field.onChange(selectedOption?.value ?? null);
                                                                 setValue(`kilos`, (Number(getValues(`cantidadPaquetes`)) ?? 0) * (Number(11) ?? 0));
