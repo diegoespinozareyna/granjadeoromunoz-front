@@ -12,7 +12,7 @@ export const Apis = {
     URL_APOIMENT_BACKEND_DEV2: "https://serverimages.inmobackend.site",
     //DATOS PROYECTO
     PROYECTCURRENT: "granjadeoro",
-    PROYECTCURRENT_NAMEDOMINIO: "granjadeoro",
+    PROYECTCURRENT_NAMEDOMINIO: "jovenemprendedor",
     NAME_PROYECT: "GRANJA DE ORO",
     NAME_INMOBILIARIA: "GRANJA DE ORO",
     NAME_LOGO: "/logoperladelchira.jpg",
