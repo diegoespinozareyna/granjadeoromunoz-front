@@ -422,7 +422,7 @@ export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall }: a
                                         size="small"
                                         // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
                                         disabled={false}
-                                        // required={(item.name == "direccionEntrega" && direccionObligatoria == true) ? true : item.required}
+                                        required={true}
                                         type={"text"}
                                         InputLabelProps={{
                                             shrink: true,
