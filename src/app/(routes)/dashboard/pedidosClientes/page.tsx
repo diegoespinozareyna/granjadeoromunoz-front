@@ -362,7 +362,7 @@ const PedidosClientes = () => {
                                                 </div>
                                                 <div className="bg-[#22B2AA]/5 rounded-lg p-3 border border-[#22B2AA]/20">
                                                     <p className="font-semibold text-[#007C7C] text-sm">{item.lugarEntrega == "1" ? "Domicilio" : item.lugarEntrega == "2" ? "Oficina Orbes" : ""}</p>
-                                                    <p className="text-xs text-[#007C7C]/80 mt-1">{`${item.direccionEntrega} / cel: ${item?.celular ?? "993994995"}`}</p>
+                                                    <p className="text-xs text-[#007C7C]/80 mt-1">{`${item.direccionEntrega} / ${item?.celular ?? ""}`}</p>
                                                 </div>
                                             </div>
 
