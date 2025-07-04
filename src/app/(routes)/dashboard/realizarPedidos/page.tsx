@@ -1,6 +1,7 @@
 "use client"
 
 import { FormRealizaPedidos } from "@/app/components/pedidos/FormRealizaPedidos";
+import { FormRealizaPedidos2 } from "@/app/components/pedidos/FormRealizaPedidos2";
 import useApi from "@/app/hooks/fetchData/useApi";
 import { Apis } from "@/app/utils/configs/proyectCurrent";
 import { Button } from "@mui/material"
@@ -44,14 +45,14 @@ const RealizarPedidos = () => {
 
             const jsonSend = {
                 status: "0",
-                fechaPedido: moment.tz(getValues()?.fechaPedido?.split?.("Hoy ")[1], "DD-MM-YYYY", "").toISOString(),
-                fechaEntregaPedido: getValues()?.fechaEntregaPedido,
+                fechaPedido: moment.tz(getValues()?.fechaPedido, "YYYY-MM-DD", "America/Lima").toISOString(),
+                fechaEntregaPedido: moment.tz(getValues()?.fechaEntregaPedido, "YYYY-MM-DD", "America/Lima").toISOString(),
                 cantidadPaquetes: getValues()?.cantidadPaquetes,
                 kilos: getValues()?.kilos,
                 precioSemanal: getValues()?.precioSemanal,
-                medioPago: getValues()?.medioPago, // 1: efectivo, 2: yape/transferencia
+                medioPago: getValues()?.medioPago ?? "1", // 1: efectivo, 2: yape/transferencia
                 precio: getValues()?.precio,
-                lugarEntrega: getValues()?.lugarEntrega,
+                lugarEntrega: getValues()?.lugarEntrega ?? "1",
                 direccionEntrega: getValues()?.direccionEntrega, // direccion de entrega
                 pagoTotal: getValues()?.pagoTotal,
                 documentoUsuario: session?.documentoUsuario,
@@ -82,7 +83,8 @@ const RealizarPedidos = () => {
                     showLoaderOnConfirm: true,
                     allowOutsideClick: false,
                     preConfirm: () => {
-                        router.push(`/dashboard/${Apis.PROYECTCURRENT}`);
+                        // router.push(`/dashboard/${Apis.PROYECTCURRENT}`);
+                        window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
                         return
                     },
                 });
@@ -105,36 +107,36 @@ const RealizarPedidos = () => {
             }
         }
 
-        if (getValues()?.lugarEntrega == "1") {
-            Swal.fire({
-                title: 'Dirección de Envío',
-                input: 'text',
-                inputPlaceholder: 'Ingrese la dirección de entrega',
-                icon: 'question',
-                confirmButtonText: 'Guardar',
-                showCancelButton: true,
-                cancelButtonText: 'Cancelar',
-                allowOutsideClick: false,
-                inputValidator: (value) => {
-                    if (!value) {
-                        return 'La dirección es obligatoria';
-                    }
-                    return null;
-                },
-                preConfirm: (value) => {
-                    // setValue se ejecuta solo si hay un valor válido
-                    if (value) {
-                        setValue("direccionEntrega", value);
-                        hanleFetchApi()
-                    }
-                }
-            });
-        }
-        else {
-            console.log("la data es sin doreccion: ", data);
-            setValue("direccionEntrega", "");
-            hanleFetchApi()
-        }
+        // if (getValues()?.lugarEntrega == "1") {
+        //     Swal.fire({
+        //         title: 'Dirección de Envío',
+        //         input: 'text',
+        //         inputPlaceholder: 'Ingrese la dirección de entrega',
+        //         icon: 'question',
+        //         confirmButtonText: 'Guardar',
+        //         showCancelButton: true,
+        //         cancelButtonText: 'Cancelar',
+        //         allowOutsideClick: false,
+        //         inputValidator: (value) => {
+        //             if (!value) {
+        //                 return 'La dirección es obligatoria';
+        //             }
+        //             return null;
+        //         },
+        //         preConfirm: (value) => {
+        //             // setValue se ejecuta solo si hay un valor válido
+        //             if (value) {
+        //                 setValue("direccionEntrega", value);
+        //                 hanleFetchApi()
+        //             }
+        //         }
+        //     });
+        // }
+        // else {
+        //     console.log("la data es sin doreccion: ", data);
+        //     setValue("direccionEntrega", "");
+        // }
+        hanleFetchApi()
     }
 
     const obtenerSabado = () => {
@@ -183,18 +185,18 @@ const RealizarPedidos = () => {
 
         console.log("response pedidos seman: ", response?.data?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0))
         const numPedidos = response?.data?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0)
-        console.log("limite pedidos", session.membresia == "500" ? (3 * Number(session?.repeticionUsuario) - numPedidos)
-            : (1 * Number(session?.repeticionUsuario) - numPedidos))
-        setValue("limitePedidos", session.membresia == "500" ? (3 * Number(session?.repeticionUsuario) - numPedidos)
-            : (1 * Number(session?.repeticionUsuario) - numPedidos))
-        setLimitePEdidos(session.membresia == "500" ? (3 * Number(session?.repeticionUsuario) - numPedidos)
-            : (1 * Number(session?.repeticionUsuario) - numPedidos))
+        console.log("limite pedidos", session.membresia == "500" ? (10 * Number(session?.repeticionUsuario) - numPedidos)
+            : (3 * Number(session?.repeticionUsuario) - numPedidos))
+        setValue("limitePedidos", session.membresia == "500" ? (10 * Number(session?.repeticionUsuario) - numPedidos)
+            : (3 * Number(session?.repeticionUsuario) - numPedidos))
+        setLimitePEdidos(session.membresia == "500" ? (10 * Number(session?.repeticionUsuario) - numPedidos)
+            : (3 * Number(session?.repeticionUsuario) - numPedidos))
     }
 
     useEffect(() => {
         setValue(`precioSemanal`, "4.70")
-        setValue(`fechaPedido`, `Hoy ${moment.tz("America/Lima").format("DD-MM-YYYY")}`)
-        setValue(`fechaEntregaPedido`, obtenerSabado())
+        setValue(`fechaPedido`, `${moment.tz("America/Lima").format("YYYY-MM-DD")}`)
+        setValue(`fechaEntregaPedido`, `${moment.tz("America/Lima").add(8, "days").format("YYYY-MM-DD")}`)
         obtenerSemana()
     }, [session])
 
@@ -206,17 +208,18 @@ const RealizarPedidos = () => {
                 </Button>
             </div>
             <div className="md:ml-0 border-0 border-[#006060] rounded-lg p-3 px-10 mt-1 bg-[rgba(255,255,255,0.1)]">
-                <h2 className="text-xl font-bold text-gray-800 my-4 uppercase text-center">Datos de Pedido</h2>
+                {/* <h2 className="text-xl font-bold text-gray-800 my-4 uppercase text-center">Datos de Pedido</h2> */}
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     {
                         limitePEdidos == "0" ?
-                            <div className="flex flex-col items-center justify-center gap-2 w-full">
-                                <div className="font-bold text-3xl text-red-300">{"Lo sentimos..."}</div>
-                                <div className="font-bold text-base text-red-300">{"Límite de pedidos semanales alcanzado! Debe esperar hasta el próximo sábado para poder realizar otro pedido."}</div>
+                            <div className="flex flex-col items-center justify-center gap-2 w-full px-1 rounded-lg bg-[rgba(255,255,255,0.5)]">
+                                <div className="font-bold text-3xl text-red-400">{"Lo sentimos..."}</div>
+                                <div className="font-bold text-base text-red-400">{"Límite de pedidos mensuales alcanzado! Debe esperar hasta el próximo mes para poder realizar otro pedido."}</div>
                             </div>
                             :
                             limitePEdidos !== null &&
-                            <FormRealizaPedidos {...{ getValues, setValue, control, apiCall }} />
+                            // <FormRealizaPedidos {...{ getValues, setValue, control, apiCall }} />
+                            <FormRealizaPedidos2 {...{ getValues, setValue, control, apiCall }} />
                     }
                     {
                         limitePEdidos == "0" ? ""

@@ -31,25 +31,28 @@ export const Login = () => {
             localStorage.setItem("auth-token", dataLogin.token)
 
             Swal.fire({
-                title: 'Enviado con éxito',
+                title: 'Ingresó con éxito',
                 // text: "Esta acción no se puede deshacer",
                 icon: 'success',
+                showConfirmButton: false,
                 // showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'OK',
+                // confirmButtonColor: '#3085d6',
+                // cancelButtonColor: '#d33',
+                // confirmButtonText: 'OK',
                 // cancelButtonText: 'No',
-                showLoaderOnConfirm: true,
-                allowOutsideClick: false,
-                preConfirm: () => {
-                    window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
-                    return
-                },
+                // showLoaderOnConfirm: true,
+                // allowOutsideClick: false,
+                // preConfirm: () => {
+                //     return
+                // },
             });
+            setTimeout(() => {
+                window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
+            }, 500);
 
         } catch (error) {
             Swal.fire({
-                title: 'Ocurrio un error en el envío',
+                title: 'Ocurrio un error, verifique su usuario y/o contraseña',
                 text: '',
                 icon: 'warning',
                 // showCancelButton: true,
@@ -71,9 +74,9 @@ export const Login = () => {
     }
 
     return (
-        <div 
-        // id='fondo-oro-verde' 
-        className="w-full min-h-screen flex items-center justify-center !bg-oro-radial p-4 relative overflow-hidden bg-[#007c7c]"
+        <div
+            // id='fondo-oro-verde' 
+            className="w-full min-h-screen flex items-center justify-center !bg-oro-radial p-4 relative overflow-hidden bg-[#007c7c]"
         >
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
@@ -81,9 +84,9 @@ export const Login = () => {
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-md relative z-10"
             >
-                <div 
-                // id='fondo-oro-verde' 
-                className="shadow-2xl rounded-lg overflow-hidden bg-[#22b2aa]"
+                <div
+                    // id='fondo-oro-verde' 
+                    className="shadow-2xl rounded-lg overflow-hidden bg-[#22b2aa]"
                 >
                     <div className="p-8 relative">
                         <div className="text-center mb-8">

@@ -2,8 +2,9 @@
 
 import useApi from "@/app/hooks/fetchData/useApi";
 import { Apis } from "@/app/utils/configs/proyectCurrent";
-import { Button, TextField } from "@mui/material";
+import { Autocomplete, Button, Card, CardContent, CardHeader, TextField } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
+import { Badge, Calendar, CheckCircle, Clock, MapPin, Package, RotateCcw, X } from "lucide-react";
 import moment from "moment-timezone";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -35,28 +36,53 @@ const PedidosClientes = () => {
         }
     }, [])
 
+    const meses = [
+        { value: "01", label: "Enero", last: "31" },
+        { value: "02", label: "Febrero", last: "28" },
+        { value: "03", label: "Marzo", last: "31" },
+        { value: "04", label: "Abril", last: "30" },
+        { value: "05", label: "Mayo", last: "31" },
+        { value: "06", label: "Junio", last: "30" },
+        { value: "07", label: "Julio", last: "31" },
+        { value: "08", label: "Agosto", last: "31" },
+        { value: "09", label: "Septiembre", last: "30" },
+        { value: "10", label: "Octubre", last: "31" },
+        { value: "11", label: "Noviembre", last: "30" },
+        { value: "12", label: "Diciembre", last: "31" },
+    ]
+
     const fetchDataPedidosClientes = async () => {
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
         console.log("session", session?.documentoUsuario);
 
-        const today = moment().tz("America/Lima");
+        const today: any = moment().tz("America/Lima");
+        const todayString = moment.tz("America/Lima").format("YYYY-MM-DD")?.split?.("-")[1];
+        const todayStringYear = moment.tz("America/Lima").format("YYYY-MM-DD")?.split?.("-")[0];
+        console.log("today", today);
+        console.log("todayString", todayString);
+        console.log("todayStringYear", todayStringYear);
 
-        // Día de la semana (0: domingo, 6: sábado)
-        const dayOfWeek = today.day();
+        const matchMes: any = meses.find(mes => mes.value === todayString);
+        console.log("matchMes", matchMes);
+        setValue("mesFiltro", matchMes.value);
 
-        // Calcular fecha de inicio del sábado
-        const fechaInicio = dayOfWeek === 6
-            ? today.clone().startOf('day')
-            : today.clone().subtract((dayOfWeek + 1) % 7, 'days').startOf('day');
+        const fechaInicioPrev = `01-${todayString}-${todayStringYear}`;
+        const fechaFinPrev = `${matchMes?.last}-${todayString}-${todayStringYear}`;
+        console.log("fechaInicioPrev", fechaInicioPrev);
+        console.log("fechaFinPrev", fechaFinPrev);
 
-        // Calcular fecha de fin del viernes (6 días después, en zona Lima)
-        const fechaFin = fechaInicio.clone().add(6, 'days').endOf('day').tz("America/Lima", true);
+        const fechaInicio = moment.tz(`01-${todayString}-${todayStringYear}`, 'DD-MM-YYYY', 'America/Lima')
+        const fechaFin = moment.tz(`${matchMes?.last}-${todayString}-${todayStringYear}`, 'DD-MM-YYYY', 'America/Lima');
+        console.log("fechaInicio", fechaInicio);
+        console.log("fechaFin", fechaFin);
 
         const jsonFechas = {
             fechaInicio: fechaInicio.format('DD-MM-YYYY'),
             fechaFin: fechaFin.format('DD-MM-YYYY'),
             documentoUsuario: session?.documentoUsuario,
-        };
+        }
+
+        console.log("jsonFechas", jsonFechas);
 
         setValue("fechaInicio", fechaInicio.format('YYYY-MM-DD'));
         setValue("fechaFin", fechaFin.format('YYYY-MM-DD'));
@@ -82,17 +108,46 @@ const PedidosClientes = () => {
 
     const fetchDataPedidosClientesFiltro = async () => {
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
+        console.log("session", getValues()?.mesFiltro);
 
-        console.log("fecahInicio", getValues()?.fechaInicio?.split?.("T")[0].split?.("-")[2]);
-        console.log("fecahInicio", getValues()?.fechaInicio?.split?.("T")[0]);
-        console.log("fechaFin", getValues()?.fechaFin?.split?.("T")[0].split?.("-")[2]);
-        console.log("fechaFin", getValues()?.fechaFin?.split?.("T")[0]);
+        // const today: any = moment().tz("America/Lima");
+        const todayString = getValues()?.mesFiltro;
+        const todayStringYear = moment.tz("America/Lima").format("YYYY-MM-DD")?.split?.("-")[0];
+        // console.log("today", today);
+        // console.log("todayString", todayString);
+        // console.log("todayStringYear", todayStringYear);
+
+        const matchMes: any = meses.find(mes => mes.value === todayString);
+        console.log("matchMes", matchMes);
+        // setValue("mesFiltro", matchMes.value);
+
+        const fechaInicioPrev = `01-${todayString}-${todayStringYear}`;
+        const fechaFinPrev = `${matchMes?.last}-${todayString}-${todayStringYear}`;
+        console.log("fechaInicioPrev", fechaInicioPrev);
+        console.log("fechaFinPrev", fechaFinPrev);
+
+        const fechaInicio = moment.tz(`01-${todayString}-${todayStringYear}`, 'DD-MM-YYYY', 'America/Lima')
+        const fechaFin = moment.tz(`${matchMes?.last}-${todayString}-${todayStringYear}`, 'DD-MM-YYYY', 'America/Lima');
+        console.log("fechaInicio", fechaInicio);
+        console.log("fechaFin", fechaFin);
+
+        const jsonFechas = {
+            fechaInicio: fechaInicio.format('DD-MM-YYYY'),
+            fechaFin: fechaFin.format('DD-MM-YYYY'),
+            documentoUsuario: session?.documentoUsuario,
+        }
+
+        console.log("jsonFechas", jsonFechas);
+
+        setValue("fechaInicio", fechaInicio.format('YYYY-MM-DD'));
+        setValue("fechaFin", fechaFin.format('YYYY-MM-DD'));
+
 
         const response = await apiCall({
             method: "get", endpoint: url, data: null, params: {
                 documentoUsuario: session?.documentoUsuario,
-                fechaInicio: `${getValues()?.fechaInicio?.split?.("T")[0].split?.("-")[2]}-${getValues()?.fechaInicio?.split?.("T")[0].split?.("-")[1]}-${getValues()?.fechaInicio?.split?.("T")[0].split?.("-")[0]}`,
-                fechaFin: `${getValues()?.fechaFin?.split?.("T")[0].split?.("-")[2]}-${getValues()?.fechaFin?.split?.("T")[0].split?.("-")[1]}-${getValues()?.fechaFin?.split?.("T")[0].split?.("-")[0]}`,
+                fechaInicio: fechaInicio.format('DD-MM-YYYY'),
+                fechaFin: fechaFin.format('DD-MM-YYYY'),
             }
         });
         console.log("response", response);
@@ -107,103 +162,61 @@ const PedidosClientes = () => {
                 </Button>
             </div>
             {/* <div className="flex flex-row md:flex-row gap-1 items-center justify-center mt-5 ml-20 md:ml-0"> */}
-            <div className="grid grid-cols-3 w-3/4 md:w-full justify-end items-end ml-15 md:ml-0 mt-5 gap-1">
+            <div className="grid grid-cols-2 w-3/4 md:w-full ml-15 justify-center items-center md:ml-0 mt-5 gap-1">
                 <div className="flex flex-col gap-0 text-white">
-                    <div>Fecha Inicio</div>
-                    <Controller
-                        name={`fechaInicio`}
-                        control={control}
-                        render={({ field, fieldState }) => (
-                            <TextField
-                                {...field}
-                                error={!!fieldState.error}
-                                helperText={fieldState.error ? fieldState.error.message : ""}
-                                // label={item.label}
-                                variant="outlined"
-                                // placeholder={item.placeholder}
-                                size="small"
-                                // defaultValue={moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm")}
-                                disabled={false}
-                                required={false}
-                                type={"date"}
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                multiline={false}
-                                minRows={1}
-                                className="w-full"
-                                sx={{
-                                    input: {
-                                        color: '#000', // texto negro
-                                        WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
-                                        border: 'none',
-                                        borderRadius: '10px',
-                                        backgroundColor: '#efefef',
-                                    },
-                                    '.Mui-disabled': {
-                                        WebkitTextFillColor: '#000 !important',
-                                        color: '#000 !important',
-                                        opacity: 1, // elimina el desvanecido
-                                    },
-                                }}
-                                onChange={(e: any) => {
-                                    let value = e.target.value;
-                                    console.log("value", value);
-                                    field.onChange(value); // ISO string con zona Lima (sin Z al final)
-                                }}
+                    <div className="flex flex-col justify-start items-start gap-0 w-full">
+                        <div className="uppercase text-sm font-bold text-white">{"Mes Búsqueda"}</div>
+                        <div className="!w-full -mt-2">
+                            <Controller
+                                name={`mesFiltro`}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <Autocomplete
+                                        options={meses}
+                                        getOptionLabel={(option) => option.label}
+                                        isOptionEqualToValue={(option, value) => option.value === value.value}
+                                        value={meses.find(opt => opt.value === field.value) || null}
+                                        onChange={(_, selectedOption) => {
+                                            field.onChange(selectedOption?.value ?? null);
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                // label={"Mes Busqueda"}
+                                                margin="dense"
+                                                fullWidth
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                }}
+                                                error={!!fieldState.error}
+                                                helperText={fieldState.error ? fieldState.error.message : ""}
+                                                className="!w-full bg-slate-100 rounded-lg h-[40px]"
+                                                sx={{
+                                                    input: {
+                                                        color: '#000', // texto negro
+                                                        WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
+                                                        height: '8px',
+                                                        border: 'none',
+                                                        // borderRadius: '10px',
+                                                        // backgroundColor: '#efefef',
+                                                    },
+                                                    '.Mui-disabled': {
+                                                        WebkitTextFillColor: '#000 !important',
+                                                        color: '#000 !important',
+                                                        opacity: 1, // elimina el desvanecido
+                                                    },
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                )}
                             />
-                        )}
-                    />
+                        </div>
+                    </div>
                 </div>
-                <div className="flex flex-col gap-0 text-white">
-                    <div>Fecha Inicio</div>
-                    <Controller
-                        name={`fechaFin`}
-                        control={control}
-                        render={({ field, fieldState }) => (
-                            <TextField
-                                {...field}
-                                error={!!fieldState.error}
-                                helperText={fieldState.error ? fieldState.error.message : ""}
-                                // label={item.label}
-                                variant="outlined"
-                                // placeholder={item.placeholder}
-                                size="small"
-                                // defaultValue={moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm")}
-                                disabled={false}
-                                required={false}
-                                type={"date"}
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                multiline={false}
-                                minRows={1}
-                                className="w-full"
-                                sx={{
-                                    input: {
-                                        color: '#000', // texto negro
-                                        WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
-                                        border: 'none',
-                                        borderRadius: '10px',
-                                        backgroundColor: '#efefef',
-                                    },
-                                    '.Mui-disabled': {
-                                        WebkitTextFillColor: '#000 !important',
-                                        color: '#000 !important',
-                                        opacity: 1, // elimina el desvanecido
-                                    },
-                                }}
-                                onChange={(e: any) => {
-                                    let value = e.target.value;
-                                    field.onChange(value); // ISO string con zona Lima (sin Z al final)
-                                }}
-                            />
-                        )}
-                    />
-                </div>
-                <div className="mt-7">
+                <div className="mt-5">
                     <Button sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => fetchDataPedidosClientesFiltro()} variant="outlined" color="primary">
-                        {"Filtrar"}
+                        {"Ver Historial"}
                     </Button>
                 </div>
             </div>
@@ -212,92 +225,168 @@ const PedidosClientes = () => {
                     datos.length > 0 ?
                         datos?.map((item: any, index: number) => {
                             return (
-                                <>
-                                    <div className="w-4/5 md:w-full flex flex-col justify-center items-center gap-3 border-2 border-[#005c5c] bg-[rgba(255,255,255,0.1)] rounded-lg p-4">
-                                        <div className="flex justify-center items-center gap-2">
+                                // <>
+                                //     <div className="w-4/5 md:w-full flex flex-col justify-center items-center gap-3 border-2 border-[#005c5c] bg-[rgba(255,255,255,0.1)] rounded-lg p-4">
+                                //         <div className="flex justify-center items-center gap-2">
 
-                                            <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-[100px]">
-                                                {`Pedido #${index + 1}`}
-                                            </div>
-                                        </div>
-                                        <div className="flex justify-center items-center gap-2">
-                                            <div className="bg-cyan-200 px-3 py-2 rounded-md text-black font-bold">
-                                                PAQUETES
-                                            </div>
-                                            <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-[100px]">
-                                                {item?.cantidadPaquetes}
+                                //             <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-[100px]">
+                                //                 {`Pedido #${index + 1}`}
+                                //             </div>
+                                //         </div>
+                                //         <div className="flex justify-center items-center gap-2">
+                                //             <div className="bg-cyan-200 px-3 py-2 rounded-md text-black font-bold">
+                                //                 PAQUETES
+                                //             </div>
+                                //             <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-[100px]">
+                                //                 {item?.cantidadPaquetes}
+                                //             </div>
+                                //         </div>
+
+                                //         <div className="flex justify-center items-center gap-2 w-full mt-5">
+                                //             <div className="flex flex-col justify-center items-center gap-2">
+                                //                 <div className="bg-cyan-200 px-3 py-2 rounded-md text-black font-bold md-text-base text-xs">
+                                //                     FECHA DE PEDIDO
+                                //                 </div>
+                                //                 <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-full">
+                                //                     {item?.fechaPedido?.split?.("T")[0].split?.("-")[2]}
+                                //                     -
+                                //                     {item?.fechaPedido?.split?.("T")[0].split?.("-")[1]}
+                                //                     -
+                                //                     {item?.fechaPedido?.split?.("T")[0].split?.("-")[0]}
+                                //                 </div>
+                                //             </div>
+                                //             <div className="flex flex-col justify-center items-center gap-2">
+                                //                 <div className="bg-cyan-200 px-3 py-2 rounded-md text-black font-bold md-text-base text-xs">
+                                //                     FECHA DE ENTREGA
+                                //                 </div>
+                                //                 <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-full">
+                                //                     {item?.fechaEntregaPedido}
+                                //                 </div>
+                                //             </div>
+                                //         </div>
+
+                                //         <div>
+                                //             <div className="flex flex-col justify-center items-center gap-2 m-5">
+                                //                 <div className="bg-cyan-200 px-3 py-2 rounded-md text-black font-bold">
+                                //                     LUGAR DE ENTREGA
+                                //                 </div>
+                                //                 <div className="flex justify-center items-center gap-2 w-3/4">
+                                //                     <div style={{ backgroundColor: item.lugarEntrega == "1" ? "#ff0" : "" }} className="bg-slate-50 px-3 py-2 rounded-md text-black w-full text-center">
+                                //                         {"Domicilio"}
+                                //                     </div>
+                                //                     <div style={{ backgroundColor: item.lugarEntrega == "2" ? "#ff0" : "" }} className="bg-slate-50 px-3 py-2 rounded-md text-black w-full text-center">
+                                //                         {"Oficina-Orbes"}
+                                //                     </div>
+                                //                 </div>
+                                //                 <div className="flex justify-center items-center gap-2">
+                                //                     <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-[350px] h-[50px]">
+                                //                         {item.direccionEntrega}
+                                //                     </div>
+                                //                 </div>
+                                //             </div>
+                                //         </div>
+
+                                //         <div>
+                                //             <div className="flex flex-col justify-center items-center gap-2">
+                                //                 <div className="bg-cyan-200 px-3 py-2 rounded-md text-black font-bold">
+                                //                     ESTADO
+                                //                 </div>
+                                //                 <div className="flex justify-center items-center gap-2 w-3/4">
+                                //                     <div style={{ backgroundColor: item.status == "1" ? "#ff0" : "" }} className="bg-slate-50 px-3 py-2 rounded-md text-black w-full text-center">
+                                //                         {"Entregado"}
+                                //                     </div>
+                                //                     <div style={{ backgroundColor: item.status == "0" ? "#ff0" : "" }} className="bg-slate-50 px-3 py-2 rounded-md text-black w-full text-center">
+                                //                         {"Pendiente"}
+                                //                     </div>
+                                //                     <div style={{ backgroundColor: item.status == "2" ? "#ff0" : "" }} className="bg-slate-50 px-3 py-2 rounded-md text-black w-full text-center">
+                                //                         {"Rerogramar"}
+                                //                     </div>
+                                //                 </div>
+                                //                 <div className="flex justify-center items-center gap-2">
+                                //                     <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-[350px] h-[50px]">
+                                //                         {"NOTA:"}
+                                //                     </div>
+                                //                 </div>
+                                //             </div>
+                                //         </div>
+                                //     </div>
+                                // </>
+                                <div className="w-3/4 md:w-full max-w-md mx-auto">
+                                    <Card className="border-2 border-[#22B2AA] shadow-lg hover:shadow-xl transition-all duration-300 bg-white">
+                                        <div className="bg-gradient-to-r from-[#22B2AA] to-[#007C7C] text-white py-1 px-2">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <h3 className="text-lg font-bold">Pedido #{index + 1}</h3>
+                                                    {/* <p className="text-[#FFFFFF] text-sm">Paquetes de Huevos</p> */}
+                                                </div>
+                                                <div className="bg-white/20 rounded-full p-2">
+                                                    <Package className="h-6 w-6" />
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div className="flex justify-center items-center gap-2 w-full mt-5">
-                                            <div className="flex flex-col justify-center items-center gap-2">
-                                                <div className="bg-cyan-200 px-3 py-2 rounded-md text-black font-bold md-text-base text-xs">
-                                                    FECHA DE PEDIDO
+                                        <CardContent className="p-6 space-y-4">
+                                            {/* Cantidad de paquetes */}
+                                            <div className="flex items-center justify-between bg-[#22B2AA]/5 rounded-lg p-3 border border-[#22B2AA]/20">
+                                                <div className="flex items-center gap-2">
+                                                    <Package className="h-5 w-5 text-[#007C7C]" />
+                                                    <span className="font-medium text-[#007C7C]">Paquetes</span>
                                                 </div>
-                                                <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-full">
-                                                    {item?.fechaPedido?.split?.("T")[0].split?.("-")[2]}
-                                                    -
-                                                    {item?.fechaPedido?.split?.("T")[0].split?.("-")[1]}
-                                                    -
-                                                    {item?.fechaPedido?.split?.("T")[0].split?.("-")[0]}
-                                                </div>
+                                                <span className="text-2xl font-bold text-[#007C7C]">{item.cantidadPaquetes}</span>
                                             </div>
-                                            <div className="flex flex-col justify-center items-center gap-2">
-                                                <div className="bg-cyan-200 px-3 py-2 rounded-md text-black font-bold md-text-base text-xs">
-                                                    FECHA DE ENTREGA
-                                                </div>
-                                                <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-full">
-                                                    {item?.fechaEntregaPedido}
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div>
-                                            <div className="flex flex-col justify-center items-center gap-2 m-5">
-                                                <div className="bg-cyan-200 px-3 py-2 rounded-md text-black font-bold">
-                                                    LUGAR DE ENTREGA
-                                                </div>
-                                                <div className="flex justify-center items-center gap-2 w-3/4">
-                                                    <div style={{ backgroundColor: item.lugarEntrega == "1" ? "#ff0" : "" }} className="bg-slate-50 px-3 py-2 rounded-md text-black w-full text-center">
-                                                        {"Domicilio"}
-                                                    </div>
-                                                    <div style={{ backgroundColor: item.lugarEntrega == "2" ? "#ff0" : "" }} className="bg-slate-50 px-3 py-2 rounded-md text-black w-full text-center">
-                                                        {"Oficina-Orbes"}
+                                            {/* Fechas */}
+                                            <div className="grid grid-cols-1 gap-3">
+                                                <div className="flex items-center gap-3 p-2">
+                                                    <Calendar className="h-4 w-4 text-[#007C7C]" />
+                                                    <div>
+                                                        <p className="text-xs text-[#007C7C]/70 uppercase tracking-wide font-medium">Fecha de Pedido</p>
+                                                        <p className="text-sm font-semibold text-[#007C7C]">{item.fechaPedido?.split?.("T")[0].split?.("-")[2]}-{item.fechaPedido?.split?.("T")[0].split?.("-")[1]}-{item.fechaPedido?.split?.("T")[0].split?.("-")[0]}</p>
                                                     </div>
                                                 </div>
-                                                <div className="flex justify-center items-center gap-2">
-                                                    <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-[350px] h-[50px]">
-                                                        {item.direccionEntrega}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div>
-                                            <div className="flex flex-col justify-center items-center gap-2">
-                                                <div className="bg-cyan-200 px-3 py-2 rounded-md text-black font-bold">
-                                                    ESTADO
-                                                </div>
-                                                <div className="flex justify-center items-center gap-2 w-3/4">
-                                                    <div style={{ backgroundColor: item.status == "1" ? "#ff0" : "" }} className="bg-slate-50 px-3 py-2 rounded-md text-black w-full text-center">
-                                                        {"Entregado"}
-                                                    </div>
-                                                    <div style={{ backgroundColor: item.status == "0" ? "#ff0" : "" }} className="bg-slate-50 px-3 py-2 rounded-md text-black w-full text-center">
-                                                        {"Pendiente"}
-                                                    </div>
-                                                    <div style={{ backgroundColor: item.status == "2" ? "#ff0" : "" }} className="bg-slate-50 px-3 py-2 rounded-md text-black w-full text-center">
-                                                        {"Rerogramar"}
-                                                    </div>
-                                                </div>
-                                                <div className="flex justify-center items-center gap-2">
-                                                    <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-[350px] h-[50px]">
-                                                        {"NOTA:"}
+                                                <div className="flex items-center gap-3 p-2">
+                                                    <Clock className="h-4 w-4 text-[#007C7C]" />
+                                                    <div>
+                                                        <p className="text-xs text-[#007C7C]/70 uppercase tracking-wide font-medium">{"Fecha de Entrega (referencial)"}</p>
+                                                        <p className="text-sm font-semibold text-[#007C7C]">{item.fechaEntregaPedido?.split?.("T")[0].split?.("-")[2]}-{item.fechaEntregaPedido?.split?.("T")[0].split?.("-")[1]}-{item.fechaEntregaPedido?.split?.("T")[0].split?.("-")[0]}</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                </>
+
+                                            {/* Lugar de entrega */}
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin className="h-4 w-4 text-[#007C7C]" />
+                                                    <span className="text-xs text-[#007C7C]/70 uppercase tracking-wide font-medium">Lugar de Entrega</span>
+                                                </div>
+                                                <div className="bg-[#22B2AA]/5 rounded-lg p-3 border border-[#22B2AA]/20">
+                                                    <p className="font-semibold text-[#007C7C] text-sm">{item.lugarEntrega == "1" ? "Domicilio" : item.lugarEntrega == "2" ? "Oficina Orbes" : ""}</p>
+                                                    <p className="text-xs text-[#007C7C]/80 mt-1">{`${item.direccionEntrega} / cel: ${item?.celular ?? "993994995"}`}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Estado */}
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-xs text-[#007C7C]/70 uppercase tracking-wide font-medium">Estado</span>
+                                                <div className={`${item.status == "0" ? "bg-[#ff0]" : item.status == "1" ? "bg-[#22B2AA]" : "bg-[#FF0000]"} rounded-lg text-xs font-medium px-2 py-1`}>
+                                                    {/* <StatusIcon className="h-3 w-3 mr-1" /> */}
+                                                    {item.status == "0" ? "Pendiente" : item.status == "1" ? "Entregado" : "Reprogramar"}
+                                                </div>
+                                            </div>
+
+                                            {/* Notas */}
+                                            {/* {notes && (
+                                                <div className="space-y-2">
+                                                    <p className="text-xs text-[#007C7C]/70 uppercase tracking-wide font-medium">Notas</p>
+                                                    <div className="bg-[#FFFFFF] border border-[#22B2AA]/30 rounded-lg p-3">
+                                                        <p className="text-sm text-[#007C7C]/90 italic">{notes}</p>
+                                                    </div>
+                                                </div>
+                                            )} */}
+                                        </CardContent>
+                                    </Card>
+                                </div>
                             )
                         })
                         :
