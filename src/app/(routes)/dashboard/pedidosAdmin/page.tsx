@@ -418,6 +418,10 @@ const pedidosAdmin = () => {
                     </div>
                 </div>
             </div>
+            <div className="flex gap-3 bg-yellow-400 px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] mt-4 font-bold">
+                {/* <div className="text-base font-bold">{`Pedidos Pendientes`}</div> */}
+                <div className="text-base flex justify-end">{`Paquetes Totales Pendientes de entrega: ${datos?.filter((x: any) => x.status == "0")?.reduce((acum: any, val: any) => acum + Number(val?.cantidadPaquetes !== undefined && val?.cantidadPaquetes !== null ? val?.cantidadPaquetes : 0), 0)}`}</div>
+            </div>
             <div className="flex gap-3 bg-yellow-200 px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] mt-4 font-bold">
                 {/* <div className="text-base font-bold">{`Pedidos Pendientes`}</div> */}
                 <div className="text-base flex justify-end">{`Pedidos Pendientes: ${datos?.filter((x: any) => x.status == "0")?.length}`}</div>

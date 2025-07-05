@@ -127,7 +127,7 @@ export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall }: a
                                 <Controller
                                     name={`cantidadPaquetes`}
                                     control={control}
-                                    // rules={item.required ? { required: `${item.label} es obligatorio` } : {}}
+                                    rules={true ? { required: `Cantidad de Paquetes es obligatorio` } : {}}
                                     render={({ field, fieldState }) => (
                                         <Autocomplete
                                             // disabled={(item.disabled)}
@@ -172,6 +172,7 @@ export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall }: a
                                                     InputLabelProps={{
                                                         shrink: true,
                                                     }}
+                                                    required={true}
                                                     error={!!fieldState.error}
                                                     helperText={fieldState.error ? fieldState.error.message : ""}
                                                     sx={{
