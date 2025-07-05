@@ -445,7 +445,7 @@ const pedidosAdmin = () => {
                     </Button>
                 </div>
             </div> */}
-            <div className="mt-0 md:ml-1 ml-96">
+            <div className="mt-0 md:ml-1 ml-[450px]">
                 {
                     datos.length > 0 ?
                         <div className="p-4">
@@ -461,7 +461,7 @@ const pedidosAdmin = () => {
                                             <th className="p-3 border-b">Paquetes</th>
                                             <th className="p-3 border-b">Kilos</th>
                                             <th className="p-3 border-b">Pago Total</th>
-                                            <th className="p-3 border-b">Dirección</th>
+                                            <th className="p-3 border-b !max-w-[100px] md:!max-w-[200px]">Dirección</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -500,7 +500,7 @@ const pedidosAdmin = () => {
                                                 <td className="p-3">{pedido.cantidadPaquetes}</td>
                                                 <td className="p-3">{pedido.kilos}</td>
                                                 <td className="p-3 font-semibold text-green-600">S/. {pedido.pagoTotal}</td>
-                                                <td className="p-3">{pedido.direccionEntrega || "-"}</td>
+                                                <td className="p-3 !max-w-[100px] md:!max-w-[200px]">{pedido.direccionEntrega || "-"}</td>
                                             </tr>
                                         ))}
                                     </tbody>
