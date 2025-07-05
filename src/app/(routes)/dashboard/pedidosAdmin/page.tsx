@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 
 interface Stock {
     stockContable: string,
@@ -299,6 +300,50 @@ const pedidosAdmin = () => {
         console.log("handleChangeStock", "stock");
     }
 
+    const [busqueda, setBusqueda] = useState('');
+
+    const datosFiltrados = datos?.filter((item: any) => {
+        const filtro = (
+            item?.nombresUsuario?.toLowerCase().includes(busqueda?.toLowerCase()) ||
+            item?.apellidoPaternoUsuario?.toLowerCase().includes(busqueda?.toLowerCase()) ||
+            item?.apellidoMaternoUsuario?.toLowerCase().includes(busqueda?.toLowerCase()) ||
+            item?.documentoUsuario?.toLowerCase().includes(busqueda?.toLowerCase())
+        );
+        return filtro
+    }
+    );
+    console.log("datosFiltrados", datosFiltrados);
+
+    const exportarExcel = () => {
+        // 1. Preparar los datos que quieres exportar
+        const datosParaExcel = datosFiltrados.map((pedido: any) => ({
+            Estado:
+                pedido.status == "0"
+                    ? "Pendiente"
+                    : pedido.status == "1"
+                        ? "Entregado"
+                        : pedido.status == "2"
+                            ? "En Ruta"
+                            : "Rechazado",
+            Usuario: `${pedido.nombresUsuario} ${pedido.apellidoPaternoUsuario || ""} ${pedido.apellidoMaternoUsuario || ""}`,
+            DNI: pedido.documentoUsuario,
+            Fecha_Pedido: new Date(pedido.fechaPedido).toLocaleDateString(),
+            Fecha_Entrega: pedido.fechaEntregaPedido?.split?.("T")[0] || "",
+            Paquetes: pedido.cantidadPaquetes,
+            Kilos: pedido.kilos,
+            Pago_Total: pedido.pagoTotal,
+            Dirección: pedido.direccionEntrega || "-",
+        }));
+
+        // 2. Crear hoja y workbook
+        const worksheet = XLSX.utils.json_to_sheet(datosParaExcel);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Pedidos");
+
+        // 3. Descargar archivo
+        XLSX.writeFile(workbook, "pedidos.xlsx");
+    };
+
     return (
         <>
             <div className="flex flex-col items-start justify-center mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">
@@ -359,8 +404,8 @@ const pedidosAdmin = () => {
                                 />
                             </div>
 
-                            <div className="uppercase text-sm font-bold text-white mt-2">{"DNI Busqueda"}</div>
-                            <div>
+                            {/* <div className="uppercase text-sm font-bold text-white mt-2">{"DNI Busqueda"}</div> */}
+                            {/* <div>
                                 <Controller
                                     name={`documentoUsuario`}
                                     control={control}
@@ -408,19 +453,22 @@ const pedidosAdmin = () => {
                                         />
                                     )}
                                 />
-                            </div>
+                            </div> */}
                         </div>
                     </div>
-                    <div className="mt-5">
+                    <div className="mt-5 flex flex-col gap-3">
                         <Button sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => fetchDataPedidosClientesFiltro()} variant="outlined" color="primary">
                             {"Ver Historial"}
+                        </Button>
+                        <Button sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => exportarExcel()} variant="outlined" color="primary">
+                            {"Exportar Excel"}
                         </Button>
                     </div>
                 </div>
             </div>
-            <div className="flex gap-3 bg-yellow-400 px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] mt-4 font-bold">
+            <div className="flex gap-3 bg-yellow-400 px-2 py-1 rounded-lg my-1 text-3xl w-[340px] md:w-[340px] mt-4 font-bold">
                 {/* <div className="text-base font-bold">{`Pedidos Pendientes`}</div> */}
-                <div className="text-base flex justify-end">{`Paquetes Totales Pendientes de entrega: ${datos?.filter((x: any) => x.status == "0")?.reduce((acum: any, val: any) => acum + Number(val?.cantidadPaquetes !== undefined && val?.cantidadPaquetes !== null ? val?.cantidadPaquetes : 0), 0)}`}</div>
+                <div className="lex justify-end text-3xl">{`Paquetes Totales Pendientes de Entrega: ${datos?.filter((x: any) => x.status == "0")?.reduce((acum: any, val: any) => acum + Number(val?.cantidadPaquetes !== undefined && val?.cantidadPaquetes !== null ? val?.cantidadPaquetes : 0), 0)}`}</div>
             </div>
             <div className="flex gap-3 bg-yellow-200 px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] mt-4 font-bold">
                 {/* <div className="text-base font-bold">{`Pedidos Pendientes`}</div> */}
@@ -449,9 +497,19 @@ const pedidosAdmin = () => {
                     </Button>
                 </div>
             </div> */}
-            <div className="mt-0 md:ml-1 ml-[450px]">
+
+            <div className="flex flex-col items-center justify-center gap-2 w-1/2">
+                <input
+                    type="text"
+                    placeholder="Buscar Nombre o DNI..."
+                    className="mb-4 p-2 border rounded w-full max-w-md bg-white mt-5"
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                />
+            </div>
+            <div className="mt-0 md:ml-[200px] base:ml-[300px] ml-[450px]">
                 {
-                    datos.length > 0 ?
+                    datosFiltrados?.length > 0 ?
                         <div className="p-4">
                             <h2 className="text-xl font-semibold mb-4">Pedidos Programados</h2>
                             <div className="overflow-x-auto">
@@ -469,7 +527,7 @@ const pedidosAdmin = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {datos.map((pedido: any, index: number) => (
+                                        {datosFiltrados?.map((pedido: any, index: number) => (
                                             <tr key={pedido._id} style={{ backgroundColor: index % 2 == 0 ? "#f2f2f2" : "#ffffff" }} className="border-t text-sm text-gray-700 hover:bg-gray-50">
                                                 <td className="p-3">
                                                     <button
@@ -483,7 +541,7 @@ const pedidosAdmin = () => {
                                                     {pedido.nombresUsuario} {pedido.apellidoPaternoUsuario} {pedido.apellidoMaternoUsuario} - {pedido.documentoUsuario}
                                                 </td>
                                                 <td className="p-3">
-                                                    {new Date(pedido.fechaPedido).toLocaleDateString()}
+                                                    {pedido.fechaPedido?.split?.("T")[0].split?.("-")[2]}-{pedido.fechaPedido?.split?.("T")[0].split?.("-")[1]}-{pedido.fechaPedido?.split?.("T")[0].split?.("-")[0]}
                                                 </td>
                                                 <td className="p-3">
                                                     <div className="flex flex-row gap-1 justify-start items-center">
