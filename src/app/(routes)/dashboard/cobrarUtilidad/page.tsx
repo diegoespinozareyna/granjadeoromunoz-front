@@ -101,7 +101,7 @@ const CobrarUtilidad = () => {
         });
         console.log("response", response);
 
-        const numPAquetes = response?.data?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0)
+        const numPAquetes = response?.data?.filter((x: Pedido) => x.status === "1")?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0)
         const kilosTotales = numPAquetes * 11;
         const efectivoRecaudado: number = response?.data?.filter((x: Pedido) => x.status === "1")?.reduce((acc: number, cur: Pedido) => acc + Number(cur?.pagoTotal), 0);
         console.log("numPAquetes", numPAquetes);
