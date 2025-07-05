@@ -183,14 +183,18 @@ const RealizarPedidos = () => {
             data: jsonFechas
         })
 
-        console.log("response pedidos seman: ", response?.data?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0))
-        const numPedidos = response?.data?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0)
-        console.log("limite pedidos", session.membresia == "500" ? (10 * Number(session?.repeticionUsuario) - numPedidos)
-            : (3 * Number(session?.repeticionUsuario) - numPedidos))
-        setValue("limitePedidos", session.membresia == "500" ? (10 * Number(session?.repeticionUsuario) - numPedidos)
-            : (3 * Number(session?.repeticionUsuario) - numPedidos))
-        setLimitePEdidos(session.membresia == "500" ? (10 * Number(session?.repeticionUsuario) - numPedidos)
-            : (3 * Number(session?.repeticionUsuario) - numPedidos))
+        console.log("response pedidos seman: ", response?.data
+            ?.filter((x: any) => x.status !== "3")
+            ?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0))
+        const numPedidos = response?.data
+            ?.filter((x: any) => x.status !== "3")
+            ?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0)
+        console.log("limite pedidos", session.membresia == "500" ? (10 * Number(1) - numPedidos)
+            : (3 * Number(1) - numPedidos))
+        setValue("limitePedidos", session.membresia == "500" ? (10 * Number(1) - numPedidos)
+            : (3 * Number(1) - numPedidos))
+        setLimitePEdidos(session.membresia == "500" ? (10 * Number(1) - numPedidos)
+            : (3 * Number(1) - numPedidos))
     }
 
     useEffect(() => {

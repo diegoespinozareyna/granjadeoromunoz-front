@@ -60,14 +60,18 @@ export const Navbar = () => {
             data: jsonFechas
         })
 
-        console.log("response pedidos seman: ", response?.data?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0))
-        const numPedidos = response?.data?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0)
-        console.log("limite pedidos", session.membresia == "500" ? (10 * Number(session?.repeticionUsuario) - numPedidos)
-            : (3 * Number(session?.repeticionUsuario) - numPedidos))
-        setValue("limitePedidos2", session.membresia == "500" ? (10 * Number(session?.repeticionUsuario) - numPedidos)
-            : (3 * Number(session?.repeticionUsuario) - numPedidos))
-        setLimitePEdidos(session.membresia == "500" ? (10 * Number(session?.repeticionUsuario) - numPedidos)
-            : (3 * Number(session?.repeticionUsuario) - numPedidos))
+        console.log("response pedidos seman: ", response?.data
+            ?.filter((x: any) => x.status !== "3")
+            ?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0))
+        const numPedidos = response?.data
+            ?.filter((x: any) => x.status !== "3")
+            ?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0)
+        console.log("limite pedidos", session.membresia == "500" ? (10 * Number(1) - numPedidos)
+            : (3 * Number(1) - numPedidos))
+        setValue("limitePedidos2", session.membresia == "500" ? (10 * Number(1) - numPedidos)
+            : (3 * Number(1) - numPedidos))
+        setLimitePEdidos(session.membresia == "500" ? (10 * Number(1) - numPedidos)
+            : (3 * Number(1) - numPedidos))
     }
 
     useEffect(() => {
@@ -113,16 +117,22 @@ export const Navbar = () => {
             <h2 className="text-xl font-bold text-[#efefef] text-center">
                 {session !== null ? `${session?.nombres ?? ""} ${session?.apellidoPaterno ?? ""} ${session?.apellidoMaterno ?? ""}` : "Cargando..."}
             </h2>
-            <div className="flex justify-center items-center md:w-[370px] w-[300px]">
-                <h2 className="text-xl font-bold text-[#efefef] text-center">
-                    {session !== null ? `${session.membresia == "500" ? "EMPRESARIO" : "EMPRENDEDOR"}` : "Cargando..."}
-                </h2>
-            </div>
-            <div className="flex justify-center items-center md:w-[370px] w-[300px]">
-                <h2 className="text-xl font-bold text-[#efefef] text-center">
-                    {`Limite Pedidos: ${limitePEdidos}`}
-                </h2>
-            </div>
+            {
+                session?.userType !== "admin" &&
+                <div className="flex justify-center items-center md:w-[370px] w-[300px]">
+                    <h2 className="text-xl font-bold text-[#efefef] text-center">
+                        {session !== null ? `${session.membresia == "500" ? "EMPRESARIO" : "EMPRENDEDOR"}` : "Cargando..."}
+                    </h2>
+                </div>
+            }
+            {
+                session?.userType !== "admin" &&
+                <div className="flex justify-center items-center md:w-[370px] w-[300px]">
+                    <h2 className="text-xl font-bold text-[#efefef] text-center">
+                        {`Limite Pedidos: ${limitePEdidos}`}
+                    </h2>
+                </div>
+            }
         </div>
     )
 }

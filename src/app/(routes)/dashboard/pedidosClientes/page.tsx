@@ -369,9 +369,9 @@ const PedidosClientes = () => {
                                             {/* Estado */}
                                             <div className="flex items-center justify-between">
                                                 <span className="text-xs text-[#007C7C]/70 uppercase tracking-wide font-medium">Estado</span>
-                                                <div className={`${item.status == "0" ? "bg-[#ff0]" : item.status == "1" ? "bg-[#22B2AA]" : "bg-[#FF0000]"} rounded-lg text-xs font-medium px-2 py-1`}>
+                                                <div className={`${item.status == "0" ? "bg-yellow-500 hover:bg-yellow-700" : item.status == "1" ? "bg-green-500 hover:bg-green-700" : item.status == "2" ? "bg-blue-500 hover:bg-blue-700" : "bg-red-500 hover:bg-red-700"} rounded-lg text-xs font-medium px-2 py-1`}>
                                                     {/* <StatusIcon className="h-3 w-3 mr-1" /> */}
-                                                    {item.status == "0" ? "Pendiente" : item.status == "1" ? "Entregado" : "Reprogramar"}
+                                                    {item.status == "0" ? "Pendiente" : item.status == "1" ? "Entregado" : item.status == "2" ? "En Ruta" : item.status == "3" && "Rechazado"}
                                                 </div>
                                             </div>
 

@@ -10,12 +10,15 @@ import useApi from '@/app/hooks/fetchData/useApi';
 import { Button } from '@mui/material';
 import { Apis } from '@/app/utils/configs/proyectCurrent';
 import Swal from 'sweetalert2';
+import { jwtDecode } from 'jwt-decode';
 
 export const Login = () => {
     // const { user, setUser, loading, setLoading } = useUserStore()
     const { getValues, setValue, handleSubmit, control } = useForm()
     // const [showPassword, setShowPassword] = useState(false)
     const { apiCall, loading, error } = useApi()
+
+    // const [session, setSession] = useState<any>(null);
 
     const onSubmit = async (data: any) => {
         console.log(data)
@@ -29,6 +32,9 @@ export const Login = () => {
             console.log("dataLogin", dataLogin);
             console.log(error);
             localStorage.setItem("auth-token", dataLogin.token)
+            const decoded: any = jwtDecode(dataLogin.token as string);
+            console.log('Datos del usuario:', decoded?.user);
+            // setSession(decoded?.user);
 
             Swal.fire({
                 title: 'Ingresó con éxito',
@@ -47,7 +53,11 @@ export const Login = () => {
                 // },
             });
             setTimeout(() => {
-                window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
+                if (decoded?.user?.userType !== "admin") {
+                    window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
+                } else {
+                    window.location.href = `/dashboard/pedidosAdmin`;
+                }
             }, 500);
 
         } catch (error) {

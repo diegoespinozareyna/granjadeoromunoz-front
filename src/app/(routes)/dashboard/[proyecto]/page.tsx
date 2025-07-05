@@ -1,43 +1,88 @@
 "use client"
 
+import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
 
-    const images = [
-        {
-            src: "/realizarpedido.jpg",
-            action: "REALIZAR PEDIDO",
-            push: "realizarPedidos",
-            alt: "Inmobiliaria Muñoz Logo",
-            width: 56,
-            height: 56,
-        },
-        {
-            src: "/Tú decides Instagram post (1).png",
-            action: "VER PEDIDOS",
-            push: "pedidosClientes",
-            alt: "Inmobiliaria Muñoz Logo",
-            width: 56,
-            height: 56,
-        },
-        // {
-        //     src: "/utilidadtrimestral.jpg",
-        //     action: "VER UTILIDADES",
-        //     push: "verUtilidades",
-        //     alt: "Inmobiliaria Muñoz Logo",
-        //     width: 56,
-        //     height: 56,
-        // },
-        {
-            src: "/COBRARUTILIDA2.png",
-            action: "COBRAR UTILIDAD",
-            push: "cobrarUtilidad",
-            alt: "Inmobiliaria Muñoz Logo",
-            width: 56,
-            height: 56,
-        },
-    ]
+    const [session, setSession] = useState<any>(null);
+
+    useEffect(() => {
+        try {
+            const token = localStorage.getItem('auth-token');
+            const decoded: any = jwtDecode(token as string);
+            console.log('Datos del usuario:', decoded?.user);
+            setSession(decoded?.user);
+        } catch (error) {
+            console.error('Error al obtener datos del usuario:', error);
+            localStorage.removeItem("auth-token");
+            window.location.href = '/';
+        }
+    }, [])
+
+    const images = session?.userType !== "admin" ?
+        [
+            {
+                src: "/realizarpedido.jpg",
+                action: "REALIZAR PEDIDO",
+                push: "realizarPedidos",
+                alt: "Inmobiliaria Muñoz Logo",
+                width: 56,
+                height: 56,
+            },
+            {
+                src: "/Tú decides Instagram post (1).png",
+                action: "VER PEDIDOS",
+                push: "pedidosClientes",
+                alt: "Inmobiliaria Muñoz Logo",
+                width: 56,
+                height: 56,
+            },
+            // {
+            //     src: "/utilidadtrimestral.jpg",
+            //     action: "VER UTILIDADES",
+            //     push: "verUtilidades",
+            //     alt: "Inmobiliaria Muñoz Logo",
+            //     width: 56,
+            //     height: 56,
+            // },
+            {
+                src: "/COBRARUTILIDA2.png",
+                action: "COBRAR UTILIDAD",
+                push: "cobrarUtilidad",
+                alt: "Inmobiliaria Muñoz Logo",
+                width: 56,
+                height: 56,
+            },
+        ]
+        :
+        [
+            {
+                src: "/Tú decides Instagram post (1).png",
+                action: "VER PEDIDOS",
+                push: "pedidosAdmin",
+                alt: "Inmobiliaria Muñoz Logo",
+                width: 56,
+                height: 56,
+            },
+            // {
+            //     src: "/utilidadtrimestral.jpg",
+            //     action: "VER UTILIDADES",
+            //     push: "verUtilidades",
+            //     alt: "Inmobiliaria Muñoz Logo",
+            //     width: 56,
+            //     height: 56,
+            // },
+            {
+                src: "/COBRARUTILIDA2.png",
+                action: "COBRAR UTILIDAD",
+                push: "cobrarUtilidad",
+                alt: "Inmobiliaria Muñoz Logo",
+                width: 56,
+                height: 56,
+            },
+        ]
 
     const router = useRouter();
 
