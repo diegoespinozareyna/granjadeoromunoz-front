@@ -353,11 +353,11 @@ const pedidosAdmin = () => {
                     </Button>
                 </div>
                 {/* <div className="flex flex-row md:flex-row gap-1 items-center justify-center mt-5 ml-20 md:ml-0"> */}
-                <div className="grid grid-cols-2 w-3/4 md:w-full ml-15 justify-center items-center md:ml-0 mt-5 gap-1">
+                <div className="grid grid-cols-3 w-full md:w-full ml-0 justify-start items-start md:ml-0 mt-5 gap-1">
                     <div className="flex flex-col gap-0 text-white">
                         <div className="flex flex-col justify-start items-start gap-0 w-full">
-                            <div className="uppercase text-sm font-bold text-white">{"Mes Búsqueda"}</div>
-                            <div className="!w-full -mt-2">
+                            <div className="uppercase text-sm font-bold text-white">{"Mes"}</div>
+                            <div className="!w-[120px] -mt-2">
                                 <Controller
                                     name={`mesFiltro`}
                                     control={control}
@@ -381,12 +381,12 @@ const pedidosAdmin = () => {
                                                     }}
                                                     error={!!fieldState.error}
                                                     helperText={fieldState.error ? fieldState.error.message : ""}
-                                                    className="!w-full bg-slate-100 rounded-lg h-[40px]"
+                                                    className="!w-full bg-slate-100 rounded-lg h-[35px]"
                                                     sx={{
                                                         input: {
                                                             color: '#000', // texto negro
                                                             WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
-                                                            height: '8px',
+                                                            height: '1px',
                                                             border: 'none',
                                                             // borderRadius: '10px',
                                                             // backgroundColor: '#efefef',
@@ -458,33 +458,44 @@ const pedidosAdmin = () => {
                     </div>
                     <div className="mt-5 flex flex-col gap-3">
                         <Button sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => fetchDataPedidosClientesFiltro()} variant="outlined" color="primary">
-                            {"Ver Historial"}
+                            {"BUSCAR"}
                         </Button>
-                        <Button sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => exportarExcel()} variant="outlined" color="primary">
-                            {"Exportar Excel"}
+                    </div>
+                    <div className="mt-5 flex flex-col gap-3">
+                        <Button sx={{ width: "80%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => exportarExcel()} variant="outlined" color="primary">
+                            {"EXCEL"}
                         </Button>
                     </div>
                 </div>
             </div>
-            <div className="flex gap-3 bg-yellow-400 px-2 py-1 rounded-lg my-1 text-3xl w-[340px] md:w-[340px] mt-4 font-bold">
-                {/* <div className="text-base font-bold">{`Pedidos Pendientes`}</div> */}
-                <div className="lex justify-end text-3xl">{`Paquetes Totales Pendientes de Entrega: ${datos?.filter((x: any) => x.status == "0")?.reduce((acum: any, val: any) => acum + Number(val?.cantidadPaquetes !== undefined && val?.cantidadPaquetes !== null ? val?.cantidadPaquetes : 0), 0)}`}</div>
+            <div>
+                <input
+                    type="text"
+                    placeholder="Buscar Nombre o DNI..."
+                    className="mb-4 p-2 border rounded w-full max-w-md bg-white mt-5"
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                />
             </div>
-            <div className="flex gap-3 bg-yellow-200 px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] mt-4 font-bold">
+            <div className="flex gap-3 bg-[#00bcbc] px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] mt-4 font-bold">
                 {/* <div className="text-base font-bold">{`Pedidos Pendientes`}</div> */}
-                <div className="text-base flex justify-end">{`Pedidos Pendientes: ${datos?.filter((x: any) => x.status == "0")?.length}`}</div>
+                <div className="text-base flex justify-end">{`Ped. Pendientes: ${datos?.filter((x: any) => x.status == "0")?.length}`}</div>
             </div>
-            <div className="flex gap-3 bg-blue-200 px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] font-bold">
+            <div className="flex gap-3 bg-yellow-400 px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] font-bold">
+                {/* <div className="text-base font-bold">{`Pedidos Pendientes`}</div> */}
+                <div className="text-base flex justify-end">{`TOTAL PAQUETES: ${datos?.filter((x: any) => x.status == "0")?.reduce((acum: any, val: any) => acum + Number(val?.cantidadPaquetes !== undefined && val?.cantidadPaquetes !== null ? val?.cantidadPaquetes : 0), 0)}`}</div>
+            </div>
+            <div className="flex gap-3 bg-[#00bcbc] px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] font-bold">
                 {/* <div className="text-base font-bold">{`Pedidos En Ruta`}</div> */}
-                <div className="text-base flex justify-end">{`Pedidos En Ruta: ${datos?.filter((x: any) => x.status == "2")?.length}`}</div>
+                <div className="text-base flex justify-end">{`Ped. En Ruta: ${datos?.filter((x: any) => x.status == "2")?.length}`}</div>
             </div>
-            <div className="flex gap-3 bg-green-200 px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] font-bold">
+            <div className="flex gap-3 bg-[#00bcbc] px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] font-bold">
                 {/* <div className="text-base font-bold">{`Pedidos Entregados`}</div> */}
-                <div className="text-base flex justify-end">{`Pedidos Entregados: ${datos?.filter((x: any) => x.status == "1")?.length}`}</div>
+                <div className="text-base flex justify-end">{`Ped. Entregados: ${datos?.filter((x: any) => x.status == "1")?.length}`}</div>
             </div>
-            <div className="flex gap-3 bg-red-200 px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] font-bold">
+            <div className="flex gap-3 bg-[#00bcbc] px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] font-bold">
                 {/* <div className="text-base font-bold">{`Pedidos Rechazados`}</div> */}
-                <div className="text-base flex justify-end">{`Pedidos Rechazados: ${datos?.filter((x: any) => x.status == "3")?.length}`}</div>
+                <div className="text-base flex justify-end">{`Ped. Rechazados: ${datos?.filter((x: any) => x.status == "3")?.length}`}</div>
             </div>
             {/* <div className="mt-5 flex flex-col md:flex-row justify-center items-center gap-1 text-3xl font-bold text-gray-800">
                 <div>{`Stock Total:`}</div>
@@ -498,15 +509,6 @@ const pedidosAdmin = () => {
                 </div>
             </div> */}
 
-            <div className="flex flex-col items-center justify-center gap-2 w-1/2">
-                <input
-                    type="text"
-                    placeholder="Buscar Nombre o DNI..."
-                    className="mb-4 p-2 border rounded w-full max-w-md bg-white mt-5"
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                />
-            </div>
             <div className="mt-0 md:ml-[200px] base:ml-[300px] ml-[450px]">
                 {
                     datosFiltrados?.length > 0 ?
