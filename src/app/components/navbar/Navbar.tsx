@@ -8,69 +8,97 @@ import { Apis } from "@/app/utils/configs/proyectCurrent";
 import moment from "moment-timezone";
 import useApi from "@/app/hooks/fetchData/useApi";
 import { useForm } from "react-hook-form";
+import { useUserStore } from "@/app/store/userStore";
 
 export const Navbar = () => {
 
-    const [session, setSession] = useState<any>(null);
 
     const [limitePEdidos, setLimitePEdidos] = useState<any>(null);
 
     const { getValues, setValue, handleSubmit, control } = useForm()
 
+    const [datos, setDatos] = useState<any>([]);
+
+    const user = useUserStore((state) => state.user);
+    const [session, setSession] = useState<any>(user);
+
+    console.log("user", user);
+
     const { apiCall } = useApi()
 
-    useEffect(() => {
-        try {
-            const token = localStorage.getItem('auth-token');
-            const decoded: any = jwtDecode(token as string);
-            console.log('Datos del usuario:', decoded?.user);
-            setSession(decoded?.user);
-        } catch (error) {
-            console.error('Error al obtener datos del usuario:', error);
-            localStorage.removeItem("auth-token");
-            window.location.href = '/';
-        }
-    }, [])
+    const meses = [
+        { value: "01", label: "Enero", last: "31" },
+        { value: "02", label: "Febrero", last: "28" },
+        { value: "03", label: "Marzo", last: "31" },
+        { value: "04", label: "Abril", last: "30" },
+        { value: "05", label: "Mayo", last: "31" },
+        { value: "06", label: "Junio", last: "30" },
+        { value: "07", label: "Julio", last: "31" },
+        { value: "08", label: "Agosto", last: "31" },
+        { value: "09", label: "Septiembre", last: "30" },
+        { value: "10", label: "Octubre", last: "31" },
+        { value: "11", label: "Noviembre", last: "30" },
+        { value: "12", label: "Diciembre", last: "31" },
+    ]
 
+    const fetchDataPedidosClientes = async () => {
+        const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
+        console.log("session", user?.documentoUsuario);
 
-    const obtenerSemana = async () => {
-        const today = moment().tz("America/Lima");
+        const today: any = moment().tz("America/Lima");
+        const todayString = moment.tz("America/Lima").format("YYYY-MM-DD")?.split?.("-")[1];
+        const todayStringYear = moment.tz("America/Lima").format("YYYY-MM-DD")?.split?.("-")[0];
+        console.log("today", today);
+        console.log("todayString", todayString);
+        console.log("todayStringYear", todayStringYear);
 
-        // Día de la semana (0: domingo, 6: sábado)
-        const dayOfWeek = today.day();
+        const matchMes: any = meses.find(mes => mes.value === todayString);
+        console.log("matchMes", matchMes);
+        setValue("mesFiltro", matchMes.value);
 
-        // Si hoy es sábado, la semana empieza hoy
-        const fechaInicio = dayOfWeek === 6
-            ? today.clone().startOf('day')
-            : today.clone().subtract((dayOfWeek + 1) % 7, 'days').startOf('day'); // Restamos hasta el sábado anterior
+        const fechaInicioPrev = `01-${todayString}-${todayStringYear}`;
+        const fechaFinPrev = `${matchMes?.last}-${todayString}-${todayStringYear}`;
+        console.log("fechaInicioPrev", fechaInicioPrev);
+        console.log("fechaFinPrev", fechaFinPrev);
 
-        const fechaFin = fechaInicio.clone().add(6, 'days').endOf('day'); // Hasta el viernes siguiente
+        const fechaInicio = moment.tz(`01-${todayString}-${todayStringYear}`, 'DD-MM-YYYY', 'America/Lima')
+        const fechaFin = moment.tz(`${matchMes?.last}-${todayString}-${todayStringYear}`, 'DD-MM-YYYY', 'America/Lima');
+        console.log("fechaInicio", fechaInicio);
+        console.log("fechaFin", fechaFin);
 
         const jsonFechas = {
             fechaInicio: fechaInicio.format('DD-MM-YYYY'),
             fechaFin: fechaFin.format('DD-MM-YYYY'),
-            documentoUsuario: session?.documentoUsuario,
-        };
+            documentoUsuario: user?.documentoUsuario,
+        }
 
-        const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/pedidosSemana`
+        console.log("jsonFechas", jsonFechas);
 
-        const response = await apiCall({
-            method: 'POST',
-            endpoint: url,
-            data: jsonFechas
-        })
+        setValue("fechaInicio", fechaInicio.format('YYYY-MM-DD'));
+        setValue("fechaFin", fechaFin.format('YYYY-MM-DD'));
+
+        const response = user !== null && user?.documentoUsuario !== null && user?.documentoUsuario !== "" && await apiCall({
+            method: "get", endpoint: url, data: null, params: {
+                documentoUsuario: user?.documentoUsuario,
+                fechaInicio: fechaInicio.format('DD-MM-YYYY'),
+                fechaFin: fechaFin.format('DD-MM-YYYY'),
+            }
+        });
+        console.log("response", response);
+        setDatos(response?.data);
 
         console.log("response pedidos seman: ", response?.data
             ?.filter((x: any) => x.status !== "3")
-            ?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0))
+            ?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes ?? 0), 0))
         const numPedidos = response?.data
             ?.filter((x: any) => x.status !== "3")
-            ?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0)
-        console.log("limite pedidos", session.membresia == "500" ? (10 * Number(1) - numPedidos)
+            ?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes ?? 0), 0)
+        console.log("numPedidos", numPedidos);
+        console.log("limite pedidos", user?.membresia == "500" ? (10 * Number(user?.repeticionUsuario ?? 0) - numPedidos)
             : (3 * Number(1) - numPedidos))
-        setValue("limitePedidos2", session.membresia == "500" ? (10 * Number(1) - numPedidos)
+        setValue("limitePedidos2", user?.membresia == "500" ? (10 * Number(user?.repeticionUsuario ?? 0) - numPedidos)
             : (3 * Number(1) - numPedidos))
-        setLimitePEdidos(session.membresia == "500" ? (10 * Number(1) - numPedidos)
+        setLimitePEdidos(user?.membresia == "500" ? (10 * Number(user?.repeticionUsuario ?? 0) - numPedidos)
             : (3 * Number(1) - numPedidos))
     }
 
@@ -78,8 +106,8 @@ export const Navbar = () => {
         // setValue(`precioSemanal`, "4.70")
         // setValue(`fechaPedido`, `Hoy ${moment.tz("America/Lima").format("DD-MM-YYYY")}`)
         // setValue(`fechaEntregaPedido`, obtenerSabado())
-        obtenerSemana()
-    }, [session])
+        fetchDataPedidosClientes()
+    }, [user])
 
     const logout = () => {
         Swal.fire({
@@ -115,18 +143,18 @@ export const Navbar = () => {
             </div>
             {/* <h2 className="text-lg font-bold text-gray-300 text-center">Bienvenido</h2> */}
             <h2 className="text-xl font-bold text-[#efefef] text-center">
-                {session !== null ? `${session?.nombres ?? ""} ${session?.apellidoPaterno ?? ""} ${session?.apellidoMaterno ?? ""}` : "Cargando..."}
+                {user !== null ? `${user?.nombres ?? ""} ${user?.apellidoPaterno ?? ""} ${user?.apellidoMaterno ?? ""}` : "Cargando..."}
             </h2>
             {
-                session?.userType !== "admin" &&
+                user?.userType !== "admin" &&
                 <div className="flex justify-center items-center md:w-[370px] w-[300px]">
                     <h2 className="text-xl font-bold text-[#efefef] text-center">
-                        {session !== null ? `${session.membresia == "500" ? "EMPRESARIO" : "EMPRENDEDOR"}` : "Cargando..."}
+                        {user !== null ? `${user.membresia == "500" ? "EMPRESARIO" : "EMPRENDEDOR"}` : "Cargando..."}
                     </h2>
                 </div>
             }
             {
-                session?.userType !== "admin" &&
+                user?.userType !== "admin" &&
                 <div className="flex justify-center items-center md:w-[370px] w-[300px]">
                     <h2 className="text-xl font-bold text-[#efefef] text-center">
                         {`Limite Pedidos: ${limitePEdidos}`}

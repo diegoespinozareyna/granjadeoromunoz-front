@@ -1,5 +1,6 @@
 "use client"
 
+import { useUserStore } from "@/app/store/userStore";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

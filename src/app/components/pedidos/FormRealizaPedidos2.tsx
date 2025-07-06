@@ -131,10 +131,10 @@ export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall }: a
                                     render={({ field, fieldState }) => (
                                         <Autocomplete
                                             // disabled={(item.disabled)}
-                                            options={handleGenerarArray(getValues()?.limitePedidos)}
+                                            options={handleGenerarArray(getValues()?.limitePedidos2)}
                                             getOptionLabel={(option) => option?.label}
                                             isOptionEqualToValue={(option, value) => option.value === value.value}
-                                            value={handleGenerarArray(getValues()?.limitePedidos).find(opt => opt.value === String(field.value)) || null}
+                                            value={handleGenerarArray(getValues()?.limitePedidos2).find(opt => opt.value === String(field.value)) || null}
                                             onChange={(_, selectedOption) => {
                                                 field.onChange(selectedOption?.value ?? null);
                                                 setValue(`kilos`, (Number(getValues(`cantidadPaquetes`)) ?? 0) * (Number(11) ?? 0));
