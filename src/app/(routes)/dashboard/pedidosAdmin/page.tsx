@@ -564,7 +564,7 @@ const pedidosAdmin = () => {
                                                 <td className="p-3">{pedido.cantidadPaquetes}</td>
                                                 <td className="p-3">{pedido.kilos}</td>
                                                 <td className="p-3 font-semibold text-green-600">S/. {pedido.pagoTotal}</td>
-                                                <td className="p-3 !max-w-[100px] md:!max-w-[200px]">{`${pedido.direccionEntrega} - ${pedido.distritoEntrega} - ${pedido.provinciaEntrega} - ${pedido.departamentoEntrega} - ${pedido.celularEntrega}`}</td>
+                                                <td className="p-3 !max-w-[100px] md:!max-w-[200px]">{`${pedido.direccionEntrega ?? ""} - ${pedido.distritoEntrega ?? ""} - ${pedido.provinciaEntrega ?? ""} - ${pedido.departamentoEntrega ?? ""} - ${pedido.celularEntrega ?? ""}`}</td>
                                             </tr>
                                         ))}
                                     </tbody>
