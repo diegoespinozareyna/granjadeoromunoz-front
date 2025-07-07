@@ -144,11 +144,12 @@ export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall }: a
                                                 // }
                                                 // else if (getValues()?.medioPago == "1") {
                                                 // }
-                                                setValue(`precio`, `${((Number(getValues(`precioSemanal`)) ?? 0) * (Number(getValues(`cantidadPaquetes`)) ?? 0) * (Number(11) ?? 0))?.toFixed(2)}`);
-
-                                                setValue(`pagoTotal`, ((Number(getValues(`precioSemanal`)) ?? 0) * (Number(getValues(`cantidadPaquetes`)) ?? 0) * (Number(11) ?? 0) + Number(6))?.toFixed(2));
 
                                                 setValue(`entregaDomicilio`, Number(getValues(`cantidadPaquetes`)) <= 3 ? Number(6) : Number(getValues(`cantidadPaquetes`)) <= 6 ? Number(10) : Number(getValues(`cantidadPaquetes`)) <= 10 ? Number(12) : Number(12));
+
+                                                setValue(`precio`, `${((Number(getValues(`precioSemanal`)) ?? 0) * (Number(getValues(`cantidadPaquetes`)) ?? 0) * (Number(11) ?? 0))?.toFixed(2)}`);
+
+                                                (getValues()?.entregaDomicilio !== undefined && getValues()?.entregaDomicilio !== null && getValues()?.entregaDomicilio !== "") && setValue(`pagoTotal`, ((Number(getValues(`precioSemanal`)) ?? 0) * (Number(getValues(`cantidadPaquetes`)) ?? 0) * (Number(11) ?? 0) + Number(getValues()?.entregaDomicilio ?? 0))?.toFixed(2));
 
                                                 // if (getValues()?.lugarEntrega == "1") {
                                                 //     setDireccionObligatoria(true);
