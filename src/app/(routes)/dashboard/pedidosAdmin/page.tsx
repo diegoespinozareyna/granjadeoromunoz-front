@@ -540,7 +540,7 @@ const pedidosAdmin = () => {
                                                     </button>
                                                 </td>
                                                 <td className="p-3">
-                                                    {`${pedido.nombresUsuario} ${pedido.apellidoPaternoUsuario} ${pedido.apellidoMaternoUsuario} - ${pedido.documentoUsuario} - ${pedido.membresia}`}
+                                                    {`${pedido.nombresUsuario} ${pedido.apellidoPaternoUsuario} ${pedido.apellidoMaternoUsuario} - ${pedido.documentoUsuario} - ${pedido.membresia ?? ""}`}
                                                 </td>
                                                 <td className="p-3">
                                                     {pedido.fechaPedido?.split?.("T")[0].split?.("-")[2]}-{pedido.fechaPedido?.split?.("T")[0].split?.("-")[1]}-{pedido.fechaPedido?.split?.("T")[0].split?.("-")[0]}
