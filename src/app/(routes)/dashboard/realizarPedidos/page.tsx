@@ -62,6 +62,11 @@ const RealizarPedidos = () => {
                 nombresUsuario: session?.nombres,
                 apellidoPaternoUsuario: session?.apellidoPaterno,
                 apellidoMaternoUsuario: session?.apellidoMaterno,
+                membresia: getValues()?.membresia,
+                distritoEntrega: getValues()?.distritoEntrega,
+                provinciaEntrega: getValues()?.provinciaEntrega,
+                departamentoEntrega: getValues()?.departamentoEntrega,
+                celularEntrega: getValues()?.celularEntrega,
                 usuario: `${session?.nombres} ${session?.apellidoPaterno} ${session?.apellidoMaterno}`,
                 proyecto: Apis.PROYECTCURRENT,
             };
@@ -267,12 +272,18 @@ const RealizarPedidos = () => {
             ?.filter((x: any) => x.status !== "3")
             ?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes ?? 0), 0)
         console.log("numPedidos", numPedidos);
-        console.log("limite pedidos", user?.membresia == "500" ? (10 * Number(user?.repeticionUsuario ?? 0) - numPedidos)
-            : (3 * Number(1) - numPedidos))
-        setValue("limitePedidos2", user?.membresia == "500" ? (10 * Number(user?.repeticionUsuario ?? 0) - numPedidos)
-            : (3 * Number(1) - numPedidos))
-        setLimitePEdidos(user?.membresia == "500" ? (10 * Number(user?.repeticionUsuario ?? 0) - numPedidos)
-            : (3 * Number(1) - numPedidos))
+        console.log("limite pedidos", ((10 * Number(user?.membresia500 ?? 0)) + (3 * Number(user?.menbresia200 ?? 0)) - numPedidos))
+        console.log("limite pedidos", ((10 * Number(user?.membresia500 ?? 0)) + (3 * Number(user?.menbresia200 ?? 0)) - numPedidos))
+        setValue("limitePedidos2", ((10 * Number(user?.membresia500 ?? 0)) + (3 * Number(user?.menbresia200 ?? 0)) - numPedidos))
+        setLimitePEdidos((10 * Number(user?.membresia500 ?? 0)) + (3 * Number(user?.menbresia200 ?? 0)) - numPedidos)
+
+        setValue("membresia", `Empresario: ${user?.membresia500} - Emprendedor: ${user?.menbresia200}`)
+        setValue("direccionEntrega", user?.direccion ?? "")
+        setValue("distritoEntrega", user?.distrito ?? "")
+        setValue("provinciaEntrega", user?.provincia ?? "")
+        setValue("departamentoEntrega", user?.departamento ?? "")
+        setValue("celularEntrega", user?.celular ?? "")
+
     }
 
     useEffect(() => {

@@ -456,6 +456,206 @@ export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall }: a
                         </div>
                     </div>
 
+                    <div className="grid grid-cols-1 justify-start items-start gap-1 w-full mt-3">
+                        <div>
+                            <div className="uppercase text-sm font-bold text-white">{"Distrtio de Entrega"}</div>
+                            <Controller
+                                name={`distritoEntrega`}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <TextField
+                                        {...field}
+                                        error={!!fieldState.error}
+                                        helperText={fieldState.error ? fieldState.error.message : ""}
+                                        // label={item.label}
+                                        variant="outlined"
+                                        // placeholder={item.placeholder}
+                                        size="small"
+                                        // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
+                                        disabled={false}
+                                        required={true}
+                                        type={"text"}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        multiline={false}
+                                        minRows={2}
+                                        className="w-full bg-[#efefef]"
+                                        sx={{
+                                            input: {
+                                                color: '#000', // texto negro
+                                                WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                backgroundColor: '#efefef',
+                                            },
+                                            '.Mui-disabled': {
+                                                WebkitTextFillColor: '#000 !important',
+                                                color: '#000 !important',
+                                                opacity: 1, // elimina el desvanecido
+                                            },
+                                        }}
+                                        onChange={(e: any) => {
+                                            let value = e.target.value;
+                                            // value = value.replace(/(?!^)-|[^0-9.,-]/g, "");// positivos y negativos
+                                            field.onChange(value);
+                                        }}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 justify-start items-start gap-1 w-full mt-3">
+                        <div>
+                            <div className="uppercase text-sm font-bold text-white">{"Provincia de Entrega"}</div>
+                            <Controller
+                                name={`provinciaEntrega`}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <TextField
+                                        {...field}
+                                        error={!!fieldState.error}
+                                        helperText={fieldState.error ? fieldState.error.message : ""}
+                                        // label={item.label}
+                                        variant="outlined"
+                                        // placeholder={item.placeholder}
+                                        size="small"
+                                        // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
+                                        disabled={false}
+                                        required={true}
+                                        type={"text"}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        multiline={false}
+                                        minRows={2}
+                                        className="w-full bg-[#efefef]"
+                                        sx={{
+                                            input: {
+                                                color: '#000', // texto negro
+                                                WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                backgroundColor: '#efefef',
+                                            },
+                                            '.Mui-disabled': {
+                                                WebkitTextFillColor: '#000 !important',
+                                                color: '#000 !important',
+                                                opacity: 1, // elimina el desvanecido
+                                            },
+                                        }}
+                                        onChange={(e: any) => {
+                                            let value = e.target.value;
+                                            // value = value.replace(/(?!^)-|[^0-9.,-]/g, "");// positivos y negativos
+                                            field.onChange(value);
+                                        }}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 justify-start items-start gap-1 w-full mt-3">
+                        <div>
+                            <div className="uppercase text-sm font-bold text-white">{"Departamento de Entrega"}</div>
+                            <Controller
+                                name={`departamentoEntrega`}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <TextField
+                                        {...field}
+                                        error={!!fieldState.error}
+                                        helperText={fieldState.error ? fieldState.error.message : ""}
+                                        // label={item.label}
+                                        variant="outlined"
+                                        // placeholder={item.placeholder}
+                                        size="small"
+                                        // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
+                                        disabled={false}
+                                        required={true}
+                                        type={"text"}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        multiline={false}
+                                        minRows={2}
+                                        className="w-full bg-[#efefef]"
+                                        sx={{
+                                            input: {
+                                                color: '#000', // texto negro
+                                                WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                backgroundColor: '#efefef',
+                                            },
+                                            '.Mui-disabled': {
+                                                WebkitTextFillColor: '#000 !important',
+                                                color: '#000 !important',
+                                                opacity: 1, // elimina el desvanecido
+                                            },
+                                        }}
+                                        onChange={(e: any) => {
+                                            let value = e.target.value;
+                                            // value = value.replace(/(?!^)-|[^0-9.,-]/g, "");// positivos y negativos
+                                            field.onChange(value);
+                                        }}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 justify-start items-start gap-1 w-full mt-3">
+                        <div>
+                            <div className="uppercase text-sm font-bold text-white">{"Celular"}</div>
+                            <Controller
+                                name={`celularEntrega`}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <TextField
+                                        {...field}
+                                        error={!!fieldState.error}
+                                        helperText={fieldState.error ? fieldState.error.message : ""}
+                                        // label={item.label}
+                                        variant="outlined"
+                                        // placeholder={item.placeholder}
+                                        size="small"
+                                        // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
+                                        disabled={false}
+                                        required={true}
+                                        type={"text"}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        multiline={false}
+                                        minRows={2}
+                                        className="w-full bg-[#efefef]"
+                                        sx={{
+                                            input: {
+                                                color: '#000', // texto negro
+                                                WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                backgroundColor: '#efefef',
+                                            },
+                                            '.Mui-disabled': {
+                                                WebkitTextFillColor: '#000 !important',
+                                                color: '#000 !important',
+                                                opacity: 1, // elimina el desvanecido
+                                            },
+                                        }}
+                                        onChange={(e: any) => {
+                                            let value = e.target.value;
+                                            // value = value.replace(/(?!^)-|[^0-9.,-]/g, "");// positivos y negativos
+                                            field.onChange(value);
+                                        }}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
+
                     <div className="flex flex-col justify-center items-center gap-1 w-full mt-3">
                         <div className="flex flex-col justify-center items-center w-1/2">
                             <div className="uppercase text-sm font-bold text-white">{"Total a Pagar S/."}</div>

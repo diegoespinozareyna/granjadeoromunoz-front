@@ -14,6 +14,13 @@ interface User {
   statusActive: string;
   userType: string;
   _id: string;
+  direccion: string;
+  distrito: string;
+  provincia: string;
+  departamento: string;
+  celular: string;
+  membresia500: string;
+  menbresia200: string;
 }
 
 interface Config {
