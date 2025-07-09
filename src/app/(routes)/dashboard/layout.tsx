@@ -46,7 +46,7 @@ export default function RootLayout({
             >
                 <div
                     // id='fondo-oro-verde' 
-                    className="flex flex-col items-center justify-center min-h-[calc(100vh)] font-[family-name:var(--font-geist-sans)] px-2 py-2 bg-[#007c7c]">
+                    className="flex flex-col items-center justify-center w-full min-h-[calc(100vh-200px)] font-[family-name:var(--font-geist-sans)] px-2 py-2 bg-[#007c7c]">
                     <Navbar />
                     {children}
                 </div>

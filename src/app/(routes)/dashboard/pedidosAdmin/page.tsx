@@ -2,15 +2,16 @@
 
 import useApi from "@/app/hooks/fetchData/useApi";
 import { Apis } from "@/app/utils/configs/proyectCurrent";
-import { Autocomplete, Button, Card, CardContent, CardHeader, InputAdornment, TextField } from "@mui/material";
+import { Autocomplete, Button, Card, CardContent, CardHeader, IconButton, InputAdornment, TextField } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
-import { Badge, Calendar, CheckCircle, Clock, MapPin, Package, RotateCcw, X } from "lucide-react";
+import { Badge, Calendar, CheckCircle, Clock, MapPin, Package, RotateCcw, ScrollText, SearchIcon, X } from "lucide-react";
 import moment from "moment-timezone";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
+import { PiMicrosoftExcelLogoDuotone } from "react-icons/pi";
 
 interface Stock {
     stockContable: string,
@@ -157,6 +158,7 @@ const pedidosAdmin = () => {
             fechaInicio: fechaInicio.format('DD-MM-YYYY'),
             fechaFin: fechaFin.format('DD-MM-YYYY'),
             documentoUsuario: getValues()?.documentoUsuario ?? "",
+            statusFiltro: getValues()?.statusFiltro ?? null,
         }
 
         console.log("jsonFechas", jsonFechas);
@@ -169,6 +171,7 @@ const pedidosAdmin = () => {
                 documentoUsuario: getValues()?.documentoUsuario ?? "",
                 fechaInicio: fechaInicio.format('DD-MM-YYYY'),
                 fechaFin: fechaFin.format('DD-MM-YYYY'),
+                statusFiltro: getValues()?.statusFiltro ?? null,
             }
         });
         console.log("response", response);
@@ -327,7 +330,8 @@ const pedidosAdmin = () => {
                             : "Rechazado",
             Usuario: `${pedido.nombresUsuario} ${pedido.apellidoPaternoUsuario || ""} ${pedido.apellidoMaternoUsuario || ""}`,
             DNI: pedido.documentoUsuario,
-            Fecha_Pedido: new Date(pedido.fechaPedido).toLocaleDateString(),
+            // Fecha_Pedido: new Date(pedido.fechaPedido).toLocaleDateString(),
+            Fecha_Pedido: pedido.fechaPedido?.split?.("T")[0] || "",
             Fecha_Entrega: pedido.fechaEntregaPedido?.split?.("T")[0] || "",
             Paquetes: pedido.cantidadPaquetes,
             Kilos: pedido.kilos,
@@ -347,17 +351,17 @@ const pedidosAdmin = () => {
     return (
         <>
             <div className="flex flex-col items-start justify-center mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">
-                <div className="ml-[60px] md:ml-0">
+                <div className="ml-[00px] md:ml-0">
                     <Button sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => router.push(`/dashboard/${Apis.PROYECTCURRENT}`)} variant="outlined" color="primary">
                         {"<< Atras"}
                     </Button>
                 </div>
                 {/* <div className="flex flex-row md:flex-row gap-1 items-center justify-center mt-5 ml-20 md:ml-0"> */}
-                <div className="grid grid-cols-3 w-full md:w-full ml-0 justify-start items-start md:ml-0 mt-5 gap-1">
-                    <div className="flex flex-col gap-0 text-white">
-                        <div className="flex flex-col justify-start items-start gap-0 w-full">
+                <div className="flex w-full md:w-full ml-0 justify-start items-start md:ml-0 mt-5 gap-1">
+                    <div className="flex flex-col gap-0 text-white !w-[130px]">
+                        <div className="flex flex-col justify-start items-start gap-0">
                             <div className="uppercase text-sm font-bold text-white">{"Mes"}</div>
-                            <div className="!w-[120px] -mt-2">
+                            <div className="!w-full -mt-2">
                                 <Controller
                                     name={`mesFiltro`}
                                     control={control}
@@ -388,6 +392,73 @@ const pedidosAdmin = () => {
                                                             WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
                                                             height: '1px',
                                                             border: 'none',
+                                                            fontSize: '0.6rem',
+                                                            // borderRadius: '10px',
+                                                            // backgroundColor: '#efefef',
+                                                            marginLeft: '-10px !important',
+                                                            width: '70px !important',
+                                                        },
+                                                        '.Mui-disabled': {
+                                                            WebkitTextFillColor: '#000 !important',
+                                                            color: '#000 !important',
+                                                            opacity: 1, // elimina el desvanecido
+                                                        },
+                                                    }}
+                                                />
+                                            )}
+                                        />
+                                    )}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-0 text-white !w-[130px]">
+                        <div className="flex flex-col justify-start items-start gap-0">
+                            <div className="uppercase text-sm font-bold text-white">{"Status"}</div>
+                            <div className="!w-full -mt-2">
+                                <Controller
+                                    name={`statusFiltro`}
+                                    control={control}
+                                    render={({ field, fieldState }) => (
+                                        <Autocomplete
+                                            options={[
+                                                { value: "0", label: "Pendiente", last: "31" },
+                                                { value: "1", label: "Entrregado", last: "28" },
+                                                { value: "2", label: "En Ruta", last: "31" },
+                                                { value: "3", label: "Rechazado", last: "31" },
+                                            ]}
+                                            getOptionLabel={(option) => option.label}
+                                            isOptionEqualToValue={(option, value) => option.value === value.value}
+                                            value={[
+                                                { value: "0", label: "Pendiente", last: "31" },
+                                                { value: "1", label: "Entrregado", last: "28" },
+                                                { value: "2", label: "En Ruta", last: "31" },
+                                                { value: "3", label: "Rechazado", last: "31" },
+                                            ].find(opt => opt.value === field.value) || null}
+                                            onChange={(_, selectedOption) => {
+                                                field.onChange(selectedOption?.value ?? null);
+                                            }}
+                                            renderInput={(params) => (
+                                                <TextField
+                                                    {...params}
+                                                    // label={"Mes Busqueda"}
+                                                    margin="dense"
+                                                    fullWidth
+                                                    InputLabelProps={{
+                                                        shrink: true,
+                                                    }}
+                                                    error={!!fieldState.error}
+                                                    helperText={fieldState.error ? fieldState.error.message : ""}
+                                                    className="!w-full bg-slate-100 rounded-lg h-[35px]"
+                                                    sx={{
+                                                        input: {
+                                                            color: '#000', // texto negro
+                                                            WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
+                                                            height: '1px',
+                                                            border: 'none',
+                                                            fontSize: '0.6rem',
+                                                            marginLeft: '-10px !important',
+                                                            width: '70px !important',
                                                             // borderRadius: '10px',
                                                             // backgroundColor: '#efefef',
                                                         },
@@ -403,68 +474,24 @@ const pedidosAdmin = () => {
                                     )}
                                 />
                             </div>
-
-                            {/* <div className="uppercase text-sm font-bold text-white mt-2">{"DNI Busqueda"}</div> */}
-                            {/* <div>
-                                <Controller
-                                    name={`documentoUsuario`}
-                                    control={control}
-                                    render={({ field, fieldState }) => (
-                                        <TextField
-                                            {...field}
-                                            error={!!fieldState.error}
-                                            helperText={fieldState.error ? fieldState.error.message : ""}
-                                            // label={item.label}
-                                            variant="outlined"
-                                            placeholder={"DNI:"}
-                                            size="small"
-                                            // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
-                                            // disabled={true}
-                                            // required={(item.name == "direccionEntrega" && direccionObligatoria == true) ? true : item.required}
-                                            type={"number"}
-                                            InputLabelProps={{
-                                                shrink: true,
-                                            }}
-                                            // multiline={item.multiline}
-                                            // minRows={item.rows}
-                                            // InputProps={{
-                                            //     startAdornment: <InputAdornment position="start">DNI:</InputAdornment>,
-                                            // }}
-                                            className="w-full bg-[#efefef]"
-                                            sx={{
-                                                input: {
-                                                    color: '#000', // texto negro
-                                                    WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
-                                                    border: 'none',
-                                                    borderRadius: '10px',
-                                                    backgroundColor: '#efefef',
-                                                },
-                                                '.Mui-disabled': {
-                                                    WebkitTextFillColor: '#000 !important',
-                                                    color: '#000 !important',
-                                                    opacity: 1, // elimina el desvanecido
-                                                },
-                                            }}
-                                            onChange={(e: any) => {
-                                                let value = e.target.value;
-                                                value = value.replace(/(?!^)-|[^0-9.,]/g, "");// positivos y negativos
-                                                field.onChange(value);
-                                            }}
-                                        />
-                                    )}
-                                />
-                            </div> */}
                         </div>
                     </div>
-                    <div className="mt-5 flex flex-col gap-3">
-                        <Button sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => fetchDataPedidosClientesFiltro()} variant="outlined" color="primary">
-                            {"BUSCAR"}
-                        </Button>
+                    <div className="mt-5 flex flex-col gap-3 !w-1/4">
+                        <IconButton
+                            sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" }, borderRadius: "10px" }}
+                            onClick={() => fetchDataPedidosClientesFiltro()}
+                        >
+                            <SearchIcon size={20} />
+                        </IconButton>
                     </div>
-                    <div className="mt-5 flex flex-col gap-3">
-                        <Button sx={{ width: "80%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => exportarExcel()} variant="outlined" color="primary">
-                            {"EXCEL"}
-                        </Button>
+                    <div className="mt-5 flex flex-col gap-3 !w-1/4">
+                        <IconButton
+                            sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" }, borderRadius: "10px" }}
+                            onClick={() => exportarExcel()}
+                        // startIcon={<ScrollText />}
+                        >
+                            <PiMicrosoftExcelLogoDuotone size={20} />
+                        </IconButton>
                     </div>
                 </div>
             </div>
@@ -509,13 +536,13 @@ const pedidosAdmin = () => {
                 </div>
             </div> */}
 
-            <div className="mt-0 md:ml-[200px] base:ml-[300px] ml-[450px]">
+            <div className="mt-0 md:ml-[000px] base:ml-[000px] ml-[00px]">
                 {
                     datosFiltrados?.length > 0 ?
                         <div className="p-4">
                             <h2 className="text-xl font-semibold mb-4">Pedidos Programados</h2>
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+                            <div className="w-[90vw] overflow-x-auto">
+                                <table className="w-[90vw] bg-white border border-gray-200 rounded-lg shadow-md">
                                     <thead>
                                         <tr className="bg-[#005c5c] text-left text-sm text-gray-50">
                                             <th className="p-3 border-b">Status</th>
@@ -525,7 +552,7 @@ const pedidosAdmin = () => {
                                             <th className="p-3 border-b">Paquetes</th>
                                             <th className="p-3 border-b">Kilos</th>
                                             <th className="p-3 border-b">Pago Total</th>
-                                            <th className="p-3 border-b !max-w-[100px] md:!max-w-[200px]">Dirección</th>
+                                            <th className="p-3 border-b !max-w-[200px] md:!max-w-[400px]">Dirección</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -540,7 +567,7 @@ const pedidosAdmin = () => {
                                                     </button>
                                                 </td>
                                                 <td className="p-3">
-                                                    {`${pedido.nombresUsuario} ${pedido.apellidoPaternoUsuario} ${pedido.apellidoMaternoUsuario} - ${pedido.documentoUsuario} - ${pedido.membresia == "500" ? "Membresia: EMPRESARIO" : "Membresia: EMPRENDEDOR"} - Cel.: ${pedido.celularEntrega ?? ""}`}
+                                                    {`${pedido?.nombresUsuario} ${pedido?.apellidoPaternoUsuario ?? ""} ${pedido?.apellidoMaternoUsuario} - ${pedido?.documentoUsuario} ${pedido?.membresia?.split(" - ")[0]?.split(": ")[1] == "0" ? "- EMPRENDEDOR" : ""} - ${pedido?.membresia?.split(" - ")[1]?.split(": ")[1] == "0" ? "- EMPRESARIO" : ""} - Cel.: ${pedido?.celularEntrega ?? ""}`}
                                                 </td>
                                                 <td className="p-3">
                                                     {pedido.fechaPedido?.split?.("T")[0].split?.("-")[2]}-{pedido.fechaPedido?.split?.("T")[0].split?.("-")[1]}-{pedido.fechaPedido?.split?.("T")[0].split?.("-")[0]}
@@ -564,7 +591,7 @@ const pedidosAdmin = () => {
                                                 <td className="p-3">{pedido.cantidadPaquetes}</td>
                                                 <td className="p-3">{pedido.kilos}</td>
                                                 <td className="p-3 font-semibold text-green-600">S/. {pedido.pagoTotal}</td>
-                                                <td className="p-3 !max-w-[100px] md:!max-w-[200px]">{`${pedido.direccionEntrega ?? ""} - ${pedido.distritoEntrega ?? ""} - ${pedido.provinciaEntrega ?? ""} - ${pedido.departamentoEntrega ?? ""} - ${pedido.celularEntrega ?? ""}`}</td>
+                                                <td className="p-3 !max-w-full">{`${pedido.direccionEntrega ?? ""} - ${pedido.distritoEntrega ?? ""} - ${pedido.provinciaEntrega ?? ""} - ${pedido.departamentoEntrega ?? ""} - ${pedido.celularEntrega ?? ""}`}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -572,7 +599,7 @@ const pedidosAdmin = () => {
                             </div>
                         </div>
                         :
-                        <div className="flex flex-col items-center justify-center gap-2 w-full md:ml-1 -ml-46">
+                        <div className="flex flex-col items-center justify-center gap-2 w-full md:ml-1">
                             <div className="font-bold text-xl text-red-300">{"Usted no ha realizado ningún pedido"}</div>
                             <div className="font-bold text-xl text-red-300">{"en este periodo..."}</div>
                             <div className="font-bold text-base text-red-300">{""}</div>

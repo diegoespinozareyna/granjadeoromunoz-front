@@ -13,6 +13,17 @@ const config: Config = {
                 'oro-radial': 'radial-gradient(circle, #ffffff 0%, #fdf3dc 50%, #f4d38a 100%)',
             },
         },
+        screens: {
+            // 'xs': '480px',      // 👈 Personalizado
+            // 'sm': '640px',
+            // 'md': '768px',
+            'md2': '820px',
+            // 'lg': '1024px',
+            // 'xl': '1280px',
+            // '2xl': '1536px',
+            // // Puedes agregar más si deseas
+            // '4k': '2560px'      // 👈 Otra personalizada
+        },
     },
     plugins: [],
 }
