@@ -155,7 +155,7 @@ export const Navbar = () => {
                 user?.userType !== "admin" &&
                 <div className="flex justify-center items-center md:w-[370px] w-[300px]">
                     <h2 className="text-xl font-bold text-[#efefef] text-center">
-                        {`Limite Pedidos: ${limitePEdidos}`}
+                        {`Pedidos Realizados: ${(10 * Number(user?.membresia500 ?? 0)) + (3 * Number(user?.menbresia200 ?? 0)) - limitePEdidos}/${(10 * Number(user?.membresia500 ?? 0)) + (3 * Number(user?.menbresia200 ?? 0))}`}
                     </h2>
                 </div>
             }

@@ -101,9 +101,9 @@ const CobrarUtilidad = () => {
         });
         console.log("response", response);
 
-        const numPAquetes = response?.data?.filter((x: Pedido) => x.status === "1")?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes), 0)
+        const numPAquetes = response?.data?.filter((x: Pedido) => x.status === "1")?.reduce((acc: any, cur: any) => acc + Number(cur?.cantidadPaquetes ?? 0), 0)
         const kilosTotales = numPAquetes * 11;
-        const efectivoRecaudado: number = response?.data?.filter((x: Pedido) => x.status === "1")?.reduce((acc: number, cur: Pedido) => acc + Number(cur?.pagoTotal), 0);
+        const efectivoRecaudado: number = response?.data?.filter((x: Pedido) => x.status === "1")?.reduce((acc: number, cur: Pedido) => acc + Number(cur?.pagoTotal ?? 0), 0);
         console.log("numPAquetes", numPAquetes);
         console.log("kilosTotales", kilosTotales);
         console.log("efectivoRecaudado", efectivoRecaudado);
@@ -135,7 +135,7 @@ const CobrarUtilidad = () => {
 
                 <div className="grid grid-cols-1 gap-2 justify-center items-center mt-5 border-2 border-[#22B2AA] rounded-lg p-3 px-10 bg-[rgba(255,255,255,0.8)] w-[350px] mx-2">
                     <div className="font-bold text-slate-700 text-3xl text-center">
-                        {"Pedidos Totales Entregados:"}
+                        {"Paquetes Totales Entregados:"}
                     </div>
                     <div className="font-bold text-yellow-500 text-6xl text-center">
                         {datos?.numPAquetes}
@@ -147,7 +147,7 @@ const CobrarUtilidad = () => {
                         {`${Number(datos?.kilosTotales)?.toFixed(0)} Kg.`}
                     </div>
                     <div className="font-bold text-slate-700 text-3xl text-center mt-6">
-                        {"Utilidades Generadas:"}
+                        {"Utilidades a Repartir:"}
                     </div>
                     <div className="font-bold text-yellow-500 text-6xl text-center">
                         {`S/.${Number(datos?.kilosTotales * 0.80)?.toFixed(2)}`}

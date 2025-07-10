@@ -1,10 +1,11 @@
+
 "use client"
 
 import useApi from "@/app/hooks/fetchData/useApi";
 import { Apis } from "@/app/utils/configs/proyectCurrent";
 import { Autocomplete, Button, Card, CardContent, CardHeader, IconButton, InputAdornment, TextField } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
-import { Badge, Calendar, CheckCircle, Clock, MapPin, Package, RotateCcw, ScrollText, SearchIcon, X } from "lucide-react";
+import { Badge, Calendar, CheckCircle, Clock, Loader2, MapPin, Package, PencilLine, RotateCcw, ScrollText, SearchIcon, X } from "lucide-react";
 import moment from "moment-timezone";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -21,7 +22,6 @@ interface Stock {
 }
 
 const pedidosAdmin = () => {
-
     const router = useRouter();
 
     const { getValues, setValue, handleSubmit, control } = useForm()
@@ -348,6 +348,13 @@ const pedidosAdmin = () => {
         XLSX.writeFile(workbook, "pedidos.xlsx");
     };
 
+    const [loading, setLoading] = useState("");
+
+    const handleEditClick = (id: string) => {
+        setLoading(id);
+        router.push(`/dashboard/editarPedidos/${id}`);
+    };
+
     return (
         <>
             <div className="flex flex-col items-start justify-center mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">
@@ -540,10 +547,9 @@ const pedidosAdmin = () => {
                 {
                     datosFiltrados?.length > 0 ?
                         <div className="p-4">
-                            <h2 className="text-xl font-semibold mb-4">Pedidos Programados</h2>
-                            <div className="w-[90vw] overflow-x-auto">
+                            <div className="w-[90vw] max-h-[70vh] overflow-y-auto overflow-x-auto">
                                 <table className="w-[90vw] bg-white border border-gray-200 rounded-lg shadow-md">
-                                    <thead>
+                                    <thead className="sticky top-0 z-10 bg-[#005c5c]">
                                         <tr className="bg-[#005c5c] text-left text-sm text-gray-50">
                                             <th className="p-3 border-b">Status</th>
                                             <th className="p-3 border-b">Usuario</th>
@@ -559,12 +565,14 @@ const pedidosAdmin = () => {
                                         {datosFiltrados?.map((pedido: any, index: number) => (
                                             <tr key={pedido._id} style={{ backgroundColor: index % 2 == 0 ? "#f2f2f2" : "#ffffff" }} className="border-t text-sm text-gray-700 hover:bg-gray-50">
                                                 <td className="p-3">
-                                                    <button
-                                                        className={`text-xs ${pedido.status == "0" ? "bg-yellow-500 hover:bg-yellow-700" : pedido.status == "1" ? "bg-green-500 hover:bg-green-700" : pedido.status == "2" ? "bg-blue-500 hover:bg-blue-700" : "bg-red-500 hover:bg-red-700"} text-white px-2 py-1 rounded-lg`}
-                                                        onClick={() => handleChangeState(pedido._id, pedido?.documentoUsuario, pedido?.nombresUsuario)}
-                                                    >
-                                                        {pedido.status == "0" ? "Pendiente" : pedido.status == "1" ? "Entregado" : pedido.status == "2" ? "En Ruta" : pedido.status == "3" && "Rechazado"}
-                                                    </button>
+                                                    <div className="flex justify-start items-center gap-1">
+                                                        <button
+                                                            className={`text-xs ${pedido.status == "0" ? "bg-yellow-500 hover:bg-yellow-700" : pedido.status == "1" ? "bg-green-500 hover:bg-green-700" : pedido.status == "2" ? "bg-blue-500 hover:bg-blue-700" : "bg-red-500 hover:bg-red-700"} text-white px-2 py-1 rounded-lg`}
+                                                            onClick={() => handleChangeState(pedido._id, pedido?.documentoUsuario, pedido?.nombresUsuario)}
+                                                        >
+                                                            {pedido.status == "0" ? "Pendiente" : pedido.status == "1" ? "Entregado" : pedido.status == "2" ? "En Ruta" : pedido.status == "3" && "Rechazado"}
+                                                        </button>
+                                                    </div>
                                                 </td>
                                                 <td className="p-3">
                                                     {`${pedido?.nombresUsuario} ${pedido?.apellidoPaternoUsuario ?? ""} ${pedido?.apellidoMaternoUsuario} - ${pedido?.documentoUsuario} ${pedido?.membresia?.split(" - ")[0]?.split(": ")[1] == "0" ? "- EMPRENDEDOR" : ""} - ${pedido?.membresia?.split(" - ")[1]?.split(": ")[1] == "0" ? "- EMPRESARIO" : ""} - Cel.: ${pedido?.celularEntrega ?? ""}`}
@@ -588,7 +596,26 @@ const pedidosAdmin = () => {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="p-3">{pedido.cantidadPaquetes}</td>
+                                                <td className="p-3">
+                                                    <div className="grid grid-cols-2 justify-start items-center gap-1">
+                                                        <div>
+                                                            {pedido.cantidadPaquetes}
+                                                        </div>
+                                                        <div>
+                                                            <button
+                                                                className={`text-xs text-white px-2 py-1 rounded-lg bg-blue-500 hover:bg-blue-700 flex items-center justify-center`}
+                                                                onClick={() => handleEditClick(pedido._id)}
+                                                                disabled={loading == pedido._id}
+                                                            >
+                                                                {loading == pedido._id ? (
+                                                                    <Loader2 size={15} className="animate-spin" />
+                                                                ) : (
+                                                                    <PencilLine size={15} />
+                                                                )}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td className="p-3">{pedido.kilos}</td>
                                                 <td className="p-3 font-semibold text-green-600">S/. {pedido.pagoTotal}</td>
                                                 <td className="p-3 !max-w-full">{`${pedido.direccionEntrega ?? ""} - ${pedido.distritoEntrega ?? ""} - ${pedido.provinciaEntrega ?? ""} - ${pedido.departamentoEntrega ?? ""} - ${pedido.celularEntrega ?? ""}`}</td>
