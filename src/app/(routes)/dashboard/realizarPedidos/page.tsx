@@ -3,7 +3,7 @@
 import { FormRealizaPedidos } from "@/app/components/pedidos/FormRealizaPedidos";
 import { FormRealizaPedidos2 } from "@/app/components/pedidos/FormRealizaPedidos2";
 import useApi from "@/app/hooks/fetchData/useApi";
-import { useUserStore } from "@/app/store/userStore";
+import { useConfigStore, useUserStore } from "@/app/store/userStore";
 import { Apis } from "@/app/utils/configs/proyectCurrent";
 import { Button } from "@mui/material"
 import { jwtDecode } from "jwt-decode";
@@ -26,6 +26,9 @@ const RealizarPedidos = () => {
     const [limitePEdidos, setLimitePEdidos] = useState<any>(null);
     const user = useUserStore((state) => state.user);
     console.log("user", user);
+
+    const config = useConfigStore((state) => state.config);
+    console.log("config", config);
 
     useEffect(() => {
         try {
@@ -52,7 +55,7 @@ const RealizarPedidos = () => {
                 fechaEntregaPedido: moment.tz(getValues()?.fechaEntregaPedido, "YYYY-MM-DD", "America/Lima").toISOString(),
                 cantidadPaquetes: getValues()?.cantidadPaquetes,
                 kilos: getValues()?.kilos,
-                precioSemanal: getValues()?.precioSemanal,
+                precioSemanal: config?.precioKiloHuevos ?? "4.70",
                 medioPago: getValues()?.medioPago ?? "1", // 1: efectivo, 2: yape/transferencia
                 precio: getValues()?.precio,
                 lugarEntrega: getValues()?.lugarEntrega ?? "1",
@@ -287,11 +290,11 @@ const RealizarPedidos = () => {
     }
 
     useEffect(() => {
-        setValue(`precioSemanal`, "4.70")
+        setValue(`precioSemanal`, config?.precioKiloHuevos ?? "4.70")
         setValue(`fechaPedido`, `${moment.tz("America/Lima").format("YYYY-MM-DD")}`)
         setValue(`fechaEntregaPedido`, `${moment.tz("America/Lima").add(8, "days").format("YYYY-MM-DD")}`)
         fetchDataPedidosClientes()
-    }, [session])
+    }, [session, config])
 
     return (
         <div className="flex flex-col items-start justify-start mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">

@@ -24,8 +24,8 @@ interface User {
 }
 
 interface Config {
-  tema: string;
-  idioma: string;
+  precioKiloHuevos: string;
+  proyecto: string;
   // Agrega aquí las propiedades reales de tu configuración
 }
 

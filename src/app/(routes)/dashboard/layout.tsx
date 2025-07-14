@@ -3,9 +3,11 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { Navbar } from "@/app/components/navbar/Navbar";
 import "./styleFondoOro.css"
-import { useUserStore } from "@/app/store/userStore";
+import { useConfigStore, useUserStore } from "@/app/store/userStore";
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import { Apis } from "@/app/utils/configs/proyectCurrent";
+import useApi from "@/app/hooks/fetchData/useApi";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -24,6 +26,24 @@ export default function RootLayout({
 }>) {
 
     const setUser = useUserStore((state) => state.setUser);
+    const setConfig = useConfigStore((state) => state.setConfig);
+    const { apiCall } = useApi()
+
+    const fetchConfigs = async () => {
+        try {
+            const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getConfig`;
+            const response = await apiCall({
+                method: "get", endpoint: url, data: null, params: {
+                    proyecto: Apis.PROYECTCURRENT,
+                }
+            });
+            console.log("responseConfigs: ", response?.data?.find((x: any) => x.proyecto === Apis.PROYECTCURRENT));
+            setConfig(response?.data?.find((x: any) => x.proyecto === Apis.PROYECTCURRENT));
+        } catch (error) {
+            console.error('Error al obtener datos del usuario:', error);
+            localStorage.removeItem("auth-token");
+        }
+    }
 
     useEffect(() => {
         try {
@@ -37,6 +57,9 @@ export default function RootLayout({
             localStorage.removeItem("auth-token");
             window.location.href = '/';
         }
+
+        fetchConfigs();
+
     }, [])
 
     return (

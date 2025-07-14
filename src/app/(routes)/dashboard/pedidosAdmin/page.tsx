@@ -5,7 +5,7 @@ import useApi from "@/app/hooks/fetchData/useApi";
 import { Apis } from "@/app/utils/configs/proyectCurrent";
 import { Autocomplete, Button, Card, CardContent, CardHeader, IconButton, InputAdornment, TextField } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
-import { Badge, Calendar, CheckCircle, Clock, Loader2, MapPin, Package, PencilLine, RotateCcw, ScrollText, SearchIcon, X } from "lucide-react";
+import { Badge, Calendar, CheckCircle, Clock, Edit, Edit2Icon, EyeOff, Loader2, MapPin, Package, PencilLine, RotateCcw, ScrollText, SearchIcon, X } from "lucide-react";
 import moment from "moment-timezone";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +13,7 @@ import { Controller, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import { PiMicrosoftExcelLogoDuotone } from "react-icons/pi";
+import { useConfigStore } from "@/app/store/userStore";
 
 interface Stock {
     stockContable: string,
@@ -24,6 +25,9 @@ interface Stock {
 const pedidosAdmin = () => {
     const router = useRouter();
 
+    const config = useConfigStore((state) => state.config);
+    console.log("config", config);
+
     const { getValues, setValue, handleSubmit, control } = useForm()
 
     const oneRender = useRef(true);
@@ -33,6 +37,7 @@ const pedidosAdmin = () => {
     const [session, setSession] = useState<any>(null);
     const [datos, setDatos] = useState<any>([]);
     const [stock, setStock] = useState<any>([]);
+    const [precioKilos, setPrecioKilos] = useState<any>('');
 
     useEffect(() => {
         try {
@@ -45,7 +50,8 @@ const pedidosAdmin = () => {
             localStorage.removeItem("auth-token");
             window.location.href = '/';
         }
-    }, [])
+        setPrecioKilos(Number(config?.precioKiloHuevos ?? 0));
+    }, [config])
 
     const meses = [
         { value: "01", label: "Enero", last: "31" },
@@ -182,46 +188,56 @@ const pedidosAdmin = () => {
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/changeStatusPedido`;
         console.log("url", url);
 
-        const { value: estado } = await Swal.fire({
+        const { isConfirmed } = await Swal.fire({
             title: `Cambiar estado del pedido de ${nombres} - ${dni}`,
-            input: 'select',
-            inputOptions: {
-                '0': 'Pendiente',
-                '1': 'Entregado',
-                '2': 'En Ruta',
-                '3': 'Rechazado',
-            },
-            inputPlaceholder: 'Selecciona un estado',
+            html: `
+            <select id="estado" class="swal2-input">
+              <option value="">Selecciona un estado</option>
+              <option value="0">Pendiente</option>
+              <option value="1">Entregado</option>
+              <option value="2">En Ruta</option>
+              <option value="3">Rechazado</option>
+            </select>
+            <textarea id="comentario" class="swal2-textarea" placeholder="Escribe un comentario"></textarea>
+          `,
+            focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Actualizar',
             cancelButtonText: 'Cancelar',
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            width: '300px',
-            inputValidator: (value) => {
-                if (!value) return 'Debes seleccionar un estado';
-            },
+            width: '400px',
             allowOutsideClick: () => !Swal.isLoading(),
             showLoaderOnConfirm: true,
-            preConfirm: async (estadoSeleccionado) => {
+            preConfirm: async () => {
+                const estado = (document.getElementById('estado') as HTMLSelectElement).value;
+                const comentario = (document.getElementById('comentario') as HTMLTextAreaElement).value.trim();
+
+                if (!estado) {
+                    Swal.showValidationMessage('Debes seleccionar un estado');
+                    return;
+                }
+
+                if (!comentario) {
+                    Swal.showValidationMessage('Debes escribir un comentario');
+                    return;
+                }
+
                 try {
                     const response = await apiCall({
                         method: 'patch',
                         endpoint: url,
                         data: {
-                            status: estadoSeleccionado,
-                            id: id
+                            status: estado,
+                            comentario,
+                            id
                         }
                     });
+
                     if (response.status === 201) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Estado actualizado',
-                            text: `El estado del pedido fue actualizado correctamente.`,
-                            timer: 2000
-                        });
-                        console.log("response: ", estadoSeleccionado, id);
-                        fetchDataPedidosClientesFiltro()
+                        return { estado, comentario }; // Devuelve valores para usarlos fuera
+                    } else {
+                        Swal.showValidationMessage('Error al actualizar el estado');
                     }
                 } catch (error) {
                     Swal.showValidationMessage(`Error al actualizar: ${error}`);
@@ -229,17 +245,17 @@ const pedidosAdmin = () => {
             }
         });
 
-        if (estado !== undefined) {
+        if (isConfirmed) {
             Swal.fire({
                 icon: 'success',
                 title: 'Estado actualizado',
                 text: `El estado del pedido fue actualizado correctamente.`,
                 timer: 2000
             });
+
+            fetchDataPedidosClientesFiltro();
         }
-        // console.log("response", response);
-        // setDatos(response?.data);
-    }
+    };
 
     const handleChangeFechaEntrega = async (id: string, dni: string, nombres: string) => {
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/changeStatusFechaEntregaPedido`;
@@ -306,11 +322,14 @@ const pedidosAdmin = () => {
     const [busqueda, setBusqueda] = useState('');
 
     const datosFiltrados = datos?.filter((item: any) => {
+        // console.log("item", item);
         const filtro = (
             item?.nombresUsuario?.toLowerCase().includes(busqueda?.toLowerCase()) ||
             item?.apellidoPaternoUsuario?.toLowerCase().includes(busqueda?.toLowerCase()) ||
             item?.apellidoMaternoUsuario?.toLowerCase().includes(busqueda?.toLowerCase()) ||
-            item?.documentoUsuario?.toLowerCase().includes(busqueda?.toLowerCase())
+            item?.distritoEntrega?.toLowerCase().includes(busqueda?.toLowerCase()) ||
+            item?.documentoUsuario?.toLowerCase() == (busqueda?.toLowerCase()) ||
+            item?.cantidadPaquetes?.toLowerCase() == (busqueda?.toLowerCase())
         );
         return filtro
     }
@@ -354,6 +373,34 @@ const pedidosAdmin = () => {
         setLoading(id);
         router.push(`/dashboard/editarPedidos/${id}`);
     };
+
+    const handleChangePrecioHuevos = async () => {
+        const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/pacthConfig`;
+        const response = await apiCall({
+            method: "patch", endpoint: url, data: {
+                precioKiloHuevos: precioKilos,
+                proyecto: Apis.PROYECTCURRENT,
+            }
+        });
+        console.log("response precioKilos", response);
+
+        if (response.status === 201) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Precio actualizado',
+                text: `El precio por kilo de huevos fue actualizado correctamente.`,
+                timer: 2000
+            });
+            setPrecioKilos(response?.data?.precioKilos);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: `No se pudo actualizar el precio por kilo de huevos.`,
+            });
+        }
+
+    }
 
     return (
         <>
@@ -505,7 +552,7 @@ const pedidosAdmin = () => {
             <div>
                 <input
                     type="text"
-                    placeholder="Buscar Nombre o DNI..."
+                    placeholder="Nombre,DNI,Distrito,#Paquetes..."
                     className="mb-4 p-2 border rounded w-full max-w-md bg-white mt-5"
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
@@ -531,17 +578,52 @@ const pedidosAdmin = () => {
                 {/* <div className="text-base font-bold">{`Pedidos Rechazados`}</div> */}
                 <div className="text-base flex justify-end">{`Ped. Rechazados: ${datos?.filter((x: any) => x.status == "3")?.length}`}</div>
             </div>
-            {/* <div className="mt-5 flex flex-col md:flex-row justify-center items-center gap-1 text-3xl font-bold text-gray-800">
-                <div>{`Stock Total:`}</div>
-                <div className="bg-slate-50 px-3 py-2 rounded-md text-black w-[250px]">
-                    {`${"1000"} paquetes`}
+            <div className="flex justify-center items-center gap-1 px-1 py-1 rounded-lg my-1 ">
+                <div className="flex flex-col justify-start items-start gap-0 text-black">
+                    <label className="text-base font-bold text-white">Precio Kilo Huevos Actual:</label>
+                    <div className="relative w-full max-w-md mb-4 mt-0">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700">S/.</span>
+                        <input
+                            type="number"
+                            min="0"
+                            step="any"
+                            placeholder="Precio kilos Actual"
+                            className="pl-10 p-2 border rounded w-full bg-white"
+                            value={precioKilos}
+                            onChange={(e) => setPrecioKilos(e.target.value)}
+                        />
+                    </div>
                 </div>
-                <div className="px-3 py-2">
-                    <Button variant="contained" color="success" onClick={() => handleChangeStock()}>
-                        {"Aumentar Stock +"}
-                    </Button>
-                </div>
-            </div> */}
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                        Swal.fire({
+                            title: '¿Estás seguro?',
+                            text: `¿Deseas actualizar el precio por kilo de huevos a ${precioKilos}?`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sí, actualizar',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            showLoaderOnConfirm: true,
+                            allowOutsideClick: () => !Swal.isLoading(),
+                            preConfirm: async () => {
+                                try {
+                                    // Aquí llamas tu función personalizada, por ejemplo:
+                                    await handleChangePrecioHuevos();
+                                } catch (error) {
+                                    Swal.showValidationMessage(`Error al actualizar: ${error}`);
+                                }
+                            }
+                        });
+                    }}
+                    sx={{ backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" }, height: "50px", width: "10px", borderRadius: "10px" }}
+                >
+                    <Edit size={20} />
+                </Button>
+            </div>
 
             <div className="mt-0 md:ml-[000px] base:ml-[000px] ml-[00px]">
                 {
@@ -558,7 +640,8 @@ const pedidosAdmin = () => {
                                             <th className="p-3 border-b">Paquetes</th>
                                             <th className="p-3 border-b">Kilos</th>
                                             <th className="p-3 border-b">Pago Total</th>
-                                            <th className="p-3 border-b !max-w-[200px] md:!max-w-[400px]">Dirección</th>
+                                            <th className="p-3 border-b">Dirección</th>
+                                            <th className="p-3 border-b">Comentario</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -618,7 +701,8 @@ const pedidosAdmin = () => {
                                                 </td>
                                                 <td className="p-3">{pedido.kilos}</td>
                                                 <td className="p-3 font-semibold text-green-600">S/. {pedido.pagoTotal}</td>
-                                                <td className="p-3 !max-w-full">{`${pedido.direccionEntrega ?? ""} - ${pedido.distritoEntrega ?? ""} - ${pedido.provinciaEntrega ?? ""} - ${pedido.departamentoEntrega ?? ""} - ${pedido.celularEntrega ?? ""}`}</td>
+                                                <td className="p-3">{`${pedido.direccionEntrega ?? ""} - ${pedido.distritoEntrega ?? ""} - ${pedido.provinciaEntrega ?? ""} - ${pedido.departamentoEntrega ?? ""} - ${pedido.celularEntrega ?? ""}`}</td>
+                                                <td className="p-3">{`${pedido.comentario ?? ""}`}</td>
                                             </tr>
                                         ))}
                                     </tbody>

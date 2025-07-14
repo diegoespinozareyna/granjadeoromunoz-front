@@ -1,6 +1,7 @@
 "use client"
 
 import useApi from "@/app/hooks/fetchData/useApi";
+import { useUserStore } from "@/app/store/userStore";
 import { Apis } from "@/app/utils/configs/proyectCurrent";
 import { Button } from "@mui/material"
 import { jwtDecode } from "jwt-decode";
@@ -18,6 +19,8 @@ interface Pedido {
 const CobrarUtilidad = () => {
 
     const router = useRouter();
+    const user = useUserStore((state) => state.user);
+    console.log("user", user);
 
     const { getValues, setValue, handleSubmit, control } = useForm()
 
@@ -126,7 +129,7 @@ const CobrarUtilidad = () => {
 
     return (
         <div>
-            <div className="flex flex-col items-start justify-center mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden mb-8">
+            <div className="w-full flex flex-col items-start justify-center mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden mb-8">
                 <div className="ml-[60px] md:ml-0">
                     <Button sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => router.push(`/dashboard/${Apis.PROYECTCURRENT}`)} variant="outlined" color="primary">
                         {"<< Atras"}
@@ -152,6 +155,23 @@ const CobrarUtilidad = () => {
                     <div className="font-bold text-yellow-500 text-6xl text-center">
                         {`S/.${Number(datos?.kilosTotales * 0.80)?.toFixed(2)}`}
                     </div>
+                    {
+                        user?.userType !== "admin" &&
+                        <>
+                            <div className="font-bold text-slate-700 text-3xl text-center mt-6">
+                                {user?.membresia500 !== "0" && "Utilidades a Repartir Membresia EMPRESARIO (GRUPALES):"}
+                            </div>
+                            <div className="font-bold text-slate-700 text-3xl text-center mt-6">
+                                {user?.membresia500 !== "0" && `S/.${Number(datos?.kilosTotales * 0.80 * 0.5 * Number(user?.membresia500))?.toFixed(2)}`}
+                            </div>
+                            <div className="font-bold text-slate-700 text-3xl text-center mt-6">
+                                {user?.menbresia200 !== "0" && "Utilidades a Repartir Membresia EMPRENDEDOR (GRUPALES):"}
+                            </div>
+                            <div className="font-bold text-yellow-500 text-6xl text-center">
+                                {user?.menbresia200 !== "0" && `S/.${Number(datos?.kilosTotales * 0.80 * 0.3 * Number(user?.menbresia200))?.toFixed(2)}`}
+                            </div>
+                        </>
+                    }
                 </div>
 
             </div>

@@ -22,7 +22,7 @@ export const Navbar = () => {
     const user = useUserStore((state) => state.user);
     const [session, setSession] = useState<any>(user);
 
-    console.log("user", user);
+    // console.log("user", user);
 
     const { apiCall } = useApi()
 
