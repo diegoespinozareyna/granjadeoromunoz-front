@@ -5,7 +5,7 @@ import useApi from "@/app/hooks/fetchData/useApi";
 import { Apis } from "@/app/utils/configs/proyectCurrent";
 import { Autocomplete, Button, Card, CardContent, CardHeader, IconButton, InputAdornment, TextField } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
-import { Badge, Calendar, CheckCircle, Clock, CloudAlertIcon, CloudUpload, Edit, Edit2Icon, Eye, EyeOff, Loader2, MapPin, Package, PencilLine, RotateCcw, ScrollText, SearchIcon, X } from "lucide-react";
+import { Badge, Calendar, CheckCircle, Clock, CloudAlertIcon, CloudUpload, Edit, Edit2Icon, Eye, EyeOff, ListCheck, Loader2, MapPin, Package, PencilLine, RotateCcw, ScrollText, SearchIcon, X } from "lucide-react";
 import moment from "moment-timezone";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -14,6 +14,9 @@ import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import { PiMicrosoftExcelLogoDuotone } from "react-icons/pi";
 import { useConfigStore } from "@/app/store/userStore";
+import { PopUpGeneral } from "@/app/components/popup/PopUpGeneral";
+import { usePopupOpen } from "@/app/hooks/popupopen/usePopupOpen";
+import axios from "axios";
 
 interface Stock {
     stockContable: string,
@@ -28,7 +31,12 @@ const pedidosAdmin = () => {
     const config = useConfigStore((state) => state.config);
     console.log("config", config);
 
-    const { getValues, setValue, handleSubmit, control } = useForm()
+    const { getValues, setValue, handleSubmit, control, watch } = useForm()
+
+    const formAll = watch(["monto", "formaPago", "dataVoucher"]);
+    console.log("formAll", formAll);
+
+    const { openPopup, hangeStatePopUp } = usePopupOpen();
 
     const oneRender = useRef(true);
 
@@ -257,65 +265,6 @@ const pedidosAdmin = () => {
         }
     };
 
-    const handleSubirVoucher = async (id: string, dni: string, nombres: string) => {
-        const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/changeStatusPedido`;
-        console.log("url", url);
-
-        const { isConfirmed } = await Swal.fire({
-            title: `Cambiar estado del pedido de ${nombres} - ${dni}`,
-            html: `
-            <input type="file" id="estado" class="swal2-input" />
-          `,
-            focusConfirm: false,
-            showCancelButton: true,
-            confirmButtonText: 'Actualizar',
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            width: '400px',
-            allowOutsideClick: () => !Swal.isLoading(),
-            showLoaderOnConfirm: true,
-            preConfirm: async () => {
-                const estado = (document.getElementById('estado') as HTMLSelectElement).value;
-
-                if (!estado) {
-                    Swal.showValidationMessage('Debes seleccionar un estado');
-                    return;
-                }
-
-                try {
-                    const response = await apiCall({
-                        method: 'patch',
-                        endpoint: url,
-                        data: {
-                            urlPago: estado,
-                            id
-                        }
-                    });
-
-                    if (response.status === 201) {
-                        return { estado }; // Devuelve valores para usarlos fuera
-                    } else {
-                        Swal.showValidationMessage('Error al actualizar el estado');
-                    }
-                } catch (error) {
-                    Swal.showValidationMessage(`Error al actualizar: ${error}`);
-                }
-            }
-        });
-
-        if (isConfirmed) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Estado actualizado',
-                text: `El estado del pedido fue actualizado correctamente.`,
-                timer: 2000
-            });
-
-            fetchDataPedidosClientesFiltro();
-        }
-    };
-
     const handleChangeFechaEntrega = async (id: string, dni: string, nombres: string) => {
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/changeStatusFechaEntregaPedido`;
         console.log("url", url);
@@ -374,10 +323,6 @@ const pedidosAdmin = () => {
         // setDatos(response?.data);
     }
 
-    const handleChangeStock = async () => {
-        console.log("handleChangeStock", "stock");
-    }
-
     const [busqueda, setBusqueda] = useState('');
 
     const datosFiltrados = datos?.filter((item: any) => {
@@ -395,38 +340,72 @@ const pedidosAdmin = () => {
     );
     console.log("datosFiltrados", datosFiltrados);
 
+    const [arrUrls, setArrUrls] = useState<any>([]);
+
     const exportarExcel = () => {
-        // 1. Preparar los datos que quieres exportar
-        const datosParaExcel = datosFiltrados.map((pedido: any) => ({
-            Estado:
-                pedido.status == "0"
-                    ? "Pendiente"
-                    : pedido.status == "1"
-                        ? "Entregado"
-                        : pedido.status == "2"
-                            ? "En Ruta"
-                            : "Rechazado",
-            Usuario: `${pedido.nombresUsuario} ${pedido.apellidoPaternoUsuario || ""} ${pedido.apellidoMaternoUsuario || ""}`,
-            DNI: pedido.documentoUsuario,
-            // Fecha_Pedido: new Date(pedido.fechaPedido).toLocaleDateString(),
-            Fecha_Pedido: pedido.fechaPedido?.split?.("T")[0] || "",
-            Fecha_Entrega: pedido.fechaEntregaPedido?.split?.("T")[0] || "",
-            Paquetes: pedido.cantidadPaquetes,
-            Kilos: pedido.kilos,
-            Pago_Total: pedido.pagoTotal,
-            Dirección: pedido.direccionEntrega || "-",
-        }));
+        let res: any = [];
 
-        // 2. Crear hoja y workbook
-        const worksheet = XLSX.utils.json_to_sheet(datosParaExcel);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Pedidos");
+        const fetchUrls = async () => {
+            try {
+                const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getVouchersAllFull`;
+                const response = await apiCall({
+                    method: "get", endpoint: url, data: null, params: {
+                        proyecto: Apis.PROYECTCURRENT,
+                    }
+                });
+                console.log("response", response);
+                if (response?.status === 200) {
+                    setArrUrls(response?.data);
+                    // 1. Preparar los datos que quieres exportar
+                    const datosParaExcel = datosFiltrados.map((pedido: any) => ({
+                        Estado:
+                            pedido.status == "0"
+                                ? "Pendiente"
+                                : pedido.status == "1"
+                                    ? "Entregado"
+                                    : pedido.status == "2"
+                                        ? "En Ruta"
+                                        : "Rechazado",
+                        Usuario: `${pedido.nombresUsuario} ${pedido.apellidoPaternoUsuario || ""} ${pedido.apellidoMaternoUsuario || ""}`,
+                        DNI: pedido.documentoUsuario,
+                        Telefono: pedido.celularEntrega || "-",
+                        // Fecha_Pedido: new Date(pedido.fechaPedido).toLocaleDateString(),
+                        Fecha_Pedido: pedido.fechaPedido?.split?.("T")[0] || "",
+                        Fecha_Entrega: pedido.fechaEntregaPedido?.split?.("T")[0] || "",
+                        Paquetes: pedido.cantidadPaquetes,
+                        Kilos: pedido.kilos,
+                        Pago_Total: pedido.pagoTotal,
+                        Dirección: pedido.direccionEntrega || "-",
+                        Distrito: pedido.distritoEntrega || "-",
+                        Provincia: pedido.provinciaEntrega || "-",
+                        Departamento: pedido.departamentoEntrega || "-",
+                        URLVoucher: response?.data?.filter((x: any) => x.codPedido == pedido._id)?.map((item: any, idx: number) => `=HYPERLINK("${item.url}", "Voucher ${item.status === "0" ? "Pendiente" : item.status === "1" ? "Aceptado" : item.status === "2" ? "Rechazado" : ""}")`)
+                            ?.join('\n') ?? "",
+                    }));
 
-        // 3. Descargar archivo
-        XLSX.writeFile(workbook, "pedidos.xlsx");
+                    // 2. Crear hoja y workbook
+                    const worksheet = XLSX.utils.json_to_sheet(datosParaExcel);
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "Pedidos");
+
+                    // 3. Descargar archivo
+                    XLSX.writeFile(workbook, "pedidos.xlsx");
+                }
+                setArrUrls(response?.data);
+            } catch (error) {
+                console.error("Error al procesar el pedido:", error);
+                return null; // O manejar el error de otra manera
+
+            }
+        }
+
+        fetchUrls()
+        console.log("arrUrls: ", arrUrls);
+
     };
 
     const [loading, setLoading] = useState("");
+    const [loading2, setLoading2] = useState(false);
 
     const handleEditClick = (id: string) => {
         setLoading(id);
@@ -458,7 +437,118 @@ const pedidosAdmin = () => {
                 text: `No se pudo actualizar el precio por kilo de huevos.`,
             });
         }
+    }
 
+    const handleSubirVouchers = async () => {
+        const datosPedido = getValues()?.dataPoUp?.infoOrder
+        try {
+            if (!getValues()?.dataVoucher) return alert("Selecciona una imagen");
+            setLoading2(true)
+            const formData = new FormData();
+            formData.append("image", getValues()?.dataVoucher);
+            const res: any = await axios.post(`${Apis.URL_APOIMENT_BACKEND_DEV2}/upload`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            // console.log("res", res);
+            if (res.status == 200) {
+                const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/subirVoucher`;
+
+                const jsonSend = {
+                    codPedido: datosPedido?._id,
+                    nOperacion: new Date().getTime(),
+                    documentoUsuario: datosPedido?.documentoUsuario,
+                    fechaPago: moment.tz("America/Lima").format("YYYY-MM-DD"),
+                    formaPago: getValues()?.formaPago,
+                    monto: getValues()?.monto,
+                    fechaVerificacion: "",
+                    estadoVerificacion: "0",
+                    conceptoPago: "pago pedido",
+                    status: "1", // "0" eliminado, "1" vigente
+                    observaciones: "",
+                    proyecto: Apis.PROYECTCURRENT,
+                    url: res?.data?.url,
+                }
+
+                const response = await apiCall({
+                    method: 'post',
+                    endpoint: url,
+                    data: jsonSend
+                })
+                console.log("responsefuianl: ", response)
+                if (response.status === 201) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Voucher subido',
+                        text: 'Se ha subido el voucher',
+                        timer: 2000
+                    });
+                    hangeStatePopUp(false);
+                }
+            }
+        }
+        catch (error) {
+            console.error("Error al subir el voucher: ", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al subir el voucher',
+                text: 'No se ha podido subir el voucher',
+            });
+        }
+        finally {
+            setLoading2(false)
+            setValue("dataVoucher", null);
+            setValue("monto", null);
+            setValue("formaPago", null);
+        }
+    }
+
+    const handleGetVouchersAll = async (id: string) => {
+        const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getVouchersAll`;
+        const response = await apiCall({
+            method: "get", endpoint: url, data: null, params: {
+                id: id,
+                proyecto: Apis.PROYECTCURRENT,
+            }
+        });
+        console.log("response", response);
+        setValue("VouchersAll", response?.data);
+    }
+
+    const handleEditVoucher = async (id: string, idPedido: string) => {
+        console.log("id", id);
+        const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getEditVoucher`;
+        try {
+            const response = await apiCall({
+                method: "patch", endpoint: url, data: {
+                    id: id,
+                    status: getValues()?.status,
+                    observaciones: getValues()?.observaciones,
+                    proyecto: Apis.PROYECTCURRENT,
+                }
+            })
+            console.log("response", response);
+            if (response?.status === 201) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Voucher editado',
+                    text: 'Se ha editado el voucher',
+                    timer: 2000
+                });
+                setValue("status", "");
+                setValue("observaciones", "");
+                await handleGetVouchersAll(idPedido);
+            }
+        } catch (error) {
+            console.error("Error al editar el voucher: ", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al editar el voucher',
+                text: 'No se ha podido editar el voucher',
+                timer: 2000
+            })
+        }
     }
 
     return (
@@ -693,7 +783,7 @@ const pedidosAdmin = () => {
                                     <thead className="sticky top-0 z-10 bg-[#005c5c]">
                                         <tr className="bg-[#005c5c] text-left text-sm text-gray-50">
                                             <th className="p-3 border-b">Status</th>
-                                            {/* <th className="p-3 border-b">Subir Voucher</th> */}
+                                            <th className="p-3 border-b">Subir Voucher</th>
                                             <th className="p-3 border-b">Usuario</th>
                                             <th className="p-3 border-b">Fecha Pedido</th>
                                             <th className="p-3 border-b">Entrega</th>
@@ -717,56 +807,37 @@ const pedidosAdmin = () => {
                                                         </button>
                                                     </div>
                                                 </td>
-                                                {/* <td className="p-3">
-                                                    <div className="flex justify-start items-center gap-1">
-                                                        <Controller
-                                                            name="filePago"
-                                                            control={control}
-                                                            rules={{ required: "Se requiere un archivo de imagen" }}
-                                                            render={({ field, fieldState }) => {
-                                                                const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-                                                                const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-                                                                    const file = e.target.files?.[0];
-                                                                    if (file) {
-                                                                        const url = URL.createObjectURL(file);
-                                                                        setPreviewUrl(url);
-                                                                        field.onChange(file); // necesario para React Hook Form
-                                                                    }
-                                                                };
-
-                                                                return (
-                                                                    <div className="flex items-center gap-2">
-                                                                        <label className="cursor-pointer">
-                                                                            <input
-                                                                                type="file"
-                                                                                accept="image/*"
-                                                                                onChange={handleFileChange}
-                                                                                className="hidden"
-                                                                            />
-                                                                            <div
-                                                                                className={`text-xs bg-blue-500 hover:bg-blue-700 text-white px-2 py-1 rounded-lg flex items-center`}
-                                                                            >
-                                                                                <CloudUpload size={15} />
-                                                                            </div>
-                                                                        </label>
-                                                                        {previewUrl && (
-                                                                            <a
-                                                                                href={previewUrl}
-                                                                                target="_blank"
-                                                                                rel="noopener noreferrer"
-                                                                                className="text-blue-600 hover:text-blue-800"
-                                                                                title="Ver imagen"
-                                                                            >
-                                                                                <Eye size={18} />
-                                                                            </a>
-                                                                        )}
-                                                                    </div>
-                                                                );
+                                                <td className="p-3">
+                                                    <div className="flex justify-start items-center gap-2">
+                                                        <div
+                                                            onClick={() => {
+                                                                hangeStatePopUp(true)
+                                                                setValue("dataPoUp", {
+                                                                    title: `Subir Voucher de ${pedido?.nombresUsuario} - ${pedido?.documentoUsuario}`,
+                                                                    infoOrder: pedido,
+                                                                    action: "subirVoucher",
+                                                                })
                                                             }}
-                                                        />
+                                                            className={`text-xs bg-blue-500 hover:bg-blue-700 text-white px-2 py-1 rounded-lg flex items-center cursor-pointer`}
+                                                        >
+                                                            <CloudUpload size={15} />
+                                                        </div>
+                                                        <div
+                                                            onClick={() => {
+                                                                hangeStatePopUp(true)
+                                                                handleGetVouchersAll(pedido._id)
+                                                                setValue("dataPoUp", {
+                                                                    title: `Voucher(s) de ${pedido?.nombresUsuario} - ${pedido?.documentoUsuario}`,
+                                                                    infoOrder: pedido,
+                                                                    action: "verVouchers",
+                                                                })
+                                                            }}
+                                                            className="rounded-md bg-green-500 hover:bg-green-700 text-white px-2 py-1 cursor-pointer"
+                                                        >
+                                                            <ListCheck size={15} className="text-green-50" />
+                                                        </div>
                                                     </div>
-                                                </td> */}
+                                                </td>
                                                 <td className="p-3">
                                                     {`${pedido?.nombresUsuario} ${pedido?.apellidoPaternoUsuario ?? ""} ${pedido?.apellidoMaternoUsuario} - ${pedido?.documentoUsuario} ${pedido?.membresia?.split(" - ")[0]?.split(": ")[1] == "0" ? "- EMPRENDEDOR" : ""} - ${pedido?.membresia?.split(" - ")[1]?.split(": ")[1] == "0" ? "- EMPRESARIO" : ""} - Cel.: ${pedido?.celularEntrega ?? ""}`}
                                                 </td>
@@ -813,6 +884,10 @@ const pedidosAdmin = () => {
                                                 <td className="p-3 font-semibold text-green-600">S/. {pedido.pagoTotal}</td>
                                                 <td className="p-3">{`${pedido.direccionEntrega ?? ""} - ${pedido.distritoEntrega ?? ""} - ${pedido.provinciaEntrega ?? ""} - ${pedido.departamentoEntrega ?? ""} - ${pedido.celularEntrega ?? ""}`}</td>
                                                 <td className="p-3">{`${pedido.comentario ?? ""}`}</td>
+                                                {
+                                                    openPopup &&
+                                                    <PopUpGeneral getValues={getValues} setValue={setValue} control={control} hangeStatePopUp={hangeStatePopUp} handleSubirVouchers={handleSubirVouchers} handleEditVoucher={handleEditVoucher} />
+                                                }
                                             </tr>
                                         ))}
                                     </tbody>
@@ -826,7 +901,7 @@ const pedidosAdmin = () => {
                             <div className="font-bold text-base text-red-300">{""}</div>
                         </div>
                 }
-            </div>
+            </div >
         </>
     )
 }
