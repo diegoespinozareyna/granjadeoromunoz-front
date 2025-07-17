@@ -884,10 +884,7 @@ const pedidosAdmin = () => {
                                                 <td className="p-3 font-semibold text-green-600">S/. {pedido.pagoTotal}</td>
                                                 <td className="p-3">{`${pedido.direccionEntrega ?? ""} - ${pedido.distritoEntrega ?? ""} - ${pedido.provinciaEntrega ?? ""} - ${pedido.departamentoEntrega ?? ""} - ${pedido.celularEntrega ?? ""}`}</td>
                                                 <td className="p-3">{`${pedido.comentario ?? ""}`}</td>
-                                                {
-                                                    openPopup &&
-                                                    <PopUpGeneral getValues={getValues} setValue={setValue} control={control} hangeStatePopUp={hangeStatePopUp} handleSubirVouchers={handleSubirVouchers} handleEditVoucher={handleEditVoucher} />
-                                                }
+
                                             </tr>
                                         ))}
                                     </tbody>
@@ -901,7 +898,11 @@ const pedidosAdmin = () => {
                             <div className="font-bold text-base text-red-300">{""}</div>
                         </div>
                 }
-            </div >
+            </div>
+            {
+                openPopup &&
+                <PopUpGeneral getValues={getValues} setValue={setValue} control={control} hangeStatePopUp={hangeStatePopUp} handleSubirVouchers={handleSubirVouchers} handleEditVoucher={handleEditVoucher} />
+            }
         </>
     )
 }
