@@ -42,6 +42,9 @@ const pedidosAdmin = () => {
 
     const { apiCall } = useApi()
 
+    const [loading, setLoading] = useState("");
+    const [loading2, setLoading2] = useState(false);
+
     const [session, setSession] = useState<any>(null);
     const [datos, setDatos] = useState<any>([]);
     const [stock, setStock] = useState<any>([]);
@@ -404,9 +407,6 @@ const pedidosAdmin = () => {
 
     };
 
-    const [loading, setLoading] = useState("");
-    const [loading2, setLoading2] = useState(false);
-
     const handleEditClick = (id: string) => {
         setLoading(id);
         router.push(`/dashboard/editarPedidos/${id}`);
@@ -465,7 +465,7 @@ const pedidosAdmin = () => {
                     fechaVerificacion: "",
                     estadoVerificacion: "0",
                     conceptoPago: "pago pedido",
-                    status: "1", // "0" eliminado, "1" vigente
+                    status: "0", // "0" pendiente, "1" aceptado, "2" rechazado
                     observaciones: "",
                     proyecto: Apis.PROYECTCURRENT,
                     url: res?.data?.url,
@@ -901,7 +901,7 @@ const pedidosAdmin = () => {
             </div>
             {
                 openPopup &&
-                <PopUpGeneral getValues={getValues} setValue={setValue} control={control} hangeStatePopUp={hangeStatePopUp} handleSubirVouchers={handleSubirVouchers} handleEditVoucher={handleEditVoucher} />
+                <PopUpGeneral getValues={getValues} setValue={setValue} control={control} hangeStatePopUp={hangeStatePopUp} handleSubirVouchers={handleSubirVouchers} handleEditVoucher={handleEditVoucher} loading2={loading2} />
             }
         </>
     )

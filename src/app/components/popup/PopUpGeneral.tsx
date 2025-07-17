@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Controller } from "react-hook-form";
 import Swal from "sweetalert2";
 
-export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, handleSubirVouchers, infoOrder, handleEditVoucher }: any) => {
+export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, handleSubirVouchers, infoOrder, handleEditVoucher, loading2 }: any) => {
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-[rgba(50,50,50,0.1)]">
@@ -290,6 +290,7 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                         (getValues()?.monto == undefined || getValues()?.formaPago == undefined || getValues()?.dataVoucher == undefined)
                                         || (getValues()?.monto == null || getValues()?.formaPago == null || getValues()?.dataVoucher == null)
                                         || (getValues()?.monto == "" || getValues()?.formaPago == "" || getValues()?.dataVoucher == "")
+                                        || loading2
                                     }
                                 >
                                     Aceptar
