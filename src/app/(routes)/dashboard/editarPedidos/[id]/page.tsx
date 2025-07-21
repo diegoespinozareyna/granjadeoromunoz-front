@@ -54,6 +54,7 @@ const EditarPedidos = () => {
         { value: "Chaclacayo", label: "Chaclacayo", zona: "Este" },
         { value: "El Agustino", label: "El Agustino", zona: "Este" },
         { value: "San Antonio - Jicamarca", label: "San Antonio - Jicamarca", zona: "Este" },
+        { value: "Lurigancho", label: "Lurigancho", zona: "Este" },
         { value: "San Juan de Lurigancho", label: "San Juan de Lurigancho", zona: "Este" },
         { value: "Santa Anita", label: "Santa Anita", zona: "Este" },
         { value: "Santa Eulalia", label: "Santa Eulalia", zona: "Este" },
