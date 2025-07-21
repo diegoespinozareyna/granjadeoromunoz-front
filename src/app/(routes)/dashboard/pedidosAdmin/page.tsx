@@ -578,6 +578,48 @@ const pedidosAdmin = () => {
         }
     }
 
+
+    const fetchPedidosFechasTrue = async () => {
+        const isDay = moment().tz("America/Lima").day();
+        if (isDay == 1 || isDay == 2 || isDay == 3) {
+            console.log("isDay: ", isDay);
+            setValue("isPedidos", true);
+            if (isDay == 1) {
+                setValue("fechaInicio", moment().tz("America/Lima").format('DD-MM-YYYY'));
+                setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
+            }
+            if (isDay == 2) {
+                setValue("fechaInicio", moment().tz("America/Lima").subtract(1, 'days').format('DD-MM-YYYY'));
+                setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
+            }
+            if (isDay == 3) {
+                setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
+                setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
+            }
+        }
+        try {
+            const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
+            const response = await apiCall({
+                method: "get", endpoint: url, data: null, params: {
+                    documentoUsuario: getValues()?.documentoUsuario ?? "",
+                    fechaInicio: getValues()?.fechaInicio,
+                    fechaFin: getValues()?.fechaFin,
+                    statusFiltro: getValues()?.statusFiltro ?? null,
+                }
+            });
+            console.log("response fechas true", response?.data);
+            console.log("responsen cantidad de pedidos realizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0));
+            const pedidosTotales = response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0);
+            setValue("pedidosRealizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0));
+        } catch (error) {
+            console.log("error", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchPedidosFechasTrue()
+    }, [])
+
     return (
         <>
             <div className="flex flex-col items-start justify-center mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">
@@ -753,6 +795,10 @@ const pedidosAdmin = () => {
             <div className="flex gap-3 bg-[#00bcbc] px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] font-bold">
                 {/* <div className="text-base font-bold">{`Pedidos Rechazados`}</div> */}
                 <div className="text-base flex justify-end">{`Ped. Rechazados: ${datos?.filter((x: any) => x.status == "3")?.length}`}</div>
+            </div>
+            <div className="flex gap-3 bg-[#00bcbc] px-2 py-1 rounded-lg my-1 text-3xl w-[200px] md:w-[200px] font-bold">
+                {/* <div className="text-base font-bold">{`Pedidos Rechazados`}</div> */}
+                <div className="text-base text-red-700 flex justify-end">{`Paq. Semanales: ${getValues()?.pedidosRealizados ?? 0}`}</div>
             </div>
             <div className="flex justify-center items-center gap-1 px-1 py-1 rounded-lg my-1 ">
                 <div className="flex flex-col justify-start items-start gap-0 text-black">
