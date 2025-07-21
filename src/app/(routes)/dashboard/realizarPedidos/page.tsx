@@ -17,7 +17,10 @@ const RealizarPedidos = () => {
 
     const router = useRouter();
 
-    const { getValues, setValue, handleSubmit, control } = useForm()
+    const { getValues, setValue, handleSubmit, control, watch } = useForm()
+
+    const formAll = watch();
+    console.log("formAll", formAll);
     // const [showPassword, setShowPassword] = useState(false)
     const { apiCall, loading, error } = useApi()
 
@@ -70,6 +73,7 @@ const RealizarPedidos = () => {
                 provinciaEntrega: getValues()?.provinciaEntrega,
                 departamentoEntrega: getValues()?.departamentoEntrega,
                 celularEntrega: getValues()?.celularEntrega,
+                zona: getValues()?.zona,
                 usuario: `${session?.nombres} ${session?.apellidoPaterno} ${session?.apellidoMaterno}`,
                 proyecto: Apis.PROYECTCURRENT,
             };
@@ -222,6 +226,46 @@ const RealizarPedidos = () => {
         { value: "12", label: "Diciembre", last: "31" },
     ]
 
+
+    const distritos = [
+        //norte
+        { value: "Ancon", label: "Ancon", zona: "Norte" },
+        { value: "Carabayllo", label: "Carabayllo", zona: "Norte" },
+        { value: "Comas", label: "Comas", zona: "Norte" },
+        { value: "Independencia", label: "Independencia", zona: "Norte" },
+        { value: "Los Olivos", label: "Los Olivos", zona: "Norte" },
+        { value: "Puente Piedra", label: "Puente Piedra", zona: "Norte" },
+        { value: "San Martin de Porres", label: "San Martin de Porres", zona: "Norte" },
+        //central
+        { value: "Jesus Maria", label: "Jesus Maria", zona: "Central" },
+        { value: "La Victoria", label: "La Victoria", zona: "Central" },
+        { value: "Lima", label: "Lima", zona: "Central" },
+        { value: "Lince", label: "Lince", zona: "Central" },
+        { value: "Pueblo Libre", label: "Pueblo Libre", zona: "Central" },
+        { value: "Rimac", label: "Rimac", zona: "Central" },
+        { value: "San Luis", label: "San Luis", zona: "Central" },
+        //este
+        { value: "Ate", label: "Ate", zona: "Este" },
+        { value: "Chaclacayo", label: "Chaclacayo", zona: "Este" },
+        { value: "El Agustino", label: "El Agustino", zona: "Este" },
+        { value: "San Antonio - Jicamarca", label: "San Antonio - Jicamarca", zona: "Este" },
+        { value: "San Juan de Lurigancho", label: "San Juan de Lurigancho", zona: "Este" },
+        { value: "Santa Anita", label: "Santa Anita", zona: "Este" },
+        { value: "Santa Eulalia", label: "Santa Eulalia", zona: "Este" },
+        //sur
+        { value: "Lurin", label: "Lurin", zona: "Sur" },
+        { value: "Pachacamac", label: "Pachacamac", zona: "Sur" },
+        { value: "Pucusana", label: "Pucusana", zona: "Sur" },
+        { value: "San Juan De Miraflores", label: "San Juan De Miraflores", zona: "Sur" },
+        { value: "Villa El Salvador", label: "Villa El Salvador", zona: "Sur" },
+        { value: "Villa Maria del Triunfo", label: "Villa Maria del Triunfo", zona: "Sur" },
+        //central sur
+        { value: "Chorrillos", label: "Chorrillos", zona: "Central Sur" },
+        { value: "San Borja", label: "San Borja", zona: "Central Sur" },
+        { value: "Santiago de Surco", label: "Santiago de Surco", zona: "Central Sur" },
+        { value: "Surquillo", label: "Surquillo", zona: "Central Sur" },
+    ]
+
     const fetchDataPedidosClientes = async () => {
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
         console.log("session", user?.documentoUsuario);
@@ -281,8 +325,8 @@ const RealizarPedidos = () => {
         setLimitePEdidos((10 * Number(user?.membresia500 ?? 0)) + (3 * Number(user?.menbresia200 ?? 0)) - numPedidos)
 
         setValue("membresia", `Empresario: ${user?.membresia500} - Emprendedor: ${user?.menbresia200}`)
-        setValue("direccionEntrega", user?.direccion ?? "")
-        setValue("distritoEntrega", user?.distrito ?? "")
+        setValue("direccionEntrega", user?.direccion ?? "");
+        // setValue("distritoEntrega", user?.distrito ?? "");
         setValue("provinciaEntrega", user?.provincia ?? "")
         setValue("departamentoEntrega", user?.departamento ?? "")
         setValue("celularEntrega", user?.celular ?? "")
@@ -290,11 +334,25 @@ const RealizarPedidos = () => {
     }
 
     useEffect(() => {
+        if (user?.distrito && distritos.length > 0) {
+            const match = distritos.find((opt) => opt.value?.toLowerCase() === user?.distrito?.toLowerCase());
+            console.log("match", match);
+            if (match) {
+                setValue("distritoEntrega", match.value);
+                setValue("zona", match.zona);
+            }
+        }
+    }, [user?.distrito]);
+
+    useEffect(() => {
         setValue(`precioSemanal`, config?.precioKiloHuevos ?? "4.70")
         setValue(`fechaPedido`, `${moment.tz("America/Lima").format("YYYY-MM-DD")}`)
         setValue(`fechaEntregaPedido`, `${moment.tz("America/Lima").add(8, "days").format("YYYY-MM-DD")}`)
         fetchDataPedidosClientes()
-    }, [session, config])
+        if (user?.distrito) {
+            fetchDataPedidosClientes()
+        }
+    }, [session, config, user, setValue])
 
     return (
         <div className="flex flex-col items-start justify-start mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">
@@ -307,7 +365,7 @@ const RealizarPedidos = () => {
                 {/* <h2 className="text-xl font-bold text-gray-800 my-4 uppercase text-center">Datos de Pedido</h2> */}
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     {
-                        limitePEdidos == "0" ?
+                        (limitePEdidos <= "0" || limitePEdidos == null || limitePEdidos === undefined) ?
                             <div className="flex flex-col items-center justify-center gap-2 w-full px-1 rounded-lg bg-[rgba(255,255,255,0.5)]">
                                 <div className="font-bold text-3xl text-red-400">{"Lo sentimos..."}</div>
                                 <div className="font-bold text-base text-red-400">{"Límite de pedidos mensuales alcanzado! Debe esperar hasta el próximo mes para poder realizar otro pedido."}</div>
@@ -315,12 +373,12 @@ const RealizarPedidos = () => {
                             :
                             limitePEdidos !== null &&
                             // <FormRealizaPedidos {...{ getValues, setValue, control, apiCall }} />
-                            <FormRealizaPedidos2 {...{ getValues, setValue, control, apiCall }} />
+                            <FormRealizaPedidos2 {...{ getValues, setValue, control, apiCall, distritos }} />
                     }
                     {
                         limitePEdidos == "0" ? ""
                             :
-                            <Button disabled={loading} loading={loading} sx={{ width: "100%", backgroundColor: "#22b2aa", ":hover": { backgroundColor: "#006060", color: "white" }, fontWeight: "bold", color: "black" }} variant="contained" color="success" type="submit">
+                            <Button disabled={loading} sx={{ width: "100%", backgroundColor: "#22b2aa", ":hover": { backgroundColor: "#006060", color: "white" }, fontWeight: "bold", color: "black" }} variant="contained" color="success" type="submit">
                                 Realizar Pedido
                             </Button>
                     }

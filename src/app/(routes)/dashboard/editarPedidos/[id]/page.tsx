@@ -32,6 +32,45 @@ const EditarPedidos = () => {
         return moment(fechaUTC).tz("America/Lima").format("YYYY-MM-DD");
     }
 
+    const distritos = [
+        //norte
+        { value: "Ancon", label: "Ancon", zona: "Norte" },
+        { value: "Carabayllo", label: "Carabayllo", zona: "Norte" },
+        { value: "Comas", label: "Comas", zona: "Norte" },
+        { value: "Independencia", label: "Independencia", zona: "Norte" },
+        { value: "Los Olivos", label: "Los Olivos", zona: "Norte" },
+        { value: "Puente Piedra", label: "Puente Piedra", zona: "Norte" },
+        { value: "San Martin de Porres", label: "San Martin de Porres", zona: "Norte" },
+        //central
+        { value: "Jesus Maria", label: "Jesus Maria", zona: "Central" },
+        { value: "La Victoria", label: "La Victoria", zona: "Central" },
+        { value: "Lima", label: "Lima", zona: "Central" },
+        { value: "Lince", label: "Lince", zona: "Central" },
+        { value: "Pueblo Libre", label: "Pueblo Libre", zona: "Central" },
+        { value: "Rimac", label: "Rimac", zona: "Central" },
+        { value: "San Luis", label: "San Luis", zona: "Central" },
+        //este
+        { value: "Ate", label: "Ate", zona: "Este" },
+        { value: "Chaclacayo", label: "Chaclacayo", zona: "Este" },
+        { value: "El Agustino", label: "El Agustino", zona: "Este" },
+        { value: "San Antonio - Jicamarca", label: "San Antonio - Jicamarca", zona: "Este" },
+        { value: "San Juan de Lurigancho", label: "San Juan de Lurigancho", zona: "Este" },
+        { value: "Santa Anita", label: "Santa Anita", zona: "Este" },
+        { value: "Santa Eulalia", label: "Santa Eulalia", zona: "Este" },
+        //sur
+        { value: "Lurin", label: "Lurin", zona: "Sur" },
+        { value: "Pachacamac", label: "Pachacamac", zona: "Sur" },
+        { value: "Pucusana", label: "Pucusana", zona: "Sur" },
+        { value: "San Juan De Miraflores", label: "San Juan De Miraflores", zona: "Sur" },
+        { value: "Villa El Salvador", label: "Villa El Salvador", zona: "Sur" },
+        { value: "Villa Maria del Triunfo", label: "Villa Maria del Triunfo", zona: "Sur" },
+        //central sur
+        { value: "Chorrillos", label: "Chorrillos", zona: "Central Sur" },
+        { value: "San Borja", label: "San Borja", zona: "Central Sur" },
+        { value: "Santiago de Surco", label: "Santiago de Surco", zona: "Central Sur" },
+        { value: "Surquillo", label: "Surquillo", zona: "Central Sur" },
+    ]
+
     const fetchDataPedido = async () => {
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedido`;
         const response = await apiCall({
@@ -53,7 +92,13 @@ const EditarPedidos = () => {
         Number(response?.data?.cantidadPaquetes) <= 3 ? setValue("entregaDomicilio", 6) : Number(response?.data?.cantidadPaquetes) <= 6 ? setValue("entregaDomicilio", 10) : Number(response?.data?.cantidadPaquetes) <= 10 ? setValue("entregaDomicilio", 12) : setValue("entregaDomicilio", 12)
         setValue("precioSemanal", response?.data?.precioSemanal);
         setValue("direccionEntrega", response?.data?.direccionEntrega);
-        setValue("distritoEntrega", response?.data?.distritoEntrega);
+        const match = distritos?.find((opt: any) => opt.value?.toLowerCase() === response?.data?.distritoEntrega?.toLowerCase());
+        console.log("match", match);
+        if (match) {
+            setValue("distritoEntrega", match?.value);
+            setValue("zona", match?.zona);
+        }
+        // setValue("distritoEntrega", response?.data?.distritoEntrega);
         setValue("provinciaEntrega", response?.data?.provinciaEntrega);
         setValue("departamentoEntrega", response?.data?.departamentoEntrega);
         setValue("fechaPedido", fechaLimaFormateada(response?.data?.fechaPedido));
@@ -78,6 +123,7 @@ const EditarPedidos = () => {
             provinciaEntrega: getValues()?.provinciaEntrega,
             departamentoEntrega: getValues()?.departamentoEntrega,
             celularEntrega: getValues()?.celularEntrega,
+            zona: getValues()?.zona,
         }
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/editarPedido`
         const response = await apiCall({
@@ -140,7 +186,7 @@ const EditarPedidos = () => {
                     <div className="font-bold text-white">
                         {`Celular: ${getValues()?.celularEntrega ?? ""}`}
                     </div>
-                    <FormEditarPedidos {...{ getValues, setValue, control, apiCall }} />
+                    <FormEditarPedidos {...{ getValues, setValue, control, apiCall, distritos }} />
                     <Button disabled={loading} loading={loading} sx={{ width: "100%", backgroundColor: "#22b2aa", ":hover": { backgroundColor: "#006060", color: "white" }, fontWeight: "bold", color: "black" }} variant="contained" color="success" type="submit">
                         Editar Pedido
                     </Button>

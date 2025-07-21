@@ -7,7 +7,7 @@ import moment from "moment-timezone";
 import { useState } from "react";
 import { Controller } from "react-hook-form";
 
-export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall }: any) => {
+export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall, distritos }: any) => {
 
     const [direccionObligatoria, setDireccionObligatoria] = useState(false);
 
@@ -461,45 +461,43 @@ export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall }: a
                         <div>
                             <div className="uppercase text-sm font-bold text-white">{"Distrtio de Entrega"}</div>
                             <Controller
-                                name={`distritoEntrega`}
+                                name="distritoEntrega"
                                 control={control}
+                                rules={{ required: "Distrito obligatorio" }}
                                 render={({ field, fieldState }) => (
-                                    <TextField
-                                        {...field}
-                                        error={!!fieldState.error}
-                                        helperText={fieldState.error ? fieldState.error.message : ""}
-                                        // label={item.label}
-                                        variant="outlined"
-                                        // placeholder={item.placeholder}
-                                        size="small"
-                                        // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
-                                        disabled={false}
-                                        required={true}
-                                        type={"text"}
-                                        InputLabelProps={{
-                                            shrink: true,
+                                    <Autocomplete
+                                        options={distritos}
+                                        getOptionLabel={(option) => option?.label || ""}
+                                        isOptionEqualToValue={(option, value) => option.value === value}
+                                        value={distritos.find((opt: any) => opt.value === field.value) || null}
+                                        onChange={(_, selectedOption) => {
+                                            field.onChange(selectedOption?.value ?? "");
+                                            setValue("zona", selectedOption?.zona ?? "");
                                         }}
-                                        multiline={false}
-                                        minRows={2}
-                                        className="w-full bg-[#efefef]"
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                placeholder="Seleccione distrito"
+                                                required
+                                                error={!!fieldState.error}
+                                                helperText={fieldState.error?.message}
+                                            />
+                                        )}
+                                        className="!w-full bg-slate-100 rounded-lg h-[40px]"
                                         sx={{
                                             input: {
                                                 color: '#000', // texto negro
                                                 WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
+                                                height: '8px',
                                                 border: 'none',
-                                                borderRadius: '10px',
-                                                backgroundColor: '#efefef',
+                                                // borderRadius: '10px',
+                                                // backgroundColor: '#efefef',
                                             },
                                             '.Mui-disabled': {
                                                 WebkitTextFillColor: '#000 !important',
                                                 color: '#000 !important',
                                                 opacity: 1, // elimina el desvanecido
                                             },
-                                        }}
-                                        onChange={(e: any) => {
-                                            let value = e.target.value;
-                                            // value = value.replace(/(?!^)-|[^0-9.,-]/g, "");// positivos y negativos
-                                            field.onChange(value);
                                         }}
                                     />
                                 )}
@@ -562,6 +560,56 @@ export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall }: a
                             <div className="uppercase text-sm font-bold text-white">{"Departamento de Entrega"}</div>
                             <Controller
                                 name={`departamentoEntrega`}
+                                control={control}
+                                render={({ field, fieldState }) => (
+                                    <TextField
+                                        {...field}
+                                        error={!!fieldState.error}
+                                        helperText={fieldState.error ? fieldState.error.message : ""}
+                                        // label={item.label}
+                                        variant="outlined"
+                                        // placeholder={item.placeholder}
+                                        size="small"
+                                        // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
+                                        disabled={false}
+                                        required={true}
+                                        type={"text"}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        multiline={false}
+                                        minRows={2}
+                                        className="w-full bg-[#efefef]"
+                                        sx={{
+                                            input: {
+                                                color: '#000', // texto negro
+                                                WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                backgroundColor: '#efefef',
+                                            },
+                                            '.Mui-disabled': {
+                                                WebkitTextFillColor: '#000 !important',
+                                                color: '#000 !important',
+                                                opacity: 1, // elimina el desvanecido
+                                            },
+                                        }}
+                                        onChange={(e: any) => {
+                                            let value = e.target.value;
+                                            // value = value.replace(/(?!^)-|[^0-9.,-]/g, "");// positivos y negativos
+                                            field.onChange(value);
+                                        }}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 justify-start items-start gap-1 w-full mt-3">
+                        <div>
+                            <div className="uppercase text-sm font-bold text-white">{"ZONA"}</div>
+                            <Controller
+                                name={`zona`}
                                 control={control}
                                 render={({ field, fieldState }) => (
                                     <TextField

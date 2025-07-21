@@ -123,7 +123,13 @@ const pedidosAdmin = () => {
             }
         });
         console.log("response", response);
-        setDatos(response?.data);
+        setDatos(response?.data?.map((item: any) => {
+            return {
+                ...item,
+                membresia500: item?.membresia?.split(" - ")[0]?.split(": ")[1] > "0" ? "empresario" : "emprendedor",
+                menbresia200: item?.membresia?.split(" - ")[1]?.split(": ")[1] > "0" ? "emprendedor" : "empresario",
+            }
+        }));
     }
 
     const fetchStock = async () => {
@@ -336,7 +342,10 @@ const pedidosAdmin = () => {
             item?.apellidoMaternoUsuario?.toLowerCase().includes(busqueda?.toLowerCase()) ||
             item?.distritoEntrega?.toLowerCase().includes(busqueda?.toLowerCase()) ||
             item?.documentoUsuario?.toLowerCase() == (busqueda?.toLowerCase()) ||
-            item?.cantidadPaquetes?.toLowerCase() == (busqueda?.toLowerCase())
+            item?.cantidadPaquetes?.toLowerCase() == (busqueda?.toLowerCase()) ||
+            item?.zona?.toLowerCase() == (busqueda?.toLowerCase()) ||
+            item?.membresia500?.toLowerCase() == (busqueda?.toLowerCase()) ||
+            item?.membresia200?.toLowerCase() == (busqueda?.toLowerCase())
         );
         return filtro
     }
@@ -484,6 +493,16 @@ const pedidosAdmin = () => {
                         text: 'Se ha subido el voucher',
                         timer: 2000
                     });
+
+                    const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/insertUrlsPagos`;
+                    const response = await apiCall({
+                        method: "patch", endpoint: url, data: {
+                            id: datosPedido?._id,
+                            urlPago: res?.data?.url,
+                        }
+                    });
+                    // console.log("response", response?.data)
+                    fetchDataPedidosClientes()
                     hangeStatePopUp(false);
                 }
             }
@@ -701,8 +720,8 @@ const pedidosAdmin = () => {
             <div>
                 <input
                     type="text"
-                    placeholder="Nombre,DNI,Distrito,#Paquetes..."
-                    className="mb-4 p-2 border rounded w-full max-w-md bg-white mt-5"
+                    placeholder="Nombre, DNI, Zona, #Paquetes, Membresia"
+                    className="mb-4 p-2 border rounded w-[350px] max-w-md bg-white mt-5"
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
                 />
@@ -791,6 +810,7 @@ const pedidosAdmin = () => {
                                             <th className="p-3 border-b">Kilos</th>
                                             <th className="p-3 border-b">Pago Total</th>
                                             <th className="p-3 border-b">Dirección</th>
+                                            <th className="p-3 border-b">ZONA</th>
                                             <th className="p-3 border-b">Comentario</th>
                                         </tr>
                                     </thead>
@@ -832,7 +852,7 @@ const pedidosAdmin = () => {
                                                                     action: "verVouchers",
                                                                 })
                                                             }}
-                                                            className="rounded-md bg-green-500 hover:bg-green-700 text-white px-2 py-1 cursor-pointer"
+                                                            className={`rounded-md ${pedido?.urlsPago?.length > 0 ? `bg-green-500 hover:bg-green-700` : `bg-slate-500 hover:bg-slate-700`} text-white px-2 py-1 cursor-pointer`}
                                                         >
                                                             <ListCheck size={15} className="text-green-50" />
                                                         </div>
@@ -883,6 +903,7 @@ const pedidosAdmin = () => {
                                                 <td className="p-3">{pedido.kilos}</td>
                                                 <td className="p-3 font-semibold text-green-600">S/. {pedido.pagoTotal}</td>
                                                 <td className="p-3">{`${pedido.direccionEntrega ?? ""} - ${pedido.distritoEntrega ?? ""} - ${pedido.provinciaEntrega ?? ""} - ${pedido.departamentoEntrega ?? ""} - ${pedido.celularEntrega ?? ""}`}</td>
+                                                <td className="p-3">{`${pedido.zona ?? ""}`}</td>
                                                 <td className="p-3">{`${pedido.comentario ?? ""}`}</td>
 
                                             </tr>

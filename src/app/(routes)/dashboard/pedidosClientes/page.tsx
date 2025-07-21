@@ -233,8 +233,9 @@ const PedidosClientes = () => {
                                                     <h3 className="text-lg font-bold">Pedido #{index + 1}</h3>
                                                     {/* <p className="text-[#FFFFFF] text-sm">Paquetes de Huevos</p> */}
                                                 </div>
-                                                <div className="bg-white/20 rounded-full p-2">
+                                                <div className="bg-white/20 rounded-full p-2 flex gap-1 justify-center items-center">
                                                     <Package className="h-6 w-6" />
+                                                    <span className="text-2xl font-bold text-[#ffffff]">{`S/.${Number(item.precio)?.toFixed(2) ?? 0}`}</span>
                                                 </div>
                                             </div>
                                         </div>
