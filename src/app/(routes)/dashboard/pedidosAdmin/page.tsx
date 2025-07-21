@@ -618,7 +618,7 @@ const pedidosAdmin = () => {
 
     useEffect(() => {
         fetchPedidosFechasTrue()
-    }, [])
+    }, [datos])
 
     return (
         <>
