@@ -391,6 +391,7 @@ const pedidosAdmin = () => {
                         Distrito: pedido.distritoEntrega || "-",
                         Provincia: pedido.provinciaEntrega || "-",
                         Departamento: pedido.departamentoEntrega || "-",
+                        Zona: pedido.zona || "-",
                         URLVoucher: response?.data?.filter((x: any) => x.codPedido == pedido._id)?.map((item: any, idx: number) => `=HYPERLINK("${item.url}", "Voucher ${item.status === "0" ? "Pendiente" : item.status === "1" ? "Aceptado" : item.status === "2" ? "Rechazado" : ""}")`)
                             ?.join('\n') ?? "",
                     }));

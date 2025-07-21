@@ -348,7 +348,7 @@ const RealizarPedidos = () => {
     useEffect(() => {
         setValue(`precioSemanal`, config?.precioKiloHuevos ?? "4.70")
         setValue(`fechaPedido`, `${moment.tz("America/Lima").format("YYYY-MM-DD")}`)
-        setValue(`fechaEntregaPedido`, `${moment.tz("America/Lima").add(8, "days").format("YYYY-MM-DD")}`)
+        setValue(`fechaEntregaPedido`, `${moment.tz("America/Lima").add(6, "days").format("YYYY-MM-DD")}`)
         fetchDataPedidosClientes()
         if (user?.distrito) {
             fetchDataPedidosClientes()
