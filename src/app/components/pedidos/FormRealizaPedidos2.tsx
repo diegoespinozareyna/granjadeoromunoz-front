@@ -621,7 +621,7 @@ export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall, dis
                                         // placeholder={item.placeholder}
                                         size="small"
                                         // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
-                                        disabled={false}
+                                        disabled={true}
                                         required={true}
                                         type={"text"}
                                         InputLabelProps={{

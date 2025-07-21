@@ -606,7 +606,7 @@ export const FormEditarPedidos = ({ getValues, setValue, control, apiCall, distr
                                         // placeholder={item.placeholder}
                                         size="small"
                                         // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
-                                        disabled={false}
+                                        disabled={true}
                                         required={true}
                                         type={"text"}
                                         InputLabelProps={{
