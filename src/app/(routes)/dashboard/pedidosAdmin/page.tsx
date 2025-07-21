@@ -51,6 +51,13 @@ const pedidosAdmin = () => {
     const [precioKilos, setPrecioKilos] = useState<any>('');
 
     useEffect(() => {
+        const isDay = moment().tz("America/Lima").day();
+        if (isDay == 1 || isDay == 2 || isDay == 3) {
+            setValue("isPedidos", true);
+        }
+    }, [])
+
+    useEffect(() => {
         try {
             const token = localStorage.getItem('auth-token');
             const decoded: any = jwtDecode(token as string);

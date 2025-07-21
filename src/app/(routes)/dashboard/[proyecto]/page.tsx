@@ -1,13 +1,22 @@
 "use client"
 
+import useApi from "@/app/hooks/fetchData/useApi";
 import { useUserStore } from "@/app/store/userStore";
+import { Apis } from "@/app/utils/configs/proyectCurrent";
 import { jwtDecode } from "jwt-decode";
+import moment from "moment-timezone";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 const Dashboard = () => {
 
     const [session, setSession] = useState<any>(null);
+    const { setValue, getValues } = useForm()
+    const { apiCall } = useApi()
+    const topePedidos = 300;
+    let isDayes = false;
+    const [images, setImages] = useState<any>([]);
 
     useEffect(() => {
         try {
@@ -22,75 +31,152 @@ const Dashboard = () => {
         }
     }, [])
 
-    const images = session?.userType !== "admin" ?
-        [
-            {
-                src: "/realizarpedido.jpg",
-                action: "REALIZAR PEDIDO",
-                push: "realizarPedidos",
-                alt: "Inmobiliaria Muñoz Logo",
-                width: 56,
-                height: 56,
-            },
-            {
-                src: "/Tú decides Instagram post (1).png",
-                action: "VER PEDIDOS",
-                push: "pedidosClientes",
-                alt: "Inmobiliaria Muñoz Logo",
-                width: 56,
-                height: 56,
-            },
-            // {
-            //     src: "/utilidadtrimestral.jpg",
-            //     action: "VER UTILIDADES",
-            //     push: "verUtilidades",
-            //     alt: "Inmobiliaria Muñoz Logo",
-            //     width: 56,
-            //     height: 56,
-            // },
-            {
-                src: "/COBRARUTILIDA2.png",
-                action: "COBRAR UTILIDAD",
-                push: "cobrarUtilidad",
-                alt: "Inmobiliaria Muñoz Logo",
-                width: 56,
-                height: 56,
-            },
-        ]
-        :
-        [
-            {
-                src: "/Tú decides Instagram post (1).png",
-                action: "VER PEDIDOS",
-                push: "pedidosAdmin",
-                alt: "Inmobiliaria Muñoz Logo",
-                width: 56,
-                height: 56,
-            },
-            {
-                src: "/COBRARUTILIDA2.png",
-                action: "COBRAR UTILIDAD",
-                push: "cobrarUtilidad",
-                alt: "Inmobiliaria Muñoz Logo",
-                width: 56,
-                height: 56,
-            },
-            {
-                src: "/verUsuarios.png",
-                action: "VER USUARIOS",
-                push: "verUsuarios",
-                alt: "Inmobiliaria Muñoz Logo",
-                width: 56,
-                height: 56,
-            },
-        ]
+    const fetchPedidosFechasTrue = async () => {
+        const isDay = moment().tz("America/Lima").day();
+        if (isDay == 1 || isDay == 2 || isDay == 3) {
+            console.log("isDay: ", isDay);
+            setValue("isPedidos", true);
+            isDayes = true;
+            if (isDay == 1) {
+                setValue("fechaInicio", moment().tz("America/Lima").format('DD-MM-YYYY'));
+                setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
+            }
+            if (isDay == 2) {
+                setValue("fechaInicio", moment().tz("America/Lima").subtract(1, 'days').format('DD-MM-YYYY'));
+                setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
+            }
+            if (isDay == 3) {
+                setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
+                setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
+            }
+        }
+        try {
+            const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
+            const response = await apiCall({
+                method: "get", endpoint: url, data: null, params: {
+                    documentoUsuario: getValues()?.documentoUsuario ?? "",
+                    fechaInicio: getValues()?.fechaInicio,
+                    fechaFin: getValues()?.fechaFin,
+                    statusFiltro: getValues()?.statusFiltro ?? null,
+                }
+            });
+            console.log("response fechas true", response?.data);
+            console.log("responsen cantidad de pedidos realizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0));
+            const pedidosTotales = response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0);
+            setValue("pedidosRealizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0));
+            setImages(
+                session?.userType !== "admin" && isDayes == true && pedidosTotales < topePedidos ?
+                    [
+                        {
+                            src: "/realizarpedido.jpg",
+                            action: "REALIZAR PEDIDO",
+                            push: "realizarPedidos",
+                            alt: "Inmobiliaria Muñoz Logo",
+                            width: 56,
+                            height: 56,
+                        },
+                        {
+                            src: "/Tú decides Instagram post (1).png",
+                            action: "VER PEDIDOS",
+                            push: "pedidosClientes",
+                            alt: "Inmobiliaria Muñoz Logo",
+                            width: 56,
+                            height: 56,
+                        },
+                        {
+                            src: "/COBRARUTILIDA2.png",
+                            action: "COBRAR UTILIDAD",
+                            push: "cobrarUtilidad",
+                            alt: "Inmobiliaria Muñoz Logo",
+                            width: 56,
+                            height: 56,
+                        },
+                    ]
+                    :
+                    session?.userType !== "admin" && isDayes == true && pedidosTotales >= topePedidos ?
+                        [
+                            {
+                                src: "/Tú decides Instagram post (1).png",
+                                action: "VER PEDIDOS",
+                                push: "pedidosClientes",
+                                alt: "Inmobiliaria Muñoz Logo",
+                                width: 56,
+                                height: 56,
+                            },
+                            {
+                                src: "/COBRARUTILIDA2.png",
+                                action: "COBRAR UTILIDAD",
+                                push: "cobrarUtilidad",
+                                alt: "Inmobiliaria Muñoz Logo",
+                                width: 56,
+                                height: 56,
+                            },
+                        ]
+                        :
+                        session?.userType !== "admin" && isDayes !== true ?
+                            [
+                                {
+                                    src: "/Tú decides Instagram post (1).png",
+                                    action: "VER PEDIDOS",
+                                    push: "pedidosClientes",
+                                    alt: "Inmobiliaria Muñoz Logo",
+                                    width: 56,
+                                    height: 56,
+                                },
+                                {
+                                    src: "/COBRARUTILIDA2.png",
+                                    action: "COBRAR UTILIDAD",
+                                    push: "cobrarUtilidad",
+                                    alt: "Inmobiliaria Muñoz Logo",
+                                    width: 56,
+                                    height: 56,
+                                },
+                            ]
+                            :
+                            session?.userType?.includes("admin") &&
+                            [
+                                {
+                                    src: "/Tú decides Instagram post (1).png",
+                                    action: "VER PEDIDOS",
+                                    push: "pedidosAdmin",
+                                    alt: "Inmobiliaria Muñoz Logo",
+                                    width: 56,
+                                    height: 56,
+                                },
+                                {
+                                    src: "/COBRARUTILIDA2.png",
+                                    action: "COBRAR UTILIDAD",
+                                    push: "cobrarUtilidad",
+                                    alt: "Inmobiliaria Muñoz Logo",
+                                    width: 56,
+                                    height: 56,
+                                },
+                                {
+                                    src: "/verUsuarios.png",
+                                    action: "VER USUARIOS",
+                                    push: "verUsuarios",
+                                    alt: "Inmobiliaria Muñoz Logo",
+                                    width: 56,
+                                    height: 56,
+                                },
+                            ]
+            )
+        } catch (error) {
+            console.log("error", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchPedidosFechasTrue()
+    }, [])
+
 
     const router = useRouter();
 
     return (
         <>
             <div className="grid grid-cols-1 gap-2 mt-5 !overflow-x-hidden">
-                {images.map((image, index) => (
+                {images?.map((image: any, index: any) => (
                     <div key={index} className="flex justify-center items-center">
                         <div onClick={() => router.push(`/dashboard/${image.push}`)} className="relative w-80 h-w-80 overflow-hidden shadow-lg group cursor-pointer">
                             <img
