@@ -61,11 +61,11 @@ const Dashboard = () => {
                 }
             });
             console.log("response fechas true", response?.data);
-            console.log("responsen cantidad de pedidos realizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0));
-            const pedidosTotales = response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0);
-            setValue("pedidosRealizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0));
+            console.log("responsen cantidad de pedidos realizados", response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
+            const pedidosTotales = response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0);
+            setValue("pedidosRealizados", response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
             setImages(
-                session?.userType !== "admin" && isDayes == true && pedidosTotales < topePedidos ?
+                session?.userType == "client" && isDayes == true && pedidosTotales < topePedidos ?
                     [
                         {
                             src: "/realizarpedido.jpg",
@@ -93,7 +93,7 @@ const Dashboard = () => {
                         },
                     ]
                     :
-                    session?.userType !== "admin" && isDayes == true && pedidosTotales >= topePedidos ?
+                    session?.userType == "client" && isDayes == true && pedidosTotales >= topePedidos ?
                         [
                             {
                                 src: "/Tú decides Instagram post (1).png",
@@ -113,7 +113,7 @@ const Dashboard = () => {
                             },
                         ]
                         :
-                        session?.userType !== "admin" && isDayes !== true ?
+                        session?.userType == "client" && isDayes !== true ?
                             [
                                 {
                                     src: "/Tú decides Instagram post (1).png",
@@ -133,7 +133,6 @@ const Dashboard = () => {
                                 },
                             ]
                             :
-                            session?.userType?.includes("admin") &&
                             [
                                 {
                                     src: "/Tú decides Instagram post (1).png",
@@ -168,7 +167,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetchPedidosFechasTrue()
-    }, [])
+    }, [session])
 
 
     const router = useRouter();

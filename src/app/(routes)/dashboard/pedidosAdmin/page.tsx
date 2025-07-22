@@ -608,9 +608,9 @@ const pedidosAdmin = () => {
                 }
             });
             console.log("response fechas true", response?.data);
-            console.log("responsen cantidad de pedidos realizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0));
-            const pedidosTotales = response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0);
-            setValue("pedidosRealizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes), 0));
+            console.log("responsen cantidad de pedidos realizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
+            const pedidosTotales = response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0);
+            setValue("pedidosRealizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
         } catch (error) {
             console.log("error", error);
         }

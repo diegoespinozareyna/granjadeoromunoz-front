@@ -46,8 +46,11 @@ const RealizarPedidos = () => {
         }
     }, [])
 
+    const [bloquearButton, setBloquearButton] = useState(false);
+
     const onSubmit = async (data: any) => {
         console.log(data)
+        setBloquearButton(true);
 
         const hanleFetchApi = async () => {
             console.log("response", getValues());
@@ -99,10 +102,13 @@ const RealizarPedidos = () => {
                     allowOutsideClick: false,
                     preConfirm: () => {
                         // router.push(`/dashboard/${Apis.PROYECTCURRENT}`);
-                        window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
                         return
                     },
                 });
+                setTimeout(() => {
+                    // setBloquearButton(false);
+                    window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
+                }, 2000);
             } else {
                 Swal.fire({
                     title: 'Error al enviar pedido',
@@ -121,36 +127,6 @@ const RealizarPedidos = () => {
                 });
             }
         }
-
-        // if (getValues()?.lugarEntrega == "1") {
-        //     Swal.fire({
-        //         title: 'Dirección de Envío',
-        //         input: 'text',
-        //         inputPlaceholder: 'Ingrese la dirección de entrega',
-        //         icon: 'question',
-        //         confirmButtonText: 'Guardar',
-        //         showCancelButton: true,
-        //         cancelButtonText: 'Cancelar',
-        //         allowOutsideClick: false,
-        //         inputValidator: (value) => {
-        //             if (!value) {
-        //                 return 'La dirección es obligatoria';
-        //             }
-        //             return null;
-        //         },
-        //         preConfirm: (value) => {
-        //             // setValue se ejecuta solo si hay un valor válido
-        //             if (value) {
-        //                 setValue("direccionEntrega", value);
-        //                 hanleFetchApi()
-        //             }
-        //         }
-        //     });
-        // }
-        // else {
-        //     console.log("la data es sin doreccion: ", data);
-        //     setValue("direccionEntrega", "");
-        // }
         hanleFetchApi()
     }
 
@@ -229,6 +205,8 @@ const RealizarPedidos = () => {
 
     const distritos = [
         //norte
+        { value: "Ventanilla", label: "Ventanilla", zona: "Norte" },
+        { value: "Callao", label: "Callao", zona: "Norte" },
         { value: "Ancon", label: "Ancon", zona: "Norte" },
         { value: "Carabayllo", label: "Carabayllo", zona: "Norte" },
         { value: "Comas", label: "Comas", zona: "Norte" },
@@ -265,6 +243,7 @@ const RealizarPedidos = () => {
         { value: "San Borja", label: "San Borja", zona: "Central Sur" },
         { value: "Santiago de Surco", label: "Santiago de Surco", zona: "Central Sur" },
         { value: "Surquillo", label: "Surquillo", zona: "Central Sur" },
+        { value: "Miraflores", label: "Miraflores", zona: "Central Sur" },
     ]
 
     const fetchDataPedidosClientes = async () => {
@@ -357,6 +336,12 @@ const RealizarPedidos = () => {
 
     return (
         <div className="flex flex-col items-start justify-start mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">
+            {
+                bloquearButton &&
+                <div className="fixed bottom-0 right-0 text-white bg-[rgba(0,0,0,0.5)] p-0 rounded-lg w-screen h-screen z-10">
+                    .
+                </div>
+            }
             <div className="md:ml-0">
                 <Button sx={{ width: "100%", backgroundColor: "#22b2aa", fontWeight: "bold", color: "black", ":hover": { backgroundColor: "#006060", color: "white" } }} onClick={() => router.push(`/dashboard/${Apis.PROYECTCURRENT}`)} variant="outlined" color="primary">
                     {"<< Atras"}
@@ -377,7 +362,7 @@ const RealizarPedidos = () => {
                             <FormRealizaPedidos2 {...{ getValues, setValue, control, apiCall, distritos }} />
                     }
                     {
-                        limitePEdidos == "0" ? ""
+                        limitePEdidos <= "0" ? ""
                             :
                             <Button disabled={loading} sx={{ width: "100%", backgroundColor: "#22b2aa", ":hover": { backgroundColor: "#006060", color: "white" }, fontWeight: "bold", color: "black" }} variant="contained" color="success" type="submit">
                                 Realizar Pedido
