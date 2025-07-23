@@ -15,7 +15,7 @@ const Dashboard = () => {
     const { setValue, getValues } = useForm()
     const { apiCall } = useApi()
     const topePedidos = 300;
-    let isDayes = false;
+    const [isDayes, setIsDayes] = useState(false);
     const [images, setImages] = useState<any>([]);
 
     useEffect(() => {
@@ -33,19 +33,20 @@ const Dashboard = () => {
 
     const fetchPedidosFechasTrue = async () => {
         const isDay = moment().tz("America/Lima").day();
-        if (isDay == 1 || isDay == 2 || isDay == 3) {
+        console.log("isDay: ", isDay);
+        if (isDay == 7 || isDay == 1 || isDay == 2) {
             console.log("isDay: ", isDay);
             setValue("isPedidos", true);
-            isDayes = true;
-            if (isDay == 1) {
+            setIsDayes(true);
+            if (isDay == 7) {
                 setValue("fechaInicio", moment().tz("America/Lima").format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
-            if (isDay == 2) {
+            if (isDay == 1) {
                 setValue("fechaInicio", moment().tz("America/Lima").subtract(1, 'days').format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
-            if (isDay == 3) {
+            if (isDay == 2) {
                 setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
@@ -167,7 +168,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetchPedidosFechasTrue()
-    }, [session])
+    }, [session, isDayes])
 
 
     const router = useRouter();

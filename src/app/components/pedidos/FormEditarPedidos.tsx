@@ -131,10 +131,10 @@ export const FormEditarPedidos = ({ getValues, setValue, control, apiCall, distr
                                     render={({ field, fieldState }) => (
                                         <Autocomplete
                                             // disabled={(item.disabled)}
-                                            options={handleGenerarArray("10")}
+                                            options={handleGenerarArray("30")}
                                             getOptionLabel={(option) => option?.label}
                                             isOptionEqualToValue={(option, value) => option.value === value.value}
-                                            value={handleGenerarArray("10").find(opt => opt.value === String(field.value)) || null}
+                                            value={handleGenerarArray("30").find(opt => opt.value === String(field.value)) || null}
                                             onChange={(_, selectedOption) => {
                                                 field.onChange(selectedOption?.value ?? null);
                                                 setValue(`kilos`, (Number(getValues(`cantidadPaquetes`)) ?? 0) * (Number(11) ?? 0));

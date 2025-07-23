@@ -34,6 +34,7 @@ const EditarPedidos = () => {
 
     const distritos = [
         //norte
+        { value: "Santa Rosa", label: "Santa Rosa", zona: "Norte" },
         { value: "Ancon", label: "Ancon", zona: "Norte" },
         { value: "Carabayllo", label: "Carabayllo", zona: "Norte" },
         { value: "Comas", label: "Comas", zona: "Norte" },
