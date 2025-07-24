@@ -581,21 +581,37 @@ const pedidosAdmin = () => {
 
     const fetchPedidosFechasTrue = async () => {
         const isDay = moment().tz("America/Lima").day();
-        if (isDay == 1 || isDay == 2 || isDay == 3) {
+        if (isDay == 7 || isDay == 1 || isDay == 2) {
             console.log("isDay: ", isDay);
             setValue("isPedidos", true);
-            if (isDay == 1) {
+            if (isDay == 7) {
                 setValue("fechaInicio", moment().tz("America/Lima").format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
-            if (isDay == 2) {
+            if (isDay == 1) {
                 setValue("fechaInicio", moment().tz("America/Lima").subtract(1, 'days').format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
-            if (isDay == 3) {
+            if (isDay == 2) {
                 setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
+        }
+        if (isDay == 3) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(3, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").subtract(1, 'days').format('DD-MM-YYYY'));
+        }
+        if (isDay == 4) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
+        }
+        if (isDay == 5) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(5, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").subtract(3, 'days').format('DD-MM-YYYY'));
+        }
+        if (isDay == 6) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(6, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
         }
         try {
             const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
@@ -608,9 +624,9 @@ const pedidosAdmin = () => {
                 }
             });
             console.log("response fechas true", response?.data);
-            console.log("responsen cantidad de pedidos realizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
-            const pedidosTotales = response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0);
-            setValue("pedidosRealizados", response?.data?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
+            console.log("responsen cantidad de pedidos realizados", response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
+            const pedidosTotales = response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0);
+            setValue("pedidosRealizados", response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
         } catch (error) {
             console.log("error", error);
         }
