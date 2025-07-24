@@ -31,10 +31,12 @@ const EditarPedidos = () => {
     const fechaLimaFormateada = (fechaUTC: any) => {
         return moment(fechaUTC).tz("America/Lima").format("YYYY-MM-DD");
     }
-
+    
     const distritos = [
         //norte
         { value: "Santa Rosa", label: "Santa Rosa", zona: "Norte" },
+        { value: "Ventanilla", label: "Ventanilla", zona: "Norte" },
+        { value: "Callao", label: "Callao", zona: "Norte" },
         { value: "Ancon", label: "Ancon", zona: "Norte" },
         { value: "Carabayllo", label: "Carabayllo", zona: "Norte" },
         { value: "Comas", label: "Comas", zona: "Norte" },
@@ -50,6 +52,11 @@ const EditarPedidos = () => {
         { value: "Pueblo Libre", label: "Pueblo Libre", zona: "Central" },
         { value: "Rimac", label: "Rimac", zona: "Central" },
         { value: "San Luis", label: "San Luis", zona: "Central" },
+        { value: "Magdalena", label: "Magdalena", zona: "Central" },
+        { value: "Cercado", label: "Cercado", zona: "Central" },
+        { value: "Breña", label: "Breña", zona: "Central" },
+        { value: "Breña", label: "Breña", zona: "Central" },
+        { value: "San Miguel", label: "San Miguel", zona: "Central" },
         //este
         { value: "Ate", label: "Ate", zona: "Este" },
         { value: "Chaclacayo", label: "Chaclacayo", zona: "Este" },
@@ -59,6 +66,7 @@ const EditarPedidos = () => {
         { value: "San Juan de Lurigancho", label: "San Juan de Lurigancho", zona: "Este" },
         { value: "Santa Anita", label: "Santa Anita", zona: "Este" },
         { value: "Santa Eulalia", label: "Santa Eulalia", zona: "Este" },
+        { value: "Cieneguilla", label: "Cieneguilla", zona: "Este" },
         //sur
         { value: "Lurin", label: "Lurin", zona: "Sur" },
         { value: "Pachacamac", label: "Pachacamac", zona: "Sur" },
@@ -71,6 +79,9 @@ const EditarPedidos = () => {
         { value: "San Borja", label: "San Borja", zona: "Central Sur" },
         { value: "Santiago de Surco", label: "Santiago de Surco", zona: "Central Sur" },
         { value: "Surquillo", label: "Surquillo", zona: "Central Sur" },
+        { value: "Miraflores", label: "Miraflores", zona: "Central Sur" },
+        { value: "Barranco", label: "Barranco", zona: "Central Sur" },
+        { value: "San Isidro", label: "San Isidro", zona: "Central Sur" },
     ]
 
     const fetchDataPedido = async () => {
