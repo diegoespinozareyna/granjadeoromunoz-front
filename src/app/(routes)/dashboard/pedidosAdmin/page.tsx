@@ -581,10 +581,10 @@ const pedidosAdmin = () => {
 
     const fetchPedidosFechasTrue = async () => {
         const isDay = moment().tz("America/Lima").day();
-        if (isDay == 7 || isDay == 1 || isDay == 2) {
+        if (isDay == 0 || isDay == 1 || isDay == 2) {
             console.log("isDay: ", isDay);
             setValue("isPedidos", true);
-            if (isDay == 7) {
+            if (isDay == 0) {
                 setValue("fechaInicio", moment().tz("America/Lima").format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }

@@ -34,11 +34,11 @@ const Dashboard = () => {
     const fetchPedidosFechasTrue = async () => {
         const isDay = moment().tz("America/Lima").day();
         console.log("isDay: ", isDay);
-        if (isDay == 7 || isDay == 1 || isDay == 2) {
+        if (isDay == 0 || isDay == 1 || isDay == 2) {
             console.log("isDay: ", isDay);
             setValue("isPedidos", true);
             setIsDayes(true);
-            if (isDay == 7) {
+            if (isDay == 0) {
                 setValue("fechaInicio", moment().tz("America/Lima").format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
@@ -50,6 +50,22 @@ const Dashboard = () => {
                 setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
+        }
+        if (isDay == 3) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(3, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").subtract(1, 'days').format('DD-MM-YYYY'));
+        }
+        if (isDay == 4) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
+        }
+        if (isDay == 5) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(5, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").subtract(3, 'days').format('DD-MM-YYYY'));
+        }
+        if (isDay == 6) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(6, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
         }
         try {
             const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
@@ -64,6 +80,7 @@ const Dashboard = () => {
             console.log("response fechas true", response?.data);
             console.log("responsen cantidad de pedidos realizados", response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
             const pedidosTotales = response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0);
+            console.log("pedidosTotales", pedidosTotales);
             setValue("pedidosRealizados", response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
             setImages(
                 session?.userType == "client" && isDayes == true && pedidosTotales < topePedidos ?
