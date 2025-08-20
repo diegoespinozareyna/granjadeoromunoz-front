@@ -581,7 +581,12 @@ const pedidosAdmin = () => {
 
     const fetchPedidosFechasTrue = async () => {
         const isDay = moment().tz("America/Lima").day();
-        if (isDay == 0 || isDay == 1 || isDay == 2) {
+        const now = moment().tz("America/Lima");
+        // const isDay = now.day();
+        const hour = now.hour();
+        const minute = now.minute();
+        console.log("isDay: ", isDay);
+        if ((isDay == 0 || isDay == 1 || isDay == 2) && hour >= 10) {
             console.log("isDay: ", isDay);
             setValue("isPedidos", true);
             if (isDay == 0) {

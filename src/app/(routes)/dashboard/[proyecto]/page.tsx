@@ -33,8 +33,12 @@ const Dashboard = () => {
 
     const fetchPedidosFechasTrue = async () => {
         const isDay = moment().tz("America/Lima").day();
+        const now = moment().tz("America/Lima");
+        // const isDay = now.day();
+        const hour = now.hour();
+        const minute = now.minute();
         console.log("isDay: ", isDay);
-        if (isDay == 0 || isDay == 1 || isDay == 2) {
+        if ((isDay == 0 || isDay == 1 || isDay == 2) && hour >= 10) {
             console.log("isDay: ", isDay);
             setValue("isPedidos", true);
             setIsDayes(true);
