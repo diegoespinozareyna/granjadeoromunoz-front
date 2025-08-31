@@ -99,6 +99,56 @@ const Dashboard = () => {
             const pedidosTotales = response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0);
             console.log("pedidosTotales", pedidosTotales);
             setValue("pedidosRealizados", response?.data?.filter((x: any) => x.status !== "3")?.reduce((acum: number, pedido: any) => acum + Number(pedido?.cantidadPaquetes ?? 0), 0));
+
+            const url2 = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
+            const response2 = await apiCall({
+                method: "get", endpoint: url2, data: null, params: {
+                    documentoUsuario: user?.documentoUsuario ?? "",
+                    fechaInicio: getValues()?.fechaInicio,
+                    fechaFin: getValues()?.fechaFin,
+                }
+            });
+            console.log("response2 fechas true", response2?.data);
+
+            // restriccion de un pedido por dia
+            const masReciente = response2?.data?.sort(
+                (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            )[0];
+
+            console.log("masReciente", masReciente);
+
+            const esHoy = (fecha: string | Date): boolean => {
+                const hoy = new Date();
+                const f = new Date(fecha);
+
+                return (
+                    hoy.getFullYear() === f.getFullYear() &&
+                    hoy.getMonth() === f.getMonth() &&
+                    hoy.getDate() === f.getDate()
+                );
+            };
+
+            const coincideConHoy = masReciente ? esHoy(masReciente.createdAt) : false;
+            console.log("coincideConHoy", coincideConHoy);
+            setValue("coincideConHoy", coincideConHoy);
+
+            // restriccion de membresia500 solo 5 pedidos antes de 15 y 5 pedidos mas despues del 15
+            console.log("membresia500 cantodad de pedidos", response2?.data?.length);
+            setValue("isMembresia500", user?.membresia500 !== "0")
+            setValue("cantidadIgual5", response2?.data?.length == 5);
+            const hoy = new Date();
+
+            // armamos la fecha de la quincena de este mes
+            const quincena = new Date(hoy.getFullYear(), hoy.getMonth(), 15);
+
+            setValue("esAntesDel15: ", hoy < quincena);
+            console.log("esAntesDel15: ", hoy < quincena);
+
+            setValue("membresia500Cantidad5Menor15", (user?.membresia500 !== "0") && (response2?.data?.length == 5) && (hoy < quincena));
+            localStorage.setItem("membresia500Menor15", JSON.stringify((user?.membresia500 !== "0") && (hoy < quincena)));
+
+
+
             setImages(
                 session?.userType == "client" && isDayes == true && pedidosTotales < topePedidos ?
                     [
@@ -195,54 +245,6 @@ const Dashboard = () => {
                                 },
                             ]
             )
-
-            const url2 = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
-            const response2 = await apiCall({
-                method: "get", endpoint: url2, data: null, params: {
-                    documentoUsuario: user?.documentoUsuario ?? "",
-                    fechaInicio: getValues()?.fechaInicio,
-                    fechaFin: getValues()?.fechaFin,
-                }
-            });
-            console.log("response2 fechas true", response2?.data);
-
-            // restriccion de un pedido por dia
-            const masReciente = response2?.data?.sort(
-                (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            )[0];
-
-            console.log("masReciente", masReciente);
-
-            const esHoy = (fecha: string | Date): boolean => {
-                const hoy = new Date();
-                const f = new Date(fecha);
-
-                return (
-                    hoy.getFullYear() === f.getFullYear() &&
-                    hoy.getMonth() === f.getMonth() &&
-                    hoy.getDate() === f.getDate()
-                );
-            };
-
-            const coincideConHoy = masReciente ? esHoy(masReciente.createdAt) : false;
-            console.log("coincideConHoy", coincideConHoy);
-            setValue("coincideConHoy", coincideConHoy);
-
-            // restriccion de membresia500 solo 5 pedidos antes de 15 y 5 pedidos mas despues del 15
-            console.log("membresia500 cantodad de pedidos", response2?.data?.length);
-            setValue("isMembresia500", user?.membresia500 !== "0")
-            setValue("cantidadIgual5", response2?.data?.length == 5);
-            const hoy = new Date();
-
-            // armamos la fecha de la quincena de este mes
-            const quincena = new Date(hoy.getFullYear(), hoy.getMonth(), 15);
-
-            setValue("esAntesDel15: ", hoy < quincena);
-            console.log("esAntesDel15: ", hoy < quincena);
-
-            setValue("membresia500Cantidad5Menor15", (user?.membresia500 !== "0") && (response2?.data?.length == 5) && (hoy < quincena));
-            localStorage.setItem("membresia500Menor15", JSON.stringify((user?.membresia500 !== "0") && (hoy < quincena)));
-
 
         } catch (error) {
             console.log("error", error);
