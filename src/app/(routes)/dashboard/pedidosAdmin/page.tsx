@@ -935,7 +935,7 @@ const pedidosAdmin = () => {
                                                             </div>
                                                         </div>
                                                         <div className="flex justify-start items-center gap-2 text-violet-500 text-xs">
-                                                            {((pedido?.medioPago == "3" || pedido?.medioPago == "1") && pedido?.urlsPago?.length <= 0) && "PAGÓ CON PASARELA YAPE"}
+                                                            {((pedido?.medioPago == "3" || pedido?.medioPago == "1") && (pedido?.urlsPago?.length <= 0) && (moment.tz(pedido.fechaPedido, "America/Lima").startOf("day").isSameOrAfter(moment.tz("2025-08-31 00:00:00", "America/Lima").startOf("day")))) && "PAGÓ CON PASARELA YAPE"}
                                                         </div>
                                                     </div>
                                                 </td>
