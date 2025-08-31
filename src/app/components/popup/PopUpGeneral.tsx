@@ -17,6 +17,14 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                             {`Debe realizar el pago total de S/. ${getValues()?.pagoTotal} por cualquiera de los siguientes medios de pago: `}
                         </div>
                         <img src="/transferenciamunoz.jpg" alt="transferencia" className="w-[80%] h-auto" />
+                        <div className="flex flex-col justify-center items-center gap-0 mt-1">
+                            <div className="font-bold text-xs text-red-500 mt-1">
+                                {`* El voucher que seleccione debe ser de: S/. ${getValues()?.pagoTotal} `}
+                            </div>
+                            <div className="font-bold text-xs text-red-500 mt-1 uppercase">
+                                {`(Caso contrario se rechazará su pedido)`}
+                            </div>
+                        </div>
                     </div>
                 }
                 {
@@ -190,7 +198,15 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                                         <Eye size={18} />
                                                     </a> */}
                                                     <>
-                                                        <div className="relative z-50 cursor-pointer" onClick={() => setPreviewUrl(null)}><X color="red" size={20} /></div>
+                                                        <div
+                                                            className="relative z-50 cursor-pointer"
+                                                            onClick={() => {
+                                                                setPreviewUrl(null)
+                                                                setValue("dataVoucher", null);
+                                                            }}
+                                                        >
+                                                            <X color="red" size={20} />
+                                                        </div>
                                                     </>
                                                     <div
                                                         className="cursor-pointer -mt-3"
