@@ -44,9 +44,9 @@ const Dashboard = () => {
         if (
             (
                 isDay == 0 || isDay == 1 || isDay == 2
-                || isDay == 6
+                // || isDay == 6
             )
-            // && hour >= 10
+            && hour >= 10
         ) {
             console.log("isDay: ", isDay);
             setValue("isPedidos", true);
@@ -63,10 +63,10 @@ const Dashboard = () => {
                 setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
-            if (isDay == 6) {
-                setValue("fechaInicio", moment().tz("America/Lima").subtract(6, 'days').format('DD-MM-YYYY'));
-                setValue("fechaFin", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
-            }
+            // if (isDay == 6) {
+            //     setValue("fechaInicio", moment().tz("America/Lima").subtract(6, 'days').format('DD-MM-YYYY'));
+            //     setValue("fechaFin", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
+            // }
         }
         if (isDay == 3) {
             setValue("fechaInicio", moment().tz("America/Lima").subtract(3, 'days').format('DD-MM-YYYY'));
@@ -80,10 +80,10 @@ const Dashboard = () => {
             setValue("fechaInicio", moment().tz("America/Lima").subtract(5, 'days').format('DD-MM-YYYY'));
             setValue("fechaFin", moment().tz("America/Lima").subtract(3, 'days').format('DD-MM-YYYY'));
         }
-        // if (isDay == 6) {
-        //     setValue("fechaInicio", moment().tz("America/Lima").subtract(6, 'days').format('DD-MM-YYYY'));
-        //     setValue("fechaFin", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
-        // }
+        if (isDay == 6) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(6, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
+        }
         try {
             const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
             const response = await apiCall({
