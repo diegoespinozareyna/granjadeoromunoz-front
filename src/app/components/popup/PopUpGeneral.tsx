@@ -1,5 +1,5 @@
 import { Autocomplete, Button, TextField } from "@mui/material";
-import { Eye } from "lucide-react";
+import { CheckCheck, Eye, X } from "lucide-react";
 import { useState } from "react";
 import { Controller } from "react-hook-form";
 import Swal from "sweetalert2";
@@ -157,7 +157,7 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
 
                                     return (
                                         <div className="flex flex-col items-center gap-2">
-                                            <label className="cursor-pointer">
+                                            <label className="cursor-pointer flex justify-center items-center gap-2">
                                                 <input
                                                     type="file"
                                                     accept="image/*"
@@ -167,8 +167,16 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                                 <div
                                                     className={`text-xs bg-red-500 hover:bg-blue-700 text-white px-2 py-1 rounded-lg flex items-center`}
                                                 >
-                                                    Seleccione Voucher OBLIGATORIO
+                                                    <div>
+                                                        <div>Seleccione Voucher OBLIGATORIO</div>
+                                                    </div>
                                                 </div>
+                                                {
+                                                    previewUrl &&
+                                                    <>
+                                                        <div><CheckCheck color="green" size={20} /></div>
+                                                    </>
+                                                }
                                             </label>
                                             {previewUrl && (
                                                 <>
@@ -181,8 +189,11 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                                     >
                                                         <Eye size={18} />
                                                     </a> */}
+                                                    <>
+                                                        <div className="relative z-50 cursor-pointer" onClick={() => setPreviewUrl(null)}><X color="red" size={20} /></div>
+                                                    </>
                                                     <div
-                                                        className="cursor-pointer"
+                                                        className="cursor-pointer -mt-3"
                                                         onClick={() => window.open(previewUrl, "_blank")}
                                                     >
                                                         <img
