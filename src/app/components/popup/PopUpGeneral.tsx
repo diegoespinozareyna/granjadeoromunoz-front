@@ -156,7 +156,7 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                     };
 
                                     return (
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex flex-col items-center gap-2">
                                             <label className="cursor-pointer">
                                                 <input
                                                     type="file"
@@ -171,15 +171,27 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                                 </div>
                                             </label>
                                             {previewUrl && (
-                                                <a
-                                                    href={previewUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:text-blue-800"
-                                                    title="Ver imagen"
-                                                >
-                                                    <Eye size={18} />
-                                                </a>
+                                                <>
+                                                    {/* <a
+                                                        href={previewUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-600 hover:text-blue-800"
+                                                        title="Ver imagen"
+                                                    >
+                                                        <Eye size={18} />
+                                                    </a> */}
+                                                    <div
+                                                        className="cursor-pointer"
+                                                        onClick={() => window.open(previewUrl, "_blank")}
+                                                    >
+                                                        <img
+                                                            src={previewUrl}
+                                                            alt="Vista previa"
+                                                            style={{ width: 200, height: "auto", marginTop: 8, borderRadius: 4 }}
+                                                        />
+                                                    </div>
+                                                </>
                                             )}
                                         </div>
                                     );

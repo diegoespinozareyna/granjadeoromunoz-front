@@ -783,7 +783,7 @@ const RealizarPedidos = () => {
                             //     Realizar Pedido
                             // </Button>
                             <div className="flex flex-col md:flex-row justify-center items-center gap-1 mt-2">
-                                <div className="flex justify-center items-center gap-2 px-3 w-full">
+                                {/* <div className="flex justify-center items-center gap-2 px-3 w-full">
                                     <button
                                         disabled={loading2}
                                         type="button"
@@ -797,7 +797,7 @@ const RealizarPedidos = () => {
                                         }}>
                                         PAGAR CON YAPE (Código Aprobación directo SIN subir voucher)
                                     </button>
-                                </div>
+                                </div> */}
                                 <div className="flex justify-center items-center gap-2 px-3 w-full">
                                     <button type="button" className="bg-green-500 text-[12px] text-white w-full py-2 px-2 rounded-sm  font-bold text-xl cursor-pointer" onClick={() => {
                                         // setOpenPopup(true)
