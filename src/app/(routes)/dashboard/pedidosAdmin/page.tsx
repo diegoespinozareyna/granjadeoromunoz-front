@@ -934,8 +934,8 @@ const pedidosAdmin = () => {
                                                                 <ListCheck size={15} className="text-green-50" />
                                                             </div>
                                                         </div>
-                                                        <div className="flex justify-start items-center gap-2 text-violet-500">
-                                                            {pedido?.medioPago == "3" && "PAGÓ CON PASARELA YAPE"}
+                                                        <div className="flex justify-start items-center gap-2 text-violet-500 text-xs">
+                                                            {((pedido?.medioPago == "3" || pedido?.medioPago == "1") && pedido?.urlsPago?.length <= 0) && "PAGÓ CON PASARELA YAPE"}
                                                         </div>
                                                     </div>
                                                 </td>

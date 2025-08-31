@@ -80,7 +80,7 @@ const RealizarPedidos = () => {
                 cantidadPaquetes: getValues()?.cantidadPaquetes,
                 kilos: getValues()?.kilos,
                 precioSemanal: config?.precioKiloHuevos ?? "4.70",
-                medioPago: (getValues()?.pasarelaPay == true ? "3" : getValues()?.medioPago) ?? "1", // 1: efectivo, 2: yape/transferencia
+                medioPago: (getValues()?.pasarelaPay == true ? "3" : (getValues()?.medioPago ?? "1")), // 1: efectivo, 2: yape/transferencia
                 precio: getValues()?.precio,
                 lugarEntrega: getValues()?.lugarEntrega ?? "1",
                 direccionEntrega: getValues()?.direccionEntrega, // direccion de entrega
