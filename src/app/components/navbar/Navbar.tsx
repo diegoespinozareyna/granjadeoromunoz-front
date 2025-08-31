@@ -63,8 +63,8 @@ export const Navbar = () => {
 
         const fechaInicio = moment.tz(`01-${todayString}-${todayStringYear}`, 'DD-MM-YYYY', 'America/Lima')
         const fechaFin = moment.tz(`${matchMes?.last}-${todayString}-${todayStringYear}`, 'DD-MM-YYYY', 'America/Lima');
-        console.log("fechaInicio", fechaInicio);
-        console.log("fechaFin", fechaFin);
+        console.log("fechaInicio", fechaInicio.format('DD-MM-YYYY'));
+        console.log("fechaFin", fechaFin.format('DD-MM-YYYY'));
 
         const jsonFechas = {
             fechaInicio: fechaInicio.format('DD-MM-YYYY'),

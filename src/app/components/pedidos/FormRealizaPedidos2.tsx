@@ -10,14 +10,25 @@ import { Controller } from "react-hook-form";
 export const FormRealizaPedidos2 = ({ getValues, setValue, control, apiCall, distritos }: any) => {
 
     const [direccionObligatoria, setDireccionObligatoria] = useState(false);
+    const membresia500Menor15: any = localStorage.getItem("membresia500Cantidmembresia500Menor15ad5Menor15");
+    console.log("membresia500Menor15", membresia500Menor15);
 
     const handleGenerarArray = (cantidad: any) => {
-        if (!cantidad || isNaN(cantidad)) return [];
-        return Array.from({ length: cantidad }, (_, i) => ({
-            value: String(i + 1),  // <-- asegúrate de que sean strings
-            label: String(i + 1),
-        }));
+        if (membresia500Menor15 == true) {
+            return Array.from({ length: 5 }, (_, i) => ({
+                value: String(i + 1),  // <-- asegúrate de que sean strings
+                label: String(i + 1),
+            }));
+        }
+        else {
+            if (!cantidad || isNaN(cantidad)) return [];
+            return Array.from({ length: cantidad }, (_, i) => ({
+                value: String(i + 1),  // <-- asegúrate de que sean strings
+                label: String(i + 1),
+            }));
+        }
     }
+
 
     return (
         <>

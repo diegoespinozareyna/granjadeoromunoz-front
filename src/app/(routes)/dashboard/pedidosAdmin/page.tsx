@@ -532,6 +532,7 @@ const pedidosAdmin = () => {
     }
 
     const handleGetVouchersAll = async (id: string) => {
+        console.log("id", id);
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getVouchersAll`;
         const response = await apiCall({
             method: "get", endpoint: url, data: null, params: {

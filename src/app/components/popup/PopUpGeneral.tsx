@@ -4,112 +4,55 @@ import { useState } from "react";
 import { Controller } from "react-hook-form";
 import Swal from "sweetalert2";
 
-export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, handleSubirVouchers, infoOrder, handleEditVoucher, loading2 }: any) => {
+export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, handleSubirVouchers, infoOrder, handleEditVoucher, loading2, pagoTransferencia }: any) => {
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-[rgba(50,50,50,0.1)]">
             <div className="bg-white p-6 rounded-lg shadow-lg m-2 flex flex-col justify-center items-center overflow-y-auto max-h-[90vh] w-full sm:w-[400px] md:w-[500px] lg:w-[600px]">
                 <h2 className="text-xl font-bold mb-4">{getValues()?.dataPoUp?.title}</h2>
                 {
+                    pagoTransferencia &&
+                    <div className="flex flex-col justify-center items-center gap-1 mb-3">
+                        <div>
+                            {`Debe realizar el pago total de S/. ${getValues()?.pagoTotal} por cualquiera de los siguientes medios de pago: `}
+                        </div>
+                        <img src="/transferenciamunoz.jpg" alt="transferencia" className="w-[80%] h-auto" />
+                    </div>
+                }
+                {
                     getValues()?.dataPoUp?.action === "subirVoucher" &&
                     <div className="flex flex-col gap-1">
-                        <div>
-                            <Controller
-                                name={`monto`}
-                                control={control}
-                                render={({ field, fieldState }) => (
-                                    <TextField
-                                        {...field}
-                                        error={!!fieldState.error}
-                                        helperText={fieldState.error ? fieldState.error.message : ""}
-                                        label={"Coloque Monto de voucher"}
-                                        variant="outlined"
-                                        size="small"
-                                        // disabled={true}
-                                        required={true}
-                                        type={"number"}
-                                        InputLabelProps={{
-                                            shrink: true,
-                                        }}
-                                        // multiline={item.multiline}
-                                        // minRows={item.rows}
-                                        className="w-full"
-                                        sx={{
-                                            input: {
-                                                color: '#000', // texto negro
-                                                WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
-                                                border: 'none',
-                                                borderRadius: '10px',
-                                                backgroundColor: '#efefef',
-                                            },
-                                            '.Mui-disabled': {
-                                                WebkitTextFillColor: '#000 !important',
-                                                color: '#000 !important',
-                                                opacity: 1, // elimina el desvanecido
-                                            },
-                                        }}
-                                        onChange={(e: any) => {
-                                            let value = e.target.value;
-                                            value = value.replace(/(?!^)-|[^0-9.]/g, "");// positivos y negativos
-                                            field.onChange(value);
-                                        }}
-                                    />
-                                )}
-                            />
-                        </div>
-                        <div className="">
-                            <Controller
-                                name={`formaPago`}
-                                control={control}
-                                rules={true ? { required: `Medio de Pago es obligatorio` } : {}}
-                                render={({ field, fieldState }) => (
-                                    <Autocomplete
-                                        options={[
-                                            {
-                                                value: "0", label: "Efectivo",
-                                            },
-                                            {
-                                                value: "1", label: "Yape",
-                                            },
-                                            {
-                                                value: "2", label: "Transferencia",
-                                            },
-                                        ]}
-                                        getOptionLabel={(option) => option?.label}
-                                        isOptionEqualToValue={(option, value) => option.value === value.value}
-                                        value={[
-                                            {
-                                                value: "0", label: "Efectivo",
-                                            },
-                                            {
-                                                value: "1", label: "Yape",
-                                            },
-                                            {
-                                                value: "2", label: "Transferencia",
-                                            },
-                                        ].find(opt => opt.value === String(field.value)) || null}
-                                        onChange={(_, selectedOption) => {
-                                            field.onChange(selectedOption?.value ?? null)
-                                        }}
-                                        renderInput={(params) => (
+                        {
+                            pagoTransferencia !== true &&
+                            <>
+                                <div>
+                                    <Controller
+                                        name={`monto`}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
                                             <TextField
-                                                {...params}
-                                                margin="dense"
-                                                placeholder={"Seleccione Medio de Pago"}
-                                                className="!w-full bg-slate-100 rounded-lg h-[40px]"
-                                                fullWidth
+                                                {...field}
+                                                error={!!fieldState.error}
+                                                helperText={fieldState.error ? fieldState.error.message : ""}
+                                                label={"Coloque Monto de voucher"}
+                                                variant="outlined"
+                                                size="small"
+                                                // disabled={true}
+                                                required={true}
+                                                type={"number"}
                                                 InputLabelProps={{
                                                     shrink: true,
                                                 }}
-                                                required={true}
-                                                error={!!fieldState.error}
-                                                helperText={fieldState.error ? fieldState.error.message : ""}
+                                                // multiline={item.multiline}
+                                                // minRows={item.rows}
+                                                className="w-full"
                                                 sx={{
                                                     input: {
                                                         color: '#000', // texto negro
                                                         WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
-                                                        height: '8px',
                                                         border: 'none',
+                                                        borderRadius: '10px',
+                                                        backgroundColor: '#efefef',
                                                     },
                                                     '.Mui-disabled': {
                                                         WebkitTextFillColor: '#000 !important',
@@ -117,12 +60,83 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                                         opacity: 1, // elimina el desvanecido
                                                     },
                                                 }}
+                                                onChange={(e: any) => {
+                                                    let value = e.target.value;
+                                                    value = value.replace(/(?!^)-|[^0-9.]/g, "");// positivos y negativos
+                                                    field.onChange(value);
+                                                }}
                                             />
                                         )}
                                     />
-                                )}
-                            />
-                        </div>
+                                </div>
+                                <div className="">
+                                    <Controller
+                                        name={`formaPago`}
+                                        control={control}
+                                        rules={true ? { required: `Medio de Pago es obligatorio` } : {}}
+                                        render={({ field, fieldState }) => (
+                                            <Autocomplete
+                                                options={[
+                                                    {
+                                                        value: "0", label: "Efectivo",
+                                                    },
+                                                    {
+                                                        value: "1", label: "Yape",
+                                                    },
+                                                    {
+                                                        value: "2", label: "Transferencia",
+                                                    },
+                                                ]}
+                                                getOptionLabel={(option) => option?.label}
+                                                isOptionEqualToValue={(option, value) => option.value === value.value}
+                                                value={[
+                                                    {
+                                                        value: "0", label: "Efectivo",
+                                                    },
+                                                    {
+                                                        value: "1", label: "Yape",
+                                                    },
+                                                    {
+                                                        value: "2", label: "Transferencia",
+                                                    },
+                                                ].find(opt => opt.value === String(field.value)) || null}
+                                                onChange={(_, selectedOption) => {
+                                                    field.onChange(selectedOption?.value ?? null)
+                                                }}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        margin="dense"
+                                                        placeholder={"Seleccione Medio de Pago"}
+                                                        className="!w-full bg-slate-100 rounded-lg h-[40px]"
+                                                        fullWidth
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                        }}
+                                                        required={true}
+                                                        error={!!fieldState.error}
+                                                        helperText={fieldState.error ? fieldState.error.message : ""}
+                                                        sx={{
+                                                            input: {
+                                                                color: '#000', // texto negro
+                                                                WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
+                                                                height: '8px',
+                                                                border: 'none',
+                                                            },
+                                                            '.Mui-disabled': {
+                                                                WebkitTextFillColor: '#000 !important',
+                                                                color: '#000 !important',
+                                                                opacity: 1, // elimina el desvanecido
+                                                            },
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        )}
+                                    />
+                                </div>
+                            </>
+                        }
                         <div className="flex justify-start items-center gap-1">
                             <Controller
                                 name="filePago"
@@ -151,9 +165,9 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                                     className="hidden"
                                                 />
                                                 <div
-                                                    className={`text-xs bg-blue-500 hover:bg-blue-700 text-white px-2 py-1 rounded-lg flex items-center`}
+                                                    className={`text-xs bg-red-500 hover:bg-blue-700 text-white px-2 py-1 rounded-lg flex items-center`}
                                                 >
-                                                    Seleccione Voucher
+                                                    Seleccione Voucher OBLIGATORIO
                                                 </div>
                                             </label>
                                             {previewUrl && (
@@ -287,13 +301,20 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                     color="success"
                                     onClick={() => handleSubirVouchers(infoOrder)}
                                     disabled={
-                                        (getValues()?.monto == undefined || getValues()?.formaPago == undefined || getValues()?.dataVoucher == undefined)
-                                        || (getValues()?.monto == null || getValues()?.formaPago == null || getValues()?.dataVoucher == null)
-                                        || (getValues()?.monto == "" || getValues()?.formaPago == "" || getValues()?.dataVoucher == "")
-                                        || loading2
+                                        pagoTransferencia !== true ?
+                                            ((getValues()?.monto == undefined || getValues()?.formaPago == undefined || getValues()?.dataVoucher == undefined)
+                                                || (getValues()?.monto == null || getValues()?.formaPago == null || getValues()?.dataVoucher == null)
+                                                || (getValues()?.monto == "" || getValues()?.formaPago == "" || getValues()?.dataVoucher == "")
+                                                || loading2)
+                                            :
+                                            pagoTransferencia == true &&
+                                            ((getValues()?.dataVoucher == undefined)
+                                                || (getValues()?.dataVoucher == null)
+                                                || (getValues()?.dataVoucher == "")
+                                                || loading2)
                                     }
                                 >
-                                    Aceptar
+                                    Subir Voucher
                                 </Button>
                                 <Button variant="outlined" color="error" onClick={() => {
                                     hangeStatePopUp(false)

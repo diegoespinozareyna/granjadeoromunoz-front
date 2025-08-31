@@ -2,22 +2,40 @@
 
 import { FormRealizaPedidos } from "@/app/components/pedidos/FormRealizaPedidos";
 import { FormRealizaPedidos2 } from "@/app/components/pedidos/FormRealizaPedidos2";
+import { PopUpGeneral } from "@/app/components/popup/PopUpGeneral";
 import useApi from "@/app/hooks/fetchData/useApi";
+import { usePopupOpen } from "@/app/hooks/popupopen/usePopupOpen";
 import { useConfigStore, useUserStore } from "@/app/store/userStore";
 import { Apis } from "@/app/utils/configs/proyectCurrent";
 import { Button } from "@mui/material"
+import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import moment from "moment-timezone";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
+
+// Extend the Window interface to include VisanetCheckout
+declare global {
+    interface Window {
+        VisanetCheckout?: {
+            open: () => void;
+            configure: (config: any) => any;
+            configuration: {
+                complete: (response: any) => void;
+            };
+        };
+    }
+}
 
 const RealizarPedidos = () => {
 
     const router = useRouter();
 
     const { getValues, setValue, handleSubmit, control, watch } = useForm()
+
+    const { openPopup, hangeStatePopUp } = usePopupOpen();
 
     const formAll = watch();
     console.log("formAll", formAll);
@@ -67,17 +85,17 @@ const RealizarPedidos = () => {
                 lugarEntrega: getValues()?.lugarEntrega ?? "1",
                 direccionEntrega: getValues()?.direccionEntrega, // direccion de entrega
                 pagoTotal: getValues()?.pagoTotal,
-                documentoUsuario: session?.documentoUsuario,
-                nombresUsuario: session?.nombres,
-                apellidoPaternoUsuario: session?.apellidoPaterno,
-                apellidoMaternoUsuario: session?.apellidoMaterno,
+                documentoUsuario: user?.documentoUsuario,
+                nombresUsuario: user?.nombres,
+                apellidoPaternoUsuario: user?.apellidoPaterno,
+                apellidoMaternoUsuario: user?.apellidoMaterno,
                 membresia: getValues()?.membresia,
                 distritoEntrega: getValues()?.distritoEntrega,
                 provinciaEntrega: getValues()?.provinciaEntrega,
                 departamentoEntrega: getValues()?.departamentoEntrega,
                 celularEntrega: getValues()?.celularEntrega,
                 zona: getValues()?.zona,
-                usuario: `${session?.nombres} ${session?.apellidoPaterno} ${session?.apellidoMaterno}`,
+                usuario: `${user?.nombres} ${user?.apellidoPaterno} ${user?.apellidoMaterno}`,
                 proyecto: Apis.PROYECTCURRENT,
             };
 
@@ -343,6 +361,393 @@ const RealizarPedidos = () => {
         }
     }, [session, config, user, setValue])
 
+    //pago pasarela
+
+    const openForm = () => {
+        window?.VisanetCheckout?.open();
+    }
+
+    // useEffect(() => {
+    //     setValue("montoPasarela", dataAsientos?.precio)
+    // }, []);
+
+    // const [openPopup, setOpenPopup] = useState<boolean>(false);
+    const [loading2, setLoading2] = useState(false);
+    const [tokenSession77, setTokenSession77] = useState<any>(null);
+    const [sessionPaso2, setSessionPaso2] = useState<any>(null);
+    const [initialized, setInitialized] = useState(false);
+    const [paymentInitialized, setPaymentInitialized] = useState(false);
+    const initializationRef = useRef(false);
+    const [changePasarela, setChangePasarela] = useState(false);
+
+    const initializePaymentGateway = useCallback(async () => {
+        if (!getValues()?.pasarelaPay || initializationRef.current) {
+            console.log("pasarelaPay", getValues()?.pasarelaPay)
+            console.log("initializationRef.current", initializationRef.current)
+            return;
+        }
+
+        // Marcar como inicializado inmediatamente
+        initializationRef.current = true;
+        setPaymentInitialized(true);
+
+        console.log("reserva pasarelawedrfgfdsd")
+        const MERCHANT_ID = "650245394";
+        // const AMOUNT = "300";
+        const AMOUNT = getValues()?.pagoTotal;
+        // const AMOUNT = 1;
+        // const AMOUNT = Apis.PRECIO_PASARELA;
+        // const JS_URL = "https://static-content-qas.vnforapps.com/v2/js/checkout.js?qa=true"; // test
+        const JS_URL = "https://static-content.vnforapps.com/v2/js/checkout.js"; // prod
+        const PUCHASE_NUMBER = Math.floor(Math.random() * (999999999999 - 1 + 1)) + 1; // único por transacción
+        let SECURITY_TOKEN = '';
+
+        const loadInit = async () => {
+
+            const loadingElement = document.getElementById('loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'block';
+            }
+
+            try {
+                setLoading2(true)
+                // const res1 = await axios.get('https://nodejs-niubiz-lotexpres.onrender.com/api/auth/pasarelaNiubiz') // prd render servidor lento
+                const res1 = await axios.get('https://nodejs-niubiz-munoz.vercel.app/api/auth/pasarelaNiubiz') // prd render servidor lento
+                // const res1 = await axios.get('http://localhost:5000/api/auth/pasarelaNiubiz') // local
+                console.log(res1)
+
+                if (res1 == null) return;
+                SECURITY_TOKEN = res1.data.data;
+                // SECURITY_TOKEN = res1;
+                // setTokenSession77(res1)
+                setTokenSession77(res1)
+                getTokenNiubizSesion(res1);
+
+            } catch (error) {
+                alert('Error al generar el token de seguridad');
+                const loadingElement = document.getElementById('loading');
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
+                initializationRef.current = false;
+                setPaymentInitialized(false);
+            } finally {
+                setLoading2(false)
+            }
+        }
+        const getTokenNiubizSesion = async (securityToken: any) => {
+            // console.log(securityToken)
+            try {
+                // const sessionKey = await getSessionKey(MERCHANT_ID, securityToken, AMOUNT)
+                const sessionToken2 = {
+                    codigoComercio: MERCHANT_ID,
+                    tokenGenerado: securityToken.data.data,
+                    montoPagar: AMOUNT,
+                    //MDD
+                    MDD4: "diegoespinozareyna@gmail.com", // ID del usuario correo
+                    MDD21: 0, //
+                    MDD32: "73505082", // ID del usuario dni
+                    MDD75: 'Invitado', // Registrado o Invitado
+                    MDD77: 100 // Registrado o Invitado
+                }
+                // console.log(sessionToken2)
+                // const res2 = await axios.post('https://nodejs-niubiz-lotexpres.onrender.com/api/auth/pasarelaniubiz2', sessionToken2) // prd render servidor lento
+                const res2 = await axios.post('https://nodejs-niubiz-munoz.vercel.app/api/auth/pasarelaniubiz2', sessionToken2) // prd
+                // const res2 = await axios.post('http://localhost:5000/api/auth/pasarelaniubiz2', sessionToken2) // local
+                console.log(res2)
+                if (res2 == null) {
+                    console.log("res2 null")
+                    return
+                };
+                setSessionPaso2(res2?.data?.data)
+                await addNiubizScript(res2?.data?.data);
+            } catch (error) {
+                alert('Error al generar el token de sesión');
+                const loadingElement = document.getElementById('loading');
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
+            } finally {
+                // setLoading2(false)
+            }
+        }
+
+        const addNiubizScript = async (sessionKey: any) => {
+            const script = document.createElement('script');
+            script.src = JS_URL;
+            script.async = true;
+            // console.log(sessionKey)
+            script.onload = () => setConfigurationForm(sessionKey);
+            document.head.appendChild(script);
+        }
+
+        const setConfigurationForm = async (sessionKey: any) => {
+            //comprobar status
+            const form1 = window?.VisanetCheckout?.configure({
+                sessiontoken: `${sessionKey}`,
+                channel: 'web',
+                merchantid: "650245394",
+                purchasenumber: `${PUCHASE_NUMBER}`,
+                amount: AMOUNT,
+                expirationminutes: '20',
+                timeouturl: process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/timeout` : 'http://localhost:3000/timeout',
+                merchantlogo: 'https://files.readme.io/296927b-LOGO-NIUBIZ-LATEST.svg',
+                // merchantlogo: <img src='https://res.cloudinary.com/dk5xdo8n1/image/upload/v1720914692/Niubiz_Logo_01_rjynld.png' alt="img" />,
+                formbuttoncolor: '#000000',
+                action: process.env.NEXT_PUBLIC_API_URL ? `${process.env.NEXT_PUBLIC_API_URL}/transaction` : 'http://localhost:3000/transaction',
+            });
+            // console.log(form1)
+            window?.VisanetCheckout?.open();
+            // No considerar la siguiente línea si desea enviar los valores generados por el formulario a su backend
+
+            if (window?.VisanetCheckout?.configuration) {
+                window.VisanetCheckout.configuration.complete = completePayment;
+            }
+            const loadingElement = document.getElementById('loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+        }
+
+        const completePayment = async (response: any) => {
+            //comprobar status
+            // console.log(response)
+            // console.log(tokenSession77)
+            const loadingElement = document.getElementById('loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'block';
+            }
+            const sessionToken3 = {
+                codigoComercio: MERCHANT_ID,
+                tokenGenerado2: response.token,
+                montoPagar: AMOUNT,
+                numeroAleatorio: PUCHASE_NUMBER,
+                tokenSession: SECURITY_TOKEN,
+                // tokenSession: tokenSession77?.data?.data,
+                // tokenSession: sessionPaso2,
+            }
+            try {
+                // console.log(sessionToken3)
+                // const res3 = await axios.post('https://nodejs-niubiz-lotexpres.onrender.com/api/auth/pasarelanuibiz3', sessionToken3) // prd render sercidor lento
+                const res3 = await axios.post('https://nodejs-niubiz-munoz.vercel.app/api/auth/pasarelanuibiz3', sessionToken3) // prd
+                // const res3 = await axios.post('http://localhost:5000/api/auth/pasarelanuibiz3', sessionToken3) // local
+                // const res3 = await getAuthorization(MERCHANT_ID, response.token, AMOUNT, PUCHASE_NUMBER, SECURITY_TOKEN)
+                console.log("]Larespuesta final es: ", res3)
+                // const authorizationResponse = await getAuthorization(MERCHANT_ID, response.token, AMOUNT, PUCHASE_NUMBER, SECURITY_TOKEN);
+                const authorizationResponseElement = document.getElementById('authorizationResponse');
+                if (authorizationResponseElement) {
+                    authorizationResponseElement.innerHTML = JSON.stringify(res3, undefined, 4);
+                }
+                const loadingElement = document.getElementById('loading');
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
+                // Redireccionar a una url front
+                console.log("pago ok", res3)
+                console.log("pago ok", res3?.data?.data?.dataMap?.STATUS)
+                console.log("pago ok", res3?.data?.data?.dataMap?.STATUS == "Authorized")
+                if (res3?.data?.data?.dataMap?.STATUS == "Authorized") {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Pago exitoso",
+                        text: `Un ejecutivo se comunicará con usted en la brevedad posible`,
+                    });
+                    console.log("pago ok", res3)
+                    console.log("pago ok")
+                    onSubmit(getValues());
+                    setTimeout(() => {
+                        window.location.reload()
+                    }, 5000)
+                }
+                else if (res3?.data?.data?.dataMap?.STATUS !== "Authorized") {
+                    console.log("pago ok", res3?.data?.data?.data?.ACTION_DESCRIPTION
+                    )
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Ocurrió un inconveniente con su pago",
+                        text: `Error: ${res3?.data?.data?.data?.ACTION_DESCRIPTION}, por su seguridad se le enviará a la página principal`,
+                    });
+                    if (process.env.NEXT_PUBLIC_API_URL) {
+                        setTimeout(() => {
+                            window.location.reload()
+                        }, 7000)
+                    }
+                    else {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Ocurrió un inconveniente con su pago",
+                            text: `Error: ${res3?.data?.data?.data?.ACTION_DESCRIPTION}, por su seguridad se le enviará a la página principal`,
+                        });
+                        // setTimeout(() => {
+                        //     window.location.reload()
+                        // }, 7000)
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Alerta",
+                    text: "Ocurrió un error con su pago, NO se hizo el cobro. Por su seguridad lo enviaremos a la página principal",
+                });
+                if (process.env.NEXT_PUBLIC_API_URL) {
+                    setTimeout(() => {
+                        window.location.replace(`${process.env.NEXT_PUBLIC_API_URL}`);
+                    }, 5000)
+                }
+                else {
+                    setTimeout(() => {
+                        window.location.replace("http://localhost:3000/");
+                    }, 5000)
+                }
+            } finally {
+                setLoading2(false)
+            }
+        }
+        //fin pasarela niubiz
+        loadInit()
+    }, [getValues]);
+
+    // Efecto que se ejecuta solo cuando cambia pasarelaPay a true
+    useEffect(() => {
+        console.log("pasarelaPay", getValues()?.pasarelaPay)
+        console.log("paymentInitialized", paymentInitialized)
+        if (getValues()?.pasarelaPay && !paymentInitialized) {
+            initializePaymentGateway();
+        }
+    }, [getValues()?.pasarelaPay, paymentInitialized, initializePaymentGateway, changePasarela]);
+
+    const handleSubirVouchers = async (key: any) => {
+        const datosPedido = getValues()?.dataPoUp?.infoOrder
+        try {
+            if (!getValues()?.dataVoucher) return alert("Selecciona una imagen");
+            setLoading2(true)
+            const formData = new FormData();
+            formData.append("image", getValues()?.dataVoucher);
+            const res: any = await axios.post(`${Apis.URL_APOIMENT_BACKEND_DEV2}/upload`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            // console.log("res", res);
+            if (res.status == 200) {
+
+
+
+                const jsonSend = {
+                    status: "0",
+                    fechaPedido: moment.tz(getValues()?.fechaPedido, "YYYY-MM-DD", "America/Lima").toISOString(),
+                    fechaEntregaPedido: moment.tz(getValues()?.fechaEntregaPedido, "YYYY-MM-DD", "America/Lima").toISOString(),
+                    cantidadPaquetes: getValues()?.cantidadPaquetes,
+                    kilos: getValues()?.kilos,
+                    precioSemanal: config?.precioKiloHuevos ?? "4.70",
+                    medioPago: getValues()?.medioPago ?? "1", // 1: efectivo, 2: yape/transferencia
+                    precio: getValues()?.precio,
+                    lugarEntrega: getValues()?.lugarEntrega ?? "1",
+                    direccionEntrega: getValues()?.direccionEntrega, // direccion de entrega
+                    pagoTotal: getValues()?.pagoTotal,
+                    documentoUsuario: user?.documentoUsuario,
+                    nombresUsuario: user?.nombres,
+                    apellidoPaternoUsuario: user?.apellidoPaterno,
+                    apellidoMaternoUsuario: user?.apellidoMaterno,
+                    membresia: getValues()?.membresia,
+                    distritoEntrega: getValues()?.distritoEntrega,
+                    provinciaEntrega: getValues()?.provinciaEntrega,
+                    departamentoEntrega: getValues()?.departamentoEntrega,
+                    celularEntrega: getValues()?.celularEntrega,
+                    zona: getValues()?.zona,
+                    usuario: `${user?.nombres} ${user?.apellidoPaterno} ${user?.apellidoMaterno}`,
+                    proyecto: Apis.PROYECTCURRENT,
+                    urlsPago: [res?.data?.url],
+                };
+                const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/registroPedido`
+                const response = await apiCall({
+                    method: 'POST',
+                    endpoint: url,
+                    data: jsonSend
+                })
+                console.log("responsefuianl: ", response)
+                if (response.status === 201) {
+                    Swal.fire({
+                        title: 'Pedido enviado',
+                        text: 'Se ha enviado el pedido',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        // showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        // cancelButtonColor: '#d33',
+                        // cancelButtonText: 'No',
+                        showLoaderOnConfirm: true,
+                        allowOutsideClick: false,
+                        preConfirm: () => {
+                            // router.push(`/dashboard/${Apis.PROYECTCURRENT}`);
+                            return
+                        },
+                    });
+                    const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/subirVoucher`;
+
+                    const jsonSend = {
+                        codPedido: response?.data?._id,
+                        nOperacion: new Date().getTime(),
+                        documentoUsuario: user?.documentoUsuario,
+                        fechaPago: moment.tz("America/Lima").format("YYYY-MM-DD"),
+                        formaPago: getValues()?.formaPago,
+                        monto: getValues()?.monto,
+                        fechaVerificacion: "",
+                        estadoVerificacion: "0",
+                        conceptoPago: "pago pedido",
+                        status: "0", // "0" pendiente, "1" aceptado, "2" rechazado
+                        observaciones: "",
+                        proyecto: Apis.PROYECTCURRENT,
+                        url: res?.data?.url,
+                    }
+
+                    const responseFinal = await apiCall({
+                        method: 'post',
+                        endpoint: url,
+                        data: jsonSend
+                    })
+                    console.log("responsefuianl: ", responseFinal)
+                    if (responseFinal.status === 201) {
+                        setTimeout(() => {
+                            // setBloquearButton(false);
+                            window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
+                        }, 2000);
+                    }
+                } else {
+                    Swal.fire({
+                        title: 'Error al enviar pedido',
+                        text: 'No se ha podido enviar el pedido',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        // cancelButtonText: 'No',
+                        showLoaderOnConfirm: true,
+                        allowOutsideClick: false,
+                        preConfirm: () => {
+                            return
+                        },
+                    });
+                }
+            }
+        }
+        catch (error) {
+            console.error("Error al subir el voucher: ", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al subir el voucher',
+                text: 'No se ha podido subir el voucher',
+            });
+        }
+        finally {
+            setLoading2(false)
+            setValue("dataVoucher", null);
+            setValue("monto", null);
+            setValue("formaPago", null);
+        }
+    }
+
     return (
         <div className="flex flex-col items-start justify-start mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">
             {
@@ -373,12 +778,75 @@ const RealizarPedidos = () => {
                     {
                         limitePEdidos <= "0" ? ""
                             :
-                            <Button disabled={loading} sx={{ width: "100%", backgroundColor: "#22b2aa", ":hover": { backgroundColor: "#006060", color: "white" }, fontWeight: "bold", color: "black" }} variant="contained" color="success" type="submit">
-                                Realizar Pedido
-                            </Button>
+                            limitePEdidos > "0" && getValues()?.pagoTotal !== null && getValues()?.pagoTotal !== "" && getValues()?.pagoTotal !== undefined &&
+                            // <Button disabled={loading} sx={{ width: "100%", backgroundColor: "#22b2aa", ":hover": { backgroundColor: "#006060", color: "white" }, fontWeight: "bold", color: "black" }} variant="contained" color="success" type="submit">
+                            //     Realizar Pedido
+                            // </Button>
+                            <div className="flex flex-col md:flex-row justify-center items-center gap-1 mt-2">
+                                <div className="flex justify-center items-center gap-2 px-3 w-full">
+                                    <button
+                                        disabled={loading2}
+                                        type="button"
+                                        className={` text-[12px] text-white w-full py-2 px-2 rounded-sm  font-bold text-xl cursor-pointer ${loading2 ? "opacity-50 bg-slate-500" : "bg-violet-500"}`}
+                                        onClick={() => {
+                                            // setOpenPopup(true)
+                                            setValue("siPasarelaPay", true)
+                                            setValue("pasarelaPay", true)
+                                            // setValue("montoPasarela", dataAsientos?.precio)
+                                            setChangePasarela(!changePasarela);
+                                        }}>
+                                        PAGAR CON YAPE (Código Aprobación directo SIN subir voucher)
+                                    </button>
+                                </div>
+                                <div className="flex justify-center items-center gap-2 px-3 w-full">
+                                    <button type="button" className="bg-green-500 text-[12px] text-white w-full py-2 px-2 rounded-sm  font-bold text-xl cursor-pointer" onClick={() => {
+                                        // setOpenPopup(true)
+                                        setValue("noPasarelaPay", true)
+                                        setValue("pasarelaPay", false)
+                                        setValue("siPasarelaPay", false)
+                                        setPaymentInitialized(false);
+                                        initializationRef.current = false;
+
+                                        hangeStatePopUp(true)
+                                        setValue("dataPoUp", {
+                                            title: `Subir Voucher de ${user?.nombres} - ${user?.documentoUsuario}`,
+                                            infoOrder: "new",
+                                            action: "subirVoucher",
+                                        })
+                                    }}>
+                                        PAGAR CON transdferencia/QR (Subir Voucher OBLIGATORIO)
+                                    </button>
+                                </div>
+                            </div>
                     }
                 </form>
             </div>
+            {
+                getValues()?.pasarelaPay &&
+                <div className="uppercase text-center text-base font-bold text-black">
+                    {/* {"Datos Usuario"} */}
+                    <div className="App">
+                        <div className="loading" id='loading'></div>
+                        <div className='hidden content'>
+                            <div className="container mt-5">
+                                <div className="hidden row">
+                                    <div className='col-12 mt-3'>
+                                        <button onClick={openForm} className='btn btn-primary'>Pagar</button>
+                                    </div>
+                                    <div className='col-12 mt-5'>
+                                        <label>Response</label>
+                                        <textarea id="authorizationResponse" className='form-control' readOnly rows={1}></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            {
+                openPopup &&
+                <PopUpGeneral getValues={getValues} setValue={setValue} control={control} hangeStatePopUp={hangeStatePopUp} handleSubirVouchers={handleSubirVouchers} loading2={loading2} pagoTransferencia={true} />
+            }
         </div>
     )
 }

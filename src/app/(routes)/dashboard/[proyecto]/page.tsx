@@ -18,6 +18,9 @@ const Dashboard = () => {
     const [isDayes, setIsDayes] = useState(false);
     const [images, setImages] = useState<any>([]);
 
+    const user = useUserStore((state) => state.user);
+    console.log("user", user);
+
     useEffect(() => {
         try {
             const token = localStorage.getItem('auth-token');
@@ -38,7 +41,13 @@ const Dashboard = () => {
         const hour = now.hour();
         const minute = now.minute();
         console.log("isDay: ", isDay);
-        if ((isDay == 0 || isDay == 1 || isDay == 2) && hour >= 10) {
+        if (
+            (
+                isDay == 0 || isDay == 1 || isDay == 2
+                || isDay == 6
+            )
+            // && hour >= 10
+        ) {
             console.log("isDay: ", isDay);
             setValue("isPedidos", true);
             setIsDayes(true);
@@ -54,6 +63,10 @@ const Dashboard = () => {
                 setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
+            if (isDay == 6) {
+                setValue("fechaInicio", moment().tz("America/Lima").subtract(6, 'days').format('DD-MM-YYYY'));
+                setValue("fechaFin", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
+            }
         }
         if (isDay == 3) {
             setValue("fechaInicio", moment().tz("America/Lima").subtract(3, 'days').format('DD-MM-YYYY'));
@@ -67,10 +80,10 @@ const Dashboard = () => {
             setValue("fechaInicio", moment().tz("America/Lima").subtract(5, 'days').format('DD-MM-YYYY'));
             setValue("fechaFin", moment().tz("America/Lima").subtract(3, 'days').format('DD-MM-YYYY'));
         }
-        if (isDay == 6) {
-            setValue("fechaInicio", moment().tz("America/Lima").subtract(6, 'days').format('DD-MM-YYYY'));
-            setValue("fechaFin", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
-        }
+        // if (isDay == 6) {
+        //     setValue("fechaInicio", moment().tz("America/Lima").subtract(6, 'days').format('DD-MM-YYYY'));
+        //     setValue("fechaFin", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
+        // }
         try {
             const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
             const response = await apiCall({
@@ -182,6 +195,55 @@ const Dashboard = () => {
                                 },
                             ]
             )
+
+            const url2 = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getpedidos`;
+            const response2 = await apiCall({
+                method: "get", endpoint: url2, data: null, params: {
+                    documentoUsuario: user?.documentoUsuario ?? "",
+                    fechaInicio: getValues()?.fechaInicio,
+                    fechaFin: getValues()?.fechaFin,
+                }
+            });
+            console.log("response2 fechas true", response2?.data);
+
+            // restriccion de un pedido por dia
+            const masReciente = response2?.data?.sort(
+                (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            )[0];
+
+            console.log("masReciente", masReciente);
+
+            const esHoy = (fecha: string | Date): boolean => {
+                const hoy = new Date();
+                const f = new Date(fecha);
+
+                return (
+                    hoy.getFullYear() === f.getFullYear() &&
+                    hoy.getMonth() === f.getMonth() &&
+                    hoy.getDate() === f.getDate()
+                );
+            };
+
+            const coincideConHoy = masReciente ? esHoy(masReciente.createdAt) : false;
+            console.log("coincideConHoy", coincideConHoy);
+            setValue("coincideConHoy", coincideConHoy);
+
+            // restriccion de membresia500 solo 5 pedidos antes de 15 y 5 pedidos mas despues del 15
+            console.log("membresia500 cantodad de pedidos", response2?.data?.length);
+            setValue("isMembresia500", user?.membresia500 !== "0")
+            setValue("cantidadIgual5", response2?.data?.length == 5);
+            const hoy = new Date();
+
+            // armamos la fecha de la quincena de este mes
+            const quincena = new Date(hoy.getFullYear(), hoy.getMonth(), 15);
+
+            setValue("esAntesDel15: ", hoy < quincena);
+            console.log("esAntesDel15: ", hoy < quincena);
+
+            setValue("membresia500Cantidad5Menor15", (user?.membresia500 !== "0") && (response2?.data?.length == 5) && (hoy < quincena));
+            localStorage.setItem("membresia500Menor15", JSON.stringify((user?.membresia500 !== "0") && (hoy < quincena)));
+
+
         } catch (error) {
             console.log("error", error);
         }
@@ -199,11 +261,27 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 gap-2 mt-5 !overflow-x-hidden">
                 {images?.map((image: any, index: any) => (
                     <div key={index} className="flex justify-center items-center">
-                        <div onClick={() => router.push(`/dashboard/${image.push}`)} className="relative w-80 h-w-80 overflow-hidden shadow-lg group cursor-pointer">
+                        <div
+                            onClick={() => {
+                                if (getValues()?.membresia500Cantidad5Menor15 && image.action === "REALIZAR PEDIDO") {
+                                    console.log("coincideConHoy77777", getValues()?.coincideConHoy);
+                                    null
+                                }
+                                else if (getValues()?.coincideConHoy && image.action === "REALIZAR PEDIDO") {
+                                    console.log("coincideConHoy77777", getValues()?.coincideConHoy);
+                                    null
+                                }
+                                else {
+                                    router.push(`/dashboard/${image.push}`);
+                                }
+
+                            }}
+                            className="relative w-80 h-w-80 overflow-hidden shadow-lg group cursor-pointer"
+                        >
                             <img
                                 src={image.src}
                                 alt="Imagen"
-                                className="w-full h-full object-cover object-[center_10%] opacity-80 group-hover:opacity-100 transition-transform duration-300 scale-90 group-hover:scale-100"
+                                className={`w-full h-full object-cover object-[center_10%] transition-transform duration-300 scale-90 group-hover:scale-100 ${(getValues()?.membresia500Cantidad5Menor15 && image.action === "REALIZAR PEDIDO") ? "opacity-20 group-hover:opacity-20" : (getValues()?.coincideConHoy && image.action === "REALIZAR PEDIDO") ? "opacity-20 group-hover:opacity-20" : "group-hover:opacity-100"}`}
                             />
                             {/* <div className="absolute inset-0 flex items-center justify-center">
                                 <button className="bg-green-500 hover:bg-green-700 font-bold px-4 py-2 rounded-xl font-bblueold text-slate-50 text-sm text-center cursor-pointer">
