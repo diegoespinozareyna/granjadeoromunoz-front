@@ -904,33 +904,38 @@ const pedidosAdmin = () => {
                                                     </div>
                                                 </td>
                                                 <td className="p-3">
-                                                    <div className="flex justify-start items-center gap-2">
-                                                        <div
-                                                            onClick={() => {
-                                                                hangeStatePopUp(true)
-                                                                setValue("dataPoUp", {
-                                                                    title: `Subir Voucher de ${pedido?.nombresUsuario} - ${pedido?.documentoUsuario}`,
-                                                                    infoOrder: pedido,
-                                                                    action: "subirVoucher",
-                                                                })
-                                                            }}
-                                                            className={`text-xs bg-blue-500 hover:bg-blue-700 text-white px-2 py-1 rounded-lg flex items-center cursor-pointer`}
-                                                        >
-                                                            <CloudUpload size={15} />
+                                                    <div className="flex flex-col justify-center items-center gap-1">
+                                                        <div className="flex justify-start items-center gap-2">
+                                                            <div
+                                                                onClick={() => {
+                                                                    hangeStatePopUp(true)
+                                                                    setValue("dataPoUp", {
+                                                                        title: `Subir Voucher de ${pedido?.nombresUsuario} - ${pedido?.documentoUsuario}`,
+                                                                        infoOrder: pedido,
+                                                                        action: "subirVoucher",
+                                                                    })
+                                                                }}
+                                                                className={`text-xs bg-blue-500 hover:bg-blue-700 text-white px-2 py-1 rounded-lg flex items-center cursor-pointer`}
+                                                            >
+                                                                <CloudUpload size={15} />
+                                                            </div>
+                                                            <div
+                                                                onClick={() => {
+                                                                    hangeStatePopUp(true)
+                                                                    handleGetVouchersAll(pedido._id)
+                                                                    setValue("dataPoUp", {
+                                                                        title: `Voucher(s) de ${pedido?.nombresUsuario} - ${pedido?.documentoUsuario}`,
+                                                                        infoOrder: pedido,
+                                                                        action: "verVouchers",
+                                                                    })
+                                                                }}
+                                                                className={`rounded-md ${pedido?.urlsPago?.length > 0 ? `bg-green-500 hover:bg-green-700` : `bg-slate-500 hover:bg-slate-700`} text-white px-2 py-1 cursor-pointer`}
+                                                            >
+                                                                <ListCheck size={15} className="text-green-50" />
+                                                            </div>
                                                         </div>
-                                                        <div
-                                                            onClick={() => {
-                                                                hangeStatePopUp(true)
-                                                                handleGetVouchersAll(pedido._id)
-                                                                setValue("dataPoUp", {
-                                                                    title: `Voucher(s) de ${pedido?.nombresUsuario} - ${pedido?.documentoUsuario}`,
-                                                                    infoOrder: pedido,
-                                                                    action: "verVouchers",
-                                                                })
-                                                            }}
-                                                            className={`rounded-md ${pedido?.urlsPago?.length > 0 ? `bg-green-500 hover:bg-green-700` : `bg-slate-500 hover:bg-slate-700`} text-white px-2 py-1 cursor-pointer`}
-                                                        >
-                                                            <ListCheck size={15} className="text-green-50" />
+                                                        <div className="flex justify-start items-center gap-2 text-violet-500">
+                                                            {pedido?.medioPago == "3" && "PAGÓ CON PASARELA YAPE"}
                                                         </div>
                                                     </div>
                                                 </td>
