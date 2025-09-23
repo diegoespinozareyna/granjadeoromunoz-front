@@ -66,6 +66,8 @@ const RealizarPedidos = () => {
 
     const [bloquearButton, setBloquearButton] = useState(false);
 
+    console.log("getValues", getValues()?.dataVoucher);
+
     const onSubmit = async (data: any) => {
         console.log(data)
         setBloquearButton(true);
@@ -616,23 +618,73 @@ const RealizarPedidos = () => {
         }
     }, [getValues()?.pasarelaPay, paymentInitialized, initializePaymentGateway, changePasarela]);
 
+    const [allUploaded, setAllUploaded] = useState(false); // ✅ estado final
+    const [urls, setUrls] = useState<string[]>([]); // para guardar los links subidos
+
+    const uploadFiles = async (files: File[]) => {
+        const uploadedUrls: string[] = [];
+        let success = true;
+
+        for (const file of files) {
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                const res = await axios.post(
+                    `${Apis.URL_APOIMENT_BACKEND_DEV2}/upload`,
+                    formData,
+                    {
+                        headers: { "Content-Type": "multipart/form-data" },
+                    }
+                );
+
+                if (res.status === 200) {
+                    uploadedUrls.push(res.data.url);
+                } else {
+                    success = false;
+                }
+            } catch (err) {
+                console.error("Error al subir", file.name, err);
+                success = false;
+            }
+        }
+
+        // guardar resultados en el estado
+        setUrls(uploadedUrls);
+        setAllUploaded(success && uploadedUrls.length === files.length);
+
+        return uploadedUrls;
+    };
+
     const handleSubirVouchers = async (key: any) => {
         const datosPedido = getValues()?.dataPoUp?.infoOrder
         try {
             if (!getValues()?.dataVoucher) return alert("Selecciona una imagen");
             setLoading2(true)
-            const formData = new FormData();
-            formData.append("image", getValues()?.dataVoucher);
-            const res: any = await axios.post(`${Apis.URL_APOIMENT_BACKEND_DEV2}/upload`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            // console.log("res", res);
-            if (res.status == 200) {
 
+            let urls: string[] = [];
+            let allUploaded = true;
 
+            // subir uno por uno
+            for (const file of getValues()?.dataVoucher) {
+                const formData = new FormData();
+                formData.append("image", file);
 
+                const res: any = await axios.post(`${Apis.URL_APOIMENT_BACKEND_DEV2}/upload`, formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+
+                if (res.status === 200) {
+                    urls.push(res.data.url);
+                } else {
+                    allUploaded = false;
+                    break;
+                }
+            }
+
+            if (allUploaded) {
                 const jsonSend = {
                     status: "0",
                     fechaPedido: moment.tz(getValues()?.fechaPedido, "YYYY-MM-DD", "America/Lima").toISOString(),
@@ -640,10 +692,10 @@ const RealizarPedidos = () => {
                     cantidadPaquetes: getValues()?.cantidadPaquetes,
                     kilos: getValues()?.kilos,
                     precioSemanal: config?.precioKiloHuevos ?? "4.70",
-                    medioPago: getValues()?.medioPago ?? "1", // 1: efectivo, 2: yape/transferencia
+                    medioPago: getValues()?.medioPago ?? "1",
                     precio: getValues()?.precio,
                     lugarEntrega: getValues()?.lugarEntrega ?? "1",
-                    direccionEntrega: getValues()?.direccionEntrega, // direccion de entrega
+                    direccionEntrega: getValues()?.direccionEntrega,
                     pagoTotal: getValues()?.pagoTotal,
                     documentoUsuario: user?.documentoUsuario,
                     nombresUsuario: user?.nombres,
@@ -657,8 +709,9 @@ const RealizarPedidos = () => {
                     zona: getValues()?.zona,
                     usuario: `${user?.nombres} ${user?.apellidoPaterno} ${user?.apellidoMaterno}`,
                     proyecto: Apis.PROYECTCURRENT,
-                    urlsPago: [res?.data?.url],
+                    urlsPago: urls,
                 };
+
                 const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/registroPedido`
                 const response = await apiCall({
                     method: 'POST',
@@ -666,53 +719,50 @@ const RealizarPedidos = () => {
                     data: jsonSend
                 })
                 console.log("responsefuianl: ", response)
+
                 if (response.status === 201) {
                     Swal.fire({
                         title: 'Pedido enviado',
                         text: 'Se ha enviado el pedido',
                         icon: 'success',
                         confirmButtonText: 'OK',
-                        // showCancelButton: true,
                         confirmButtonColor: '#3085d6',
-                        // cancelButtonColor: '#d33',
-                        // cancelButtonText: 'No',
                         showLoaderOnConfirm: true,
                         allowOutsideClick: false,
-                        preConfirm: () => {
-                            // router.push(`/dashboard/${Apis.PROYECTCURRENT}`);
-                            return
-                        },
                     });
+
                     const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/subirVoucher`;
 
-                    const jsonSend = {
-                        codPedido: response?.data?._id,
-                        nOperacion: new Date().getTime(),
-                        documentoUsuario: user?.documentoUsuario,
-                        fechaPago: moment.tz("America/Lima").format("YYYY-MM-DD"),
-                        formaPago: getValues()?.formaPago,
-                        monto: getValues()?.monto,
-                        fechaVerificacion: "",
-                        estadoVerificacion: "0",
-                        conceptoPago: "pago pedido",
-                        status: "0", // "0" pendiente, "1" aceptado, "2" rechazado
-                        observaciones: "",
-                        proyecto: Apis.PROYECTCURRENT,
-                        url: res?.data?.url,
+                    // aquí iteramos cada voucher
+                    for (const voucherUrl of urls) {
+                        const jsonSend = {
+                            codPedido: response?.data?._id,
+                            nOperacion: new Date().getTime(),
+                            documentoUsuario: user?.documentoUsuario,
+                            fechaPago: moment.tz("America/Lima").format("YYYY-MM-DD"),
+                            formaPago: getValues()?.formaPago,
+                            monto: getValues()?.monto,
+                            fechaVerificacion: "",
+                            estadoVerificacion: "0",
+                            conceptoPago: "pago pedido",
+                            status: "0",
+                            observaciones: "",
+                            proyecto: Apis.PROYECTCURRENT,
+                            url: voucherUrl,
+                        }
+
+                        const responseFinal = await apiCall({
+                            method: 'post',
+                            endpoint: url,
+                            data: jsonSend
+                        })
+                        console.log("responsefuianl: ", responseFinal)
                     }
 
-                    const responseFinal = await apiCall({
-                        method: 'post',
-                        endpoint: url,
-                        data: jsonSend
-                    })
-                    console.log("responsefuianl: ", responseFinal)
-                    if (responseFinal.status === 201) {
-                        setTimeout(() => {
-                            // setBloquearButton(false);
-                            window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
-                        }, 2000);
-                    }
+                    setTimeout(() => {
+                        window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
+                    }, 2000);
+
                 } else {
                     Swal.fire({
                         title: 'Error al enviar pedido',
@@ -722,12 +772,8 @@ const RealizarPedidos = () => {
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        // cancelButtonText: 'No',
                         showLoaderOnConfirm: true,
                         allowOutsideClick: false,
-                        preConfirm: () => {
-                            return
-                        },
                     });
                 }
             }
@@ -747,6 +793,7 @@ const RealizarPedidos = () => {
             setValue("formaPago", null);
         }
     }
+
 
     return (
         <div className="flex flex-col items-start justify-start mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">

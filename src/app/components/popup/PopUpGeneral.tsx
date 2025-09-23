@@ -145,7 +145,7 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                 </div>
                             </>
                         }
-                        <div className="flex justify-start items-center gap-1">
+                        {/* <div className="flex justify-start items-center gap-1">
                             <Controller
                                 name="filePago"
                                 control={control}
@@ -188,15 +188,6 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                             </label>
                                             {previewUrl && (
                                                 <>
-                                                    {/* <a
-                                                        href={previewUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-blue-600 hover:text-blue-800"
-                                                        title="Ver imagen"
-                                                    >
-                                                        <Eye size={18} />
-                                                    </a> */}
                                                     <>
                                                         <div
                                                             className="relative z-50 cursor-pointer"
@@ -219,6 +210,84 @@ export const PopUpGeneral = ({ getValues, setValue, control, hangeStatePopUp, ha
                                                         />
                                                     </div>
                                                 </>
+                                            )}
+                                        </div>
+                                    );
+                                }}
+                            />
+                        </div> */}
+                        <div className="flex justify-start items-center gap-1">
+                            <Controller
+                                name="filePago"
+                                control={control}
+                                rules={{ required: "Se requiere al menos un archivo de imagen" }}
+                                render={({ field }) => {
+                                    const [previews, setPreviews] = useState<string[]>([]);
+
+                                    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                                        const files = Array.from(e.target.files ?? []);
+                                        if (files.length > 0) {
+                                            // Guardar los archivos en RHF
+                                            setValue("dataVoucher", files);
+                                            field.onChange(files);
+
+                                            // Crear previews
+                                            const newPreviews = files.map((file) => URL.createObjectURL(file));
+                                            setPreviews(newPreviews);
+                                        }
+                                    };
+
+                                    const removeFile = (index: number) => {
+                                        const updatedPreviews = previews.filter((_, i) => i !== index);
+
+                                        // Remover archivo de React Hook Form
+                                        const currentFiles: File[] = (field.value as File[]) || [];
+                                        const updatedFiles = currentFiles.filter((_, i) => i !== index);
+
+                                        setPreviews(updatedPreviews);
+                                        setValue("dataVoucher", updatedFiles);
+                                        field.onChange(updatedFiles);
+                                    };
+
+                                    return (
+                                        <div className="flex flex-col items-center gap-2">
+                                            <label className="cursor-pointer flex justify-center items-center gap-2">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    multiple
+                                                    onChange={handleFileChange}
+                                                    className="hidden"
+                                                />
+                                                <div
+                                                    className={`text-xs bg-red-500 hover:bg-blue-700 text-white px-2 py-1 rounded-lg flex items-center`}
+                                                >
+                                                    <div>Seleccione Vouchers</div>
+                                                </div>
+                                                {previews.length > 0 && (
+                                                    <div><CheckCheck color="green" size={20} /></div>
+                                                )}
+                                            </label>
+
+                                            {previews.length > 0 && (
+                                                <div className="grid grid-cols-2 gap-3 mt-3">
+                                                    {previews.map((previewUrl, index) => (
+                                                        <div key={index} className="relative flex flex-col items-center">
+                                                            <div
+                                                                className="absolute top-0 right-0 cursor-pointer bg-white rounded-full p-1 shadow"
+                                                                onClick={() => removeFile(index)}
+                                                            >
+                                                                <X color="red" size={18} />
+                                                            </div>
+                                                            <img
+                                                                src={previewUrl}
+                                                                alt={`Vista previa ${index + 1}`}
+                                                                className="w-32 h-32 object-cover rounded-lg border cursor-pointer"
+                                                                onClick={() => window.open(previewUrl, "_blank")}
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             )}
                                         </div>
                                     );
