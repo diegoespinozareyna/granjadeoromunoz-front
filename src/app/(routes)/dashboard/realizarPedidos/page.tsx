@@ -892,7 +892,7 @@ const RealizarPedidos = () => {
             }
             {
                 openPopup &&
-                <PopUpGeneral getValues={getValues} setValue={setValue} control={control} hangeStatePopUp={hangeStatePopUp} handleSubirVouchers={handleSubirVouchers} loading2={loading2} pagoTransferencia={true} />
+                <PopUpGeneral getValues={getValues} setValue={setValue} control={control} hangeStatePopUp={hangeStatePopUp} handleSubirVouchers={handleSubirVouchers} loading2={loading2} pagoTransferencia={true} byAdmin={false} />
             }
         </div>
     )

@@ -13,7 +13,7 @@ import { Controller, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import { PiMicrosoftExcelLogoDuotone } from "react-icons/pi";
-import { useConfigStore } from "@/app/store/userStore";
+import { useConfigStore, useUserStore } from "@/app/store/userStore";
 import { PopUpGeneral } from "@/app/components/popup/PopUpGeneral";
 import { usePopupOpen } from "@/app/hooks/popupopen/usePopupOpen";
 import axios from "axios";
@@ -30,6 +30,8 @@ const pedidosAdmin = () => {
 
     const config = useConfigStore((state) => state.config);
     console.log("config", config);
+    const user = useUserStore((state) => state.user);
+    console.log("user", user);
 
     const { getValues, setValue, handleSubmit, control, watch } = useForm()
 
@@ -531,6 +533,164 @@ const pedidosAdmin = () => {
         }
     }
 
+    // const handleSubirVouchers = async (key: any) => {
+    //     const datosPedido = getValues()?.dataPoUp?.infoOrder
+    //     try {
+    //         if (!getValues()?.dataVoucher) return alert("Selecciona una imagen");
+    //         setLoading2(true)
+
+    //         let urls: string[] = [];
+    //         let allUploaded = true;
+
+    //         // subir uno por uno
+    //         for (const file of getValues()?.dataVoucher) {
+    //             const formData = new FormData();
+    //             formData.append("image", file);
+
+    //             const res: any = await axios.post(`${Apis.URL_APOIMENT_BACKEND_DEV2}/upload`, formData, {
+    //                 headers: {
+    //                     "Content-Type": "multipart/form-data",
+    //                 },
+    //             });
+
+    //             if (res.status === 200) {
+    //                 urls.push(res.data.url);
+    //             } else {
+    //                 allUploaded = false;
+    //                 break;
+    //             }
+    //         }
+
+    //         if (allUploaded) {
+    //             const jsonSend = {
+    //                 status: "0",
+    //                 fechaPedido: moment.tz(getValues()?.fechaPedido, "YYYY-MM-DD", "America/Lima").toISOString(),
+    //                 fechaEntregaPedido: moment.tz(getValues()?.fechaEntregaPedido, "YYYY-MM-DD", "America/Lima").toISOString(),
+    //                 cantidadPaquetes: getValues()?.cantidadPaquetes,
+    //                 kilos: getValues()?.kilos,
+    //                 precioSemanal: config?.precioKiloHuevos ?? "4.70",
+    //                 medioPago: getValues()?.medioPago ?? "1",
+    //                 precio: getValues()?.precio,
+    //                 lugarEntrega: getValues()?.lugarEntrega ?? "1",
+    //                 direccionEntrega: getValues()?.direccionEntrega,
+    //                 pagoTotal: getValues()?.pagoTotal,
+    //                 documentoUsuario: user?.documentoUsuario,
+    //                 nombresUsuario: user?.nombres,
+    //                 apellidoPaternoUsuario: user?.apellidoPaterno,
+    //                 apellidoMaternoUsuario: user?.apellidoMaterno,
+    //                 membresia: getValues()?.membresia,
+    //                 distritoEntrega: getValues()?.distritoEntrega,
+    //                 provinciaEntrega: getValues()?.provinciaEntrega,
+    //                 departamentoEntrega: getValues()?.departamentoEntrega,
+    //                 celularEntrega: getValues()?.celularEntrega,
+    //                 zona: getValues()?.zona,
+    //                 usuario: `${user?.nombres} ${user?.apellidoPaterno} ${user?.apellidoMaterno}`,
+    //                 proyecto: Apis.PROYECTCURRENT,
+    //                 urlsPago: urls,
+    //             };
+
+    //             const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/registroPedido`
+    //             const response = await apiCall({
+    //                 method: 'POST',
+    //                 endpoint: url,
+    //                 data: jsonSend
+    //             })
+    //             console.log("responsefuianl: ", response)
+
+    //             if (response.status === 201) {
+    //                 Swal.fire({
+    //                     title: 'Pedido enviado',
+    //                     text: 'Se ha enviado el pedido',
+    //                     icon: 'success',
+    //                     confirmButtonText: 'OK',
+    //                     confirmButtonColor: '#3085d6',
+    //                     showLoaderOnConfirm: true,
+    //                     allowOutsideClick: false,
+    //                 });
+
+    //                 const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/subirVoucher`;
+
+    //                 // aquí iteramos cada voucher
+    //                 for (const voucherUrl of urls) {
+    //                     const jsonSend = {
+    //                         codPedido: response?.data?._id,
+    //                         nOperacion: new Date().getTime(),
+    //                         documentoUsuario: user?.documentoUsuario,
+    //                         fechaPago: moment.tz("America/Lima").format("YYYY-MM-DD"),
+    //                         formaPago: getValues()?.formaPago,
+    //                         monto: getValues()?.monto,
+    //                         fechaVerificacion: "",
+    //                         estadoVerificacion: "0",
+    //                         conceptoPago: "pago pedido",
+    //                         status: "0",
+    //                         observaciones: "",
+    //                         proyecto: Apis.PROYECTCURRENT,
+    //                         url: voucherUrl,
+    //                     }
+
+    //                     const responseFinal = await apiCall({
+    //                         method: 'post',
+    //                         endpoint: url,
+    //                         data: jsonSend
+    //                     })
+    //                     console.log("responsefuianl: ", responseFinal)
+
+    //                     Swal.fire({
+    //                         icon: 'success',
+    //                         title: 'Voucher subido',
+    //                         text: 'Se ha subido el voucher',
+    //                         timer: 2000
+    //                     });
+    //                     console.log("responsefuianl: ", responseFinal)
+    //                     if (responseFinal.status === 201) {
+    //                         const url2 = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/insertUrlsPagos`;
+    //                         const response2 = await apiCall({
+    //                             method: "patch", endpoint: url2, data: {
+    //                                 id: responseFinal?.data?.codPedido,
+    //                                 urlPago: voucherUrl,
+    //                             }
+    //                         });
+    //                         console.log("response2", response2?.data)
+    //                         fetchDataPedidosClientes()
+    //                         hangeStatePopUp(false);
+    //                     }
+    //                 }
+
+    //                 // setTimeout(() => {
+    //                 //     // window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
+    //                 // }, 2000);
+
+    //             } else {
+    //                 Swal.fire({
+    //                     title: 'Error al enviar pedido',
+    //                     text: 'No se ha podido enviar el pedido',
+    //                     icon: 'error',
+    //                     confirmButtonText: 'OK',
+    //                     showCancelButton: true,
+    //                     confirmButtonColor: '#3085d6',
+    //                     cancelButtonColor: '#d33',
+    //                     showLoaderOnConfirm: true,
+    //                     allowOutsideClick: false,
+    //                 });
+    //             }
+    //         }
+    //     }
+    //     catch (error) {
+    //         console.error("Error al subir el voucher: ", error);
+    //         Swal.fire({
+    //             icon: 'error',
+    //             title: 'Error al subir el voucher',
+    //             text: 'No se ha podido subir el voucher',
+    //         });
+    //     }
+    //     finally {
+    //         setLoading2(false)
+    //         setValue("dataVoucher", null);
+    //         setValue("monto", null);
+    //         setValue("formaPago", null);
+    //     }
+    // }
+
     const handleGetVouchersAll = async (id: string) => {
         console.log("id", id);
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getVouchersAll`;
@@ -1003,7 +1163,7 @@ const pedidosAdmin = () => {
             </div>
             {
                 openPopup &&
-                <PopUpGeneral getValues={getValues} setValue={setValue} control={control} hangeStatePopUp={hangeStatePopUp} handleSubirVouchers={handleSubirVouchers} handleEditVoucher={handleEditVoucher} loading2={loading2} />
+                <PopUpGeneral getValues={getValues} setValue={setValue} control={control} hangeStatePopUp={hangeStatePopUp} handleSubirVouchers={handleSubirVouchers} handleEditVoucher={handleEditVoucher} loading2={loading2} byAdmin={true} />
             }
         </>
     )
