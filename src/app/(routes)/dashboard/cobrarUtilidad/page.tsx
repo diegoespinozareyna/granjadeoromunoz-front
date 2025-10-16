@@ -326,6 +326,13 @@ const CobrarUtilidad = () => {
                                 {user?.menbresia200 !== "0" && "S/. 98.26"}
                                 {/* {user?.menbresia200 !== "0" && `S/.${Number(datos?.kilosTotales * 0.80 * 0.3 * Number(user?.menbresia200))?.toFixed(2)}`} */}
                             </div>
+                            <div className="font-bold text-slate-700 text-2xl text-center mt-6">
+                                {"Le Coresponde Cobrar:"}
+                            </div>
+                            <div className="font-bold text-yellow-500 text-4xl text-center mt-6">
+                                {user?.utilidad1}
+                                {/* {user?.membresia500 !== "0" && `S/.${Number(datos?.kilosTotales * 0.80 * 0.5 * Number(user?.membresia500))?.toFixed(2)}`} */}
+                            </div>
                         </>
                     }
                     <button
