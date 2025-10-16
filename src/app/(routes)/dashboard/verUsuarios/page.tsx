@@ -538,10 +538,10 @@ const verUsuarios = () => {
                                         {`Banco: ${popup?.infoUsuario?.banco ?? "No ingresado por el cliente"}`}
                                     </div>
                                     <div>
-                                        {`Numero de cta: ${popup?.infoUsuario?.banco ?? "No ingresado por el cliente"}`}
+                                        {`Numero de cta: ${popup?.infoUsuario?.numeroCuenta ?? "No ingresado por el cliente"}`}
                                     </div>
                                     <div>
-                                        {`CCI: ${popup?.infoUsuario?.banco ?? "No ingresado por el cliente"}`}
+                                        {`CCI: ${popup?.infoUsuario?.cciCuenta ?? "No ingresado por el cliente"}`}
                                     </div>
                                     <div className="flex flex-row gap-2">
                                         {`Monto a Cobrar trimestre1: S/.  ${changeDecimales(popup?.infoUsuario?.utilidad1 ?? "0") ?? "No Corresponde"}`}
@@ -907,55 +907,56 @@ const verUsuarios = () => {
                                                                 alt={`Voucher ${index + 1}`}
                                                                 className="w-full h-auto rounded-lg shadow-md cursor-pointer"
                                                                 onClick={async () => {
-                                                                    const { isConfirmed } = await Swal.fire({
-                                                                        title: `Cambiar Status de voucher`,
-                                                                        html: `
-                                                                                                    <select id="status" class="swal2-input">
-                                                                                                      <option value="">Selecciona un estado</option>
-                                                                                                      <option value="2">Eliminar</option>
-                                                                                                    </select>
-                                                                                                    <textarea id="comentario" class="swal2-textarea" placeholder="Escribe un comentario"></textarea>
-                                                                                                  `,
-                                                                        focusConfirm: false,
-                                                                        showCancelButton: true,
-                                                                        confirmButtonText: 'Actualizar',
-                                                                        cancelButtonText: 'Cancelar',
-                                                                        confirmButtonColor: '#3085d6',
-                                                                        cancelButtonColor: '#d33',
-                                                                        width: '400px',
-                                                                        allowOutsideClick: () => !Swal.isLoading(),
-                                                                        showLoaderOnConfirm: true,
-                                                                        preConfirm: async () => {
-                                                                            const estado = (document.getElementById('status') as HTMLSelectElement)?.value;
-                                                                            (estado !== undefined && estado !== null && estado !== "") && (setValue("status", estado));
-                                                                            const comentario = (document.getElementById('comentario') as HTMLTextAreaElement)?.value.trim();
-                                                                            (comentario !== undefined && comentario !== null && comentario !== "") && (setValue("observaciones", comentario));
+                                                                    if (item.status === "0" || item.status === "2") {
+                                                                        const { isConfirmed } = await Swal.fire({
+                                                                            title: `Cambiar Status de voucher`,
+                                                                            html: `
+                                                                                                        <select id="status" class="swal2-input">
+                                                                                                          <option value="">Selecciona un estado</option>
+                                                                                                          <option value="2">Eliminar</option>
+                                                                                                        </select>
+                                                                                                        <textarea id="comentario" class="swal2-textarea" placeholder="Escribe un comentario"></textarea>
+                                                                                                      `,
+                                                                            focusConfirm: false,
+                                                                            showCancelButton: true,
+                                                                            confirmButtonText: 'Actualizar',
+                                                                            cancelButtonText: 'Cancelar',
+                                                                            confirmButtonColor: '#3085d6',
+                                                                            cancelButtonColor: '#d33',
+                                                                            width: '400px',
+                                                                            allowOutsideClick: () => !Swal.isLoading(),
+                                                                            showLoaderOnConfirm: true,
+                                                                            preConfirm: async () => {
+                                                                                const estado = (document.getElementById('status') as HTMLSelectElement)?.value;
+                                                                                (estado !== undefined && estado !== null && estado !== "") && (setValue("status", estado));
+                                                                                const comentario = (document.getElementById('comentario') as HTMLTextAreaElement)?.value.trim();
+                                                                                (comentario !== undefined && comentario !== null && comentario !== "") && (setValue("observaciones", comentario));
 
-                                                                            if (!estado) {
-                                                                                Swal.showValidationMessage('Debes seleccionar un estado');
-                                                                                return;
+                                                                                if (!estado) {
+                                                                                    Swal.showValidationMessage('Debes seleccionar un estado');
+                                                                                    return;
+                                                                                }
+
+                                                                                // if (!comentario) {
+                                                                                //     Swal.showValidationMessage('Debes escribir un comentario');
+                                                                                //     return;
+                                                                                // }
+
+                                                                                try {
+                                                                                    await handleEditVoucher(item._id, item.codPedido);
+                                                                                } catch (error) {
+                                                                                    Swal.showValidationMessage(`Error al actualizar: ${error}`);
+                                                                                }
                                                                             }
-
-                                                                            // if (!comentario) {
-                                                                            //     Swal.showValidationMessage('Debes escribir un comentario');
-                                                                            //     return;
-                                                                            // }
-
-                                                                            try {
-                                                                                await handleEditVoucher(item._id, item.codPedido);
-                                                                            } catch (error) {
-                                                                                Swal.showValidationMessage(`Error al actualizar: ${error}`);
-                                                                            }
-                                                                        }
-                                                                    });
-
-                                                                    if (isConfirmed) {
-                                                                        Swal.fire({
-                                                                            icon: 'success',
-                                                                            title: 'Estado actualizado',
-                                                                            text: `El estado del pedido fue actualizado correctamente.`,
-                                                                            timer: 2000
                                                                         });
+                                                                        if (isConfirmed) {
+                                                                            Swal.fire({
+                                                                                icon: 'success',
+                                                                                title: 'Estado actualizado',
+                                                                                text: `El estado del pedido fue actualizado correctamente.`,
+                                                                                timer: 2000
+                                                                            });
+                                                                        }
                                                                     }
                                                                 }}
                                                             />

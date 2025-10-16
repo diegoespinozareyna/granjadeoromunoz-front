@@ -21,6 +21,22 @@ interface User {
   celular: string;
   membresia500: string;
   menbresia200: string;
+  //utilidades
+  isCobrar: String, // 0: no, 1: si
+  banco: String,
+  numeroCuenta: String,
+  cciCuenta: String,
+  //cobro utilidades
+  utilidad1: String,
+  utilidad2: String,
+  utilidad3: String,
+  utilidad4: String,
+  utilidad5: String,
+  utilidad6: String,
+  utilidad7: String,
+  utilidad8: String,
+  utilidad9: String,
+  utilidad10: String,
 }
 
 interface Config {
