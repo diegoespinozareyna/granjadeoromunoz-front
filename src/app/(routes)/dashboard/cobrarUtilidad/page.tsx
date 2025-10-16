@@ -313,17 +313,17 @@ const CobrarUtilidad = () => {
                         user?.userType !== "admin" &&
                         <>
                             <div className="font-bold text-slate-700 text-2xl text-center mt-6">
-                                {user?.membresia500 !== "0" && "Utilidades a Repartir por usuario Membresia EMPRESARIO:"}
+                                {user?.membresia500 !== "0" && "Utilidades a Repartir por usuario EMPRESARIO:"}
                             </div>
                             <div className="font-bold text-yellow-500 text-4xl text-center mt-6">
-                                {user?.membresia500 !== "0" && "S/. 127.10"}
+                                {user?.membresia500 !== "0" && "S/. 16,310.80"}
                                 {/* {user?.membresia500 !== "0" && `S/.${Number(datos?.kilosTotales * 0.80 * 0.5 * Number(user?.membresia500))?.toFixed(2)}`} */}
                             </div>
                             <div className="font-bold text-slate-700 text-2xl text-center mt-6">
-                                {user?.menbresia200 !== "0" && "Utilidades a Repartir por usuario Membresia EMPRENDEDOR:"}
+                                {user?.menbresia200 !== "0" && "Utilidades a Repartir por usuario EMPRENDEDOR:"}
                             </div>
                             <div className="font-bold text-yellow-500 text-4xl text-center">
-                                {user?.menbresia200 !== "0" && "S/. 98.26"}
+                                {user?.menbresia200 !== "0" && "S/. 9,786.48"}
                                 {/* {user?.menbresia200 !== "0" && `S/.${Number(datos?.kilosTotales * 0.80 * 0.3 * Number(user?.menbresia200))?.toFixed(2)}`} */}
                             </div>
                             <div className="font-bold text-slate-700 text-2xl text-center mt-6">
