@@ -2003,6 +2003,7 @@ export const formCrearUsuario = [
         options: [
             { value: "1", label: "Activo" },
             { value: "0", label: "Inactivo" },
+            { value: "2", label: "Retirado" },
         ],
         placeholder: "Status Usuario",
         description: "Status Usuario",

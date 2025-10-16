@@ -13,7 +13,7 @@ import { jwtDecode } from "jwt-decode";
 import moment from "moment-timezone";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 
 // Extend the Window interface to include VisanetCheckout
@@ -47,6 +47,22 @@ const RealizarPedidos = () => {
     const [limitePEdidos, setLimitePEdidos] = useState<any>(null);
     const user = useUserStore((state) => state.user);
     console.log("user", user);
+
+    useEffect(() => {
+        console.log("user changed:222", user?.statusActive);
+        if (user?.statusActive == "2") {
+            console.log("user changed:333", user?.statusActive);
+            Swal.fire({
+                icon: 'error',
+                title: 'Usuario retirado',
+                text: 'Su usuario no puede realizar mas pedidos',
+                timer: 2000
+            });
+            setTimeout(() => {
+                window.location.href = `/dashboard/${Apis.PROYECTCURRENT}`;
+            }, 2000);
+        }
+    }, [user])
 
     const config = useConfigStore((state) => state.config);
     console.log("config", config);
