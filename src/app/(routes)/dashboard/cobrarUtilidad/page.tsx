@@ -646,11 +646,11 @@ const CobrarUtilidad = () => {
                                             handleDatosCuenta(user)
                                         }}
                                     >
-                                        {"Agregar/Cambiar Datos de Cuenta Bancaria"}
+                                        {"Agregar cuenta y enviar solicitud"}
                                     </button>
                                 </div>
                                 <div className={`${getValues()?.VouchersAll?.length > 0 ? "flex flex-col" : "flex flex-row"} gap-2 w-full`}>
-                                    {`Vouchers Subidos(dar clic en la imagen para aprobar su pago):`}
+                                    {`Vouchers Subidos:`}
                                     <div className="mt-0 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-1 justify-center items-center w-full">
                                         {
                                             getValues()?.VouchersAll?.length > 0 ?

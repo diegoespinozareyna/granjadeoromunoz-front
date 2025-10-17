@@ -465,7 +465,19 @@ const verUsuarios = () => {
                                                         <div className="flex flex-row gap-1 justify-start items-center">
                                                             <div>
                                                                 <button
-                                                                    className="bg-green-500 hover:bg-green-700 text-white font-bold px-2 py-1 rounded-lg cursor-pointer"
+                                                                    className={`${usuario?.banco !== "" && usuario?.banco !== undefined && usuario?.banco !== null && usuario?.banco !== " "
+                                                                        &&
+                                                                        usuario?.numeroCuenta !== "" && usuario?.numeroCuenta !== undefined && usuario?.numeroCuenta !== null && usuario?.numeroCuenta !== " "
+                                                                        &&
+                                                                        usuario?.cciCuenta !== "" && usuario?.cciCuenta !== undefined && usuario?.cciCuenta !== null && usuario?.cciCuenta !== " "
+                                                                        &&
+                                                                        usuario?.titularCuenta !== "" && usuario?.titularCuenta !== undefined && usuario?.titularCuenta !== null && usuario?.titularCuenta !== " "
+                                                                        &&
+                                                                        usuario?.utilidad1 != "0" && usuario?.utilidad1 != "" && usuario?.utilidad1 != undefined && usuario?.utilidad1 != null //aqui cuando sea segundo trimestre agregar utiliadad2
+                                                                        ?
+                                                                        "bg-yellow-500 hover:bg-yellow-700" :
+                                                                        "bg-green-500 hover:bg-green-700"
+                                                                        }  text-white font-bold px-2 py-1 rounded-lg cursor-pointer`}
                                                                     color="primary"
                                                                     onClick={() => {
                                                                         setPopup({
@@ -491,29 +503,6 @@ const verUsuarios = () => {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    {/* <td className="p-3">
-                                                        <div className="grid grid-cols-2 justify-start items-center gap-1">
-                                                            <div>
-                                                                {usuario.cantidadPaquetes}
-                                                            </div>
-                                                            <div>
-                                                                <button
-                                                                    className={`text-xs text-white px-2 py-1 rounded-lg bg-blue-500 hover:bg-blue-700 flex items-center justify-center`}
-                                                                    // onClick={() => handleEditClick(usuario._id)}
-                                                                    disabled={loading == usuario._id}
-                                                                >
-                                                                    {loading == usuario._id ? (
-                                                                        <Loader2 size={15} className="animate-spin" />
-                                                                    ) : (
-                                                                        <PencilLine size={15} />
-                                                                    )}
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-3">{usuario.kilos}</td>
-                                                    <td className="p-3 font-semibold text-green-600">S/. {usuario.pagoTotal}</td>
-                                                    <td className="p-3 !max-w-full">{`${usuario.direccionEntrega ?? ""} - ${usuario.distritoEntrega ?? ""} - ${usuario.provinciaEntrega ?? ""} - ${usuario.departamentoEntrega ?? ""} - ${usuario.celularEntrega ?? ""}`}</td> */}
                                                 </tr>
                                             ))}
                                         </tbody>
