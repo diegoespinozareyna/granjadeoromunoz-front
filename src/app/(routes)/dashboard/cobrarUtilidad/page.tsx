@@ -56,6 +56,7 @@ const CobrarUtilidad = () => {
         setValue("banco", user?.banco ?? "Sin Datos");
         setValue("numeroCuenta", user?.numeroCuenta ?? "Sin Datos");
         setValue("cciCuenta", user?.cciCuenta ?? "Sin Datos");
+        setValue("titularCuenta", user?.titularCuenta ?? "Sin Datos");
     }, [user])
 
     const { getValues, setValue, handleSubmit, control } = useForm()
@@ -201,7 +202,7 @@ const CobrarUtilidad = () => {
         }
     }
 
-    const handleEditVoucher = async (id: any, idPedido: string) => {
+    const handleEditVoucher = async (id: any, idPedido: string, idUsuario: string) => {
         console.log("id", id);
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getEditVoucher`;
         try {
@@ -221,6 +222,25 @@ const CobrarUtilidad = () => {
                     text: 'Se ha editado el voucher',
                     timer: 2000
                 });
+                if (getValues()?.status === "1") {
+                    const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/patchZeroUtilidades`;
+                    const response = await apiCall({
+                        method: "patch", endpoint: url, data: {
+                            id: idUsuario,
+                            utilidad1: "0",
+                            utilidad2: "0",
+                            utilidad3: "0",
+                            utilidad4: "0",
+                            utilidad5: "0",
+                            utilidad6: "0",
+                            utilidad7: "0",
+                            utilidad8: "0",
+                            utilidad9: "0",
+                            utilidad10: "0",
+                        }
+                    });
+                    console.log("response", response?.data);
+                }
                 // setTimeout(() => {
                 //     window.location.reload();
                 // }, 2000);
@@ -248,6 +268,7 @@ const CobrarUtilidad = () => {
                     banco: getValues()?.banco,
                     numeroCuenta: getValues()?.numeroCuenta,
                     cciCuenta: getValues()?.cciCuenta,
+                    titularCuenta: getValues()?.titularCuenta,
                     proyecto: Apis.PROYECTCURRENT,
                 }
             })
@@ -262,6 +283,7 @@ const CobrarUtilidad = () => {
                 setValue("banco", "");
                 setValue("numeroCuenta", "");
                 setValue("cciCuenta", "");
+                setValue("titularCuenta", "");
                 localStorage.removeItem("auth-token");
                 setTimeout(() => {
                     window.location.reload();
@@ -513,6 +535,53 @@ const CobrarUtilidad = () => {
                                     />
                                 </div>
                                 <div>
+                                    <Controller
+                                        name={`titularCuenta`}
+                                        control={control}
+                                        render={({ field, fieldState }) => (
+                                            <TextField
+                                                {...field}
+                                                error={!!fieldState.error}
+                                                helperText={fieldState.error ? fieldState.error.message : ""}
+                                                // label={item.label}
+                                                variant="outlined"
+                                                // placeholder={item.placeholder}
+                                                size="small"
+                                                // defaultValue={item.type === "date" ? moment.tz("America/Lima").format("YYYY-MM-DDTHH:mm") : ""}
+                                                disabled={false}
+                                                required={true}
+                                                type={"text"}
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                }}
+                                                label="Titular de Cuenta Bancaria"
+                                                // multiline={true}
+                                                // minRows={2}
+                                                className="w-full bg-[#efefef]"
+                                                sx={{
+                                                    input: {
+                                                        color: '#000', // texto negro
+                                                        WebkitTextFillColor: '#000', // asegura que los navegadores lo muestren
+                                                        border: 'none',
+                                                        borderRadius: '10px',
+                                                        backgroundColor: '#efefef',
+                                                    },
+                                                    '.Mui-disabled': {
+                                                        WebkitTextFillColor: '#000 !important',
+                                                        color: '#000 !important',
+                                                        opacity: 1, // elimina el desvanecido
+                                                    },
+                                                }}
+                                                onChange={(e: any) => {
+                                                    let value = e.target.value;
+                                                    // value = value.replace(/(?!^)-|[^0-9.,-]/g, "");// positivos y negativos
+                                                    field.onChange(value);
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                </div>
+                                <div>
                                     <button
                                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-1 rounded-lg cursor-pointer"
                                         color="primary"
@@ -535,7 +604,7 @@ const CobrarUtilidad = () => {
                                                             alt={`Voucher ${index + 1}`}
                                                             className="w-full h-auto rounded-lg shadow-md cursor-pointer"
                                                             onClick={async () => {
-                                                                if (item.status === "0") {
+                                                                if (false) {
                                                                     const { isConfirmed } = await Swal.fire({
                                                                         title: `Cambiar Status de voucher`,
                                                                         html: `
@@ -570,7 +639,7 @@ const CobrarUtilidad = () => {
                                                                             // }
 
                                                                             try {
-                                                                                await handleEditVoucher(item?._id, item.codPedido);
+                                                                                await handleEditVoucher(item?._id, item.codPedido, popup?.infoUsuario?._id);
                                                                             } catch (error) {
                                                                                 Swal.showValidationMessage(`Error al actualizar: ${error}`);
                                                                             }

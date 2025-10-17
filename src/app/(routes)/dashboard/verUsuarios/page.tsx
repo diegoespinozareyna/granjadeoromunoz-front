@@ -83,7 +83,7 @@ const verUsuarios = () => {
         setValue("VouchersAll", response?.data?.filter((item: any) => item?.status !== "2"));
     }
 
-    const handleEditVoucher = async (id: string, idPedido: string) => {
+    const handleEditVoucher = async (id: string, idPedido: string, idUsuario: string) => {
         console.log("id", id);
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getEditVoucher`;
         try {
@@ -103,9 +103,28 @@ const verUsuarios = () => {
                     text: 'Se ha editado el voucher',
                     timer: 2000
                 });
-                // setTimeout(() => {
-                //     window.location.reload();
-                // }, 2000);
+                if (getValues()?.status === "1") {
+                    const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/patchZeroUtilidades`;
+                    const response = await apiCall({
+                        method: "patch", endpoint: url, data: {
+                            id: idUsuario,
+                            utilidad1: "0",
+                            utilidad2: "0",
+                            utilidad3: "0",
+                            utilidad4: "0",
+                            utilidad5: "0",
+                            utilidad6: "0",
+                            utilidad7: "0",
+                            utilidad8: "0",
+                            utilidad9: "0",
+                            utilidad10: "0",
+                        }
+                    });
+                    console.log("response", response?.data);
+                }
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
                 setValue("status", "");
                 setValue("observaciones", "");
                 await handleGetVouchersAll(idPedido);
@@ -543,6 +562,9 @@ const verUsuarios = () => {
                                     <div>
                                         {`CCI: ${popup?.infoUsuario?.cciCuenta ?? "No ingresado por el cliente"}`}
                                     </div>
+                                    <div>
+                                        {`Titular Cuenta: ${popup?.infoUsuario?.titularCuenta ?? "No ingresado por el cliente"}`}
+                                    </div>
                                     <div className="flex flex-row gap-2">
                                         {`Monto a Cobrar trimestre1: S/.  ${changeDecimales(popup?.infoUsuario?.utilidad1 ?? "0") ?? "No Corresponde"}`}
                                         <div>
@@ -907,12 +929,13 @@ const verUsuarios = () => {
                                                                 alt={`Voucher ${index + 1}`}
                                                                 className="w-full h-auto rounded-lg shadow-md cursor-pointer"
                                                                 onClick={async () => {
-                                                                    if (item.status === "0" || item.status === "2") {
+                                                                    if (item.status === "0" || item.status === "2" || item.status === "1") {
                                                                         const { isConfirmed } = await Swal.fire({
                                                                             title: `Cambiar Status de voucher`,
                                                                             html: `
                                                                                                         <select id="status" class="swal2-input">
                                                                                                           <option value="">Selecciona un estado</option>
+                                                                                                          <option value="1">Verificado Correctamente</option>
                                                                                                           <option value="2">Eliminar</option>
                                                                                                         </select>
                                                                                                         <textarea id="comentario" class="swal2-textarea" placeholder="Escribe un comentario"></textarea>
@@ -943,7 +966,7 @@ const verUsuarios = () => {
                                                                                 // }
 
                                                                                 try {
-                                                                                    await handleEditVoucher(item._id, item.codPedido);
+                                                                                    await handleEditVoucher(item._id, item.codPedido, popup?.infoUsuario?._id);
                                                                                 } catch (error) {
                                                                                     Swal.showValidationMessage(`Error al actualizar: ${error}`);
                                                                                 }
