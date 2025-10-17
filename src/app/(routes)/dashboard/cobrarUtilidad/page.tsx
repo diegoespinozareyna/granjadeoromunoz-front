@@ -3,9 +3,10 @@
 import useApi from "@/app/hooks/fetchData/useApi";
 import { useUserStore } from "@/app/store/userStore";
 import { Apis } from "@/app/utils/configs/proyectCurrent";
+import { changeDecimales } from "@/app/utils/functions/changeDecimales";
 import { Button, TextField } from "@mui/material"
 import { jwtDecode } from "jwt-decode";
-import { X } from "lucide-react";
+import { DollarSign, PrinterCheck, Weight, X } from "lucide-react";
 import moment from "moment-timezone";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useRef, useState } from "react";
@@ -309,68 +310,124 @@ const CobrarUtilidad = () => {
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-2 justify-center items-center mt-5 border-2 border-[#22B2AA] rounded-lg p-3 px-10 bg-[rgba(255,255,255,0.8)] w-[350px] mx-2">
-                    <div className="font-bold text-slate-700 text-3xl text-center">
+                <div className="grid grid-cols-1 gap-2 justify-center items-center mt-5 rounded-lg p-3 px-10 bg-[rgba(255,255,255,0.2)] w-[350px] mx-2">
+                    {/* <div className="font-bold text-slate-700 text-3xl text-center">
                         {"Paquetes Totales Entregados:"}
                     </div>
                     <div className="font-bold text-yellow-500 text-6xl text-center">
-                        {/* {datos?.numPAquetes} */}
                         {"3,707.00"}
+                    </div> */}
+                    <div className="p-2 rounded-lg bg-[#007c7c] flex flex-col justify-center items-center w-full">
+                        <div className="flex justify-center items-center gap-2">
+                            <div className="rounded-lg bg-[rgba(255,255,255,0.5)]">
+                                <Weight size={40} className="mx-auto p-2" />
+                            </div>
+                        </div>
+                        <div className="flex flex-col justify-center items-center gap-2 mt-2">
+                            <div className="font-bold text-white text-3xl text-center">
+                                {/* {`${Number(datos?.kilosTotales)?.toFixed(0)} Kg.`} */}
+                                {`40,777.00 Kg.`}
+                            </div>
+                            <div className="font-bold text-yellow-500 text-lg text-center">
+                                {"Total Kilos Vendidos"}
+                            </div>
+                        </div>
                     </div>
-                    <div className="font-bold text-slate-700 text-3xl text-center mt-6">
-                        {"Kilos Totales:"}
+
+                    <div className="p-2 rounded-lg bg-[#007c7c] flex flex-col justify-center items-center w-full">
+                        <div className="flex justify-center items-center gap-2">
+                            <div className="rounded-lg bg-[rgba(255,255,255,0.5)]">
+                                <DollarSign size={40} className="mx-auto p-2" />
+                            </div>
+                        </div>
+                        <div className="flex flex-col justify-center items-center gap-2 mt-2">
+                            <div className="font-bold text-white text-3xl text-center">
+                                {/* {`${Number(datos?.kilosTotales)?.toFixed(0)} Kg.`} */}
+                                {`S/.32,621.60`}
+                            </div>
+                            <div className="font-bold text-yellow-500 text-lg text-center">
+                                {"Utilidad Trimestral (Julio - Setiembre)"}
+                            </div>
+                        </div>
                     </div>
-                    <div className="font-bold text-yellow-500 text-6xl text-center">
-                        {/* {`${Number(datos?.kilosTotales)?.toFixed(0)} Kg.`} */}
-                        {`40,777.00 Kg.`}
-                    </div>
-                    <div className="font-bold text-slate-700 text-3xl text-center mt-6">
-                        {"Utilidades a Repartir:"}
-                    </div>
-                    <div className="font-bold text-yellow-500 text-4xl text-center">
-                        {/* {`S/.${Number(datos?.kilosTotales * 0.80)?.toFixed(2)}`} */}
-                        {`S/.32,621.60`}
-                    </div>
+
+
                     {
                         user?.userType !== "admin" &&
                         <>
-                            <div className="font-bold text-slate-700 text-2xl text-center mt-6">
-                                {user?.membresia500 !== "0" && "Utilidades a Repartir por usuario EMPRESARIO:"}
-                            </div>
-                            <div className="font-bold text-yellow-500 text-4xl text-center mt-6">
-                                {user?.membresia500 !== "0" && "S/. 16,310.80"}
-                                {/* {user?.membresia500 !== "0" && `S/.${Number(datos?.kilosTotales * 0.80 * 0.5 * Number(user?.membresia500))?.toFixed(2)}`} */}
-                            </div>
-                            <div className="font-bold text-slate-700 text-2xl text-center mt-6">
-                                {user?.menbresia200 !== "0" && "Utilidades a Repartir por usuario EMPRENDEDOR:"}
-                            </div>
-                            <div className="font-bold text-yellow-500 text-4xl text-center">
-                                {user?.menbresia200 !== "0" && "S/. 9,786.48"}
-                                {/* {user?.menbresia200 !== "0" && `S/.${Number(datos?.kilosTotales * 0.80 * 0.3 * Number(user?.menbresia200))?.toFixed(2)}`} */}
-                            </div>
-                            <div className="font-bold text-slate-700 text-2xl text-center mt-6">
-                                {"Le Coresponde Cobrar:"}
-                            </div>
-                            <div className="font-bold text-yellow-500 text-4xl text-center mt-6">
-                                {user?.utilidad1}
-                                {/* {user?.membresia500 !== "0" && `S/.${Number(datos?.kilosTotales * 0.80 * 0.5 * Number(user?.membresia500))?.toFixed(2)}`} */}
+
+                            {
+                                user?.membresia500 !== "0" &&
+                                <div className="p-2 rounded-lg bg-[#007c7c] flex flex-col justify-center items-center w-full">
+                                    <div className="flex justify-center items-center gap-2">
+                                        <div className="rounded-lg bg-[rgba(255,255,255,0.5)]">
+                                            <DollarSign size={40} className="mx-auto p-2" />
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col justify-center items-center gap-2 mt-2">
+                                        <div className="font-bold text-white text-3xl text-center">
+                                            {/* {`${Number(datos?.kilosTotales)?.toFixed(0)} Kg.`} */}
+                                            {user?.membresia500 !== "0" && "S/. 16,310.80"}
+                                        </div>
+                                        <div className="font-bold text-yellow-500 text-lg text-center">
+                                            {user?.membresia500 !== "0" && "Utilidad Membresía Empresario (Grupal)"}
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            {
+                                user?.menbresia200 !== "0" &&
+                                <div className="p-2 rounded-lg bg-[#007c7c] flex flex-col justify-center items-center w-full">
+                                    <div className="flex justify-center items-center gap-2">
+                                        <div className="rounded-lg bg-[rgba(255,255,255,0.5)]">
+                                            <DollarSign size={40} className="mx-auto p-2" />
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col justify-center items-center gap-2 mt-2">
+                                        <div className="font-bold text-white text-3xl text-center">
+                                            {/* {`${Number(datos?.kilosTotales)?.toFixed(0)} Kg.`} */}
+                                            {user?.menbresia200 !== "0" && "S/. 9,786.48"}
+                                        </div>
+                                        <div className="font-bold text-yellow-500 text-lg text-center">
+                                            {user?.menbresia200 !== "0" && "Utilidad Membresía Emprendedor (Grupal)"}
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <div className="p-2 rounded-lg bg-[#007c7c] flex flex-col justify-center items-center w-full">
+                                <div className="flex justify-center items-center gap-2">
+                                    <div className="rounded-lg bg-[rgba(255,255,255,0.5)]">
+                                        <DollarSign size={40} className="mx-auto p-2" />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col justify-center items-center gap-2 mt-2">
+                                    <div className="font-bold text-white text-3xl text-center">
+                                        {/* {`${Number(datos?.kilosTotales)?.toFixed(0)} Kg.`} */}
+                                        {`S/. ${changeDecimales(user?.utilidad1) ?? "No Corresponde"}`}
+                                    </div>
+                                    <div className="font-bold text-yellow-500 text-lg text-center">
+                                        {"Utilidad Asignada"}
+                                    </div>
+                                </div>
                             </div>
                         </>
                     }
                     <button
-                        className="bg-green-500 hover:bg-green-700 text-white font-bold px-2 py-1 rounded-lg cursor-pointer"
+                        className="bg-[#007c7c] hover:bg-green-900 text-amber-300 font-bold px-2 py-1 rounded-lg cursor-pointer border-1 border-white w-full mt-4"
                         color="primary"
                         onClick={() => {
                             handleVouchersUser(user);
                             setPopup({
                                 status: true,
-                                title: "Datos de la Cuenta",
+                                title: "Detalles de la Cuenta Bancaria",
                                 infoUsuario: user,
                                 action: "repartir",
                             })
                         }}
                     >
-                        {"Cobrar Utilidades"}
+                        {"COBRAR UTILIDADES"}
                     </button>
                 </div>
                 {
