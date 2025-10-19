@@ -475,9 +475,22 @@ const verUsuarios = () => {
                                                                         &&
                                                                         usuario?.utilidad1 != "0" && usuario?.utilidad1 != "" && usuario?.utilidad1 != undefined && usuario?.utilidad1 != null //aqui cuando sea segundo trimestre agregar utiliadad2
                                                                         ?
-                                                                        "bg-yellow-500 hover:bg-yellow-700" :
-                                                                        "bg-green-500 hover:bg-green-700"
-                                                                        }  text-white font-bold px-2 py-1 rounded-lg cursor-pointer`}
+                                                                        "bg-yellow-500 hover:bg-yellow-700"
+                                                                        :
+                                                                        usuario?.banco !== "" && usuario?.banco !== undefined && usuario?.banco !== null && usuario?.banco !== " "
+                                                                            &&
+                                                                            usuario?.numeroCuenta !== "" && usuario?.numeroCuenta !== undefined && usuario?.numeroCuenta !== null && usuario?.numeroCuenta !== " "
+                                                                            &&
+                                                                            usuario?.cciCuenta !== "" && usuario?.cciCuenta !== undefined && usuario?.cciCuenta !== null && usuario?.cciCuenta !== " "
+                                                                            &&
+                                                                            usuario?.titularCuenta !== "" && usuario?.titularCuenta !== undefined && usuario?.titularCuenta !== null && usuario?.titularCuenta !== " "
+                                                                            &&
+                                                                            usuario?.utilidad1 == "0" //aqui cuando sea segundo trimestre agregar utiliadad2
+                                                                            ?
+                                                                            "bg-blue-500 hover:bg-blue-700"
+                                                                            :
+                                                                            "bg-green-500 hover:bg-green-700"
+                                                                        } text-white font-bold px-2 py-1 rounded-lg cursor-pointer`}
                                                                     color="primary"
                                                                     onClick={() => {
                                                                         setPopup({
