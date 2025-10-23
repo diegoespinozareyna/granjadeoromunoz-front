@@ -9,12 +9,14 @@ import { changeDecimales } from "@/app/utils/functions/changeDecimales";
 import { Button } from "@mui/material"
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { CheckCheck, Loader2, Loader2Icon, PencilLine, PencilLineIcon, Send, X } from "lucide-react";
+import { CheckCheck, File, Loader2, Loader2Icon, PencilLine, PencilLineIcon, Send, X } from "lucide-react";
 import moment from "moment-timezone";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
+import { saveAs } from 'file-saver';
 
 const verUsuarios = () => {
 
@@ -61,7 +63,7 @@ const verUsuarios = () => {
         return filtro
     }
     );
-    console.log("datosFiltrados", datosFiltrados);
+    // console.log("datosFiltrados", datosFiltrados);
 
     useEffect(() => {
         if (refFetch.current) {
@@ -341,6 +343,114 @@ const verUsuarios = () => {
         }
     }
 
+    const handleVouchersUserExcel = async (user: any) => {
+        try {
+            const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/getVouchersAll`;
+            const response = await apiCall({
+                method: "get", endpoint: url, data: null, params: {
+                    id: user?._id,
+                    proyecto: Apis.PROYECTCURRENT,
+                }
+            });
+            // console.log("response", response?.data);
+            setValue("VouchersAll", response?.data?.filter((item: any) => item?.status !== "2"));
+            console.log("response", typeof (response?.data?.map((item: any) =>
+                item.url,
+            ) ?? [])?.join(", "));
+            return (response?.data
+                ?.filter((item: any) => item?.status !== "2")
+                ?.map((item: any) =>
+                    item.url,
+                ) ?? [])?.join(", ");
+        } catch (error) {
+            console.error("Error al obtener datos del usuario:", error);
+            localStorage.removeItem("auth-token");
+            window.location.href = '/';
+        }
+    }
+
+    // console.log("personas", datosFiltrados);
+
+    const handleDownload = async () => {
+        try {
+            const cleanData = await Promise.all(
+                (datosFiltrados ?? []).map(async (item: any) => {
+                    const vouchers = await handleVouchersUserExcel(item);
+
+                    return {
+                        "DNI Cliente": `${item.documentoUsuario ?? ""}`,
+                        "Nombre Cliente": `${item.nombres ?? ""} ${item.apellidoPaterno ?? ""} ${item.apellidoMaterno ?? ""}`,
+                        "Celular Cliente": `${item.celular ?? ""}`,
+                        "Direccion Cliente": `${item.direccion ?? ""}`,
+                        "Usuario-Contraseña": `${item.documentoUsuario ?? ""} - ${item.password ?? ""}`,
+                        "N° Membresia Empresario": `${item.membresia500 ?? ""}`,
+                        "N° Membresia Emprendedor": `${item.menbresia200 ?? ""}`,
+                        "Cobra Utilidades": `${item.isCobrar == "1" ? "SI" : "NO"}`,
+                        "Banco": `${item.banco ?? ""}`,
+                        "Número de Cuenta": `${item.numeroCuenta ?? ""}`,
+                        "CCI Cuenta": `${item.cciCuenta ?? ""}`,
+                        "Titular Cuenta": `${item.titularCuenta ?? ""}`,
+                        "Monto Primer Trimestre": `${item.utilidad1 ?? ""}`,
+                        "¿Se Pagó Primer Trimestre?":
+                            item?.banco && item?.numeroCuenta && item?.cciCuenta && item?.titularCuenta && item?.utilidad1 == "0"
+                                ? "SI"
+                                : "NO",
+                        "Vouchers Pagos": vouchers, // ✅ ahora sí llega el string resuelto
+                    };
+                })
+            );
+
+            // aquí generas tu Excel normalmente con cleanData
+            console.log(cleanData);
+            // ...
+            // Si no hay filas, salimos o generamos un Excel con solo título
+            if (cleanData.length === 0) {
+                // Crear hoja vacía con título
+                const wsEmpty: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([[`Clientes`]]);
+                // opcional: merges no necesarios (solo 1 columna)
+                const wbEmpty = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wbEmpty, wsEmpty, "Reporte");
+                const bufferEmpty = XLSX.write(wbEmpty, { bookType: "xlsx", type: "array" });
+                saveAs(new Blob([bufferEmpty], { type: "application/octet-stream" }), "reporte.xlsx");
+                return;
+            }
+
+            // 1) Crear worksheet con los datos empezando en A2 para dejar A1 para el título
+            //    json_to_sheet escribiría encabezados en la fila 2.
+            const worksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet([[]]); // Create an empty worksheet
+            XLSX.utils.sheet_add_json(worksheet, cleanData, { origin: "A2" }); // Add JSON data starting at A2
+
+            // 2) Añadir título en A1
+            XLSX.utils.sheet_add_aoa(worksheet, [[`Clientes`]], { origin: "A1" });
+
+            // 3) Determinar cuántas columnas existen para combinar desde A1 hasta la última columna
+            let totalColumnsIndex = 0;
+            if (worksheet["!ref"]) {
+                const range = XLSX.utils.decode_range(worksheet["!ref"]);
+                totalColumnsIndex = range.e.c; // índice 0-based de la última columna
+            } else {
+                // fallback seguro: número de columnas = keys del primer objeto - 1 (0-based)
+                totalColumnsIndex = Object.keys(cleanData[0]).length - 1;
+            }
+
+            // 4) Combinar la fila del título (A1 -> últimaColumna1)
+            const merge = {
+                s: { r: 0, c: 0 }, // start row 0 (A1)
+                e: { r: 0, c: totalColumnsIndex }, // end same row, last column
+            };
+            worksheet["!merges"] = worksheet["!merges"] ? [...worksheet["!merges"], merge] : [merge];
+
+            // 6) Crear workbook y descargar
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte");
+            const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+            const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+            saveAs(blob, "reporte.xlsx");
+        } catch (error) {
+            console.error("Error generando Excel:", error);
+        }
+    };
+
     return (
         <div className="flex flex-col items-start justify-start mt-10 font-[family-name:var(--font-geist-sans)] overflow-x-hidden">
             <div className="md:ml-0">
@@ -355,6 +465,18 @@ const verUsuarios = () => {
                     </Button>
 
                     <input placeholder="Buscar por Nombre o DNI..." className=" p-2 border rounded w-full max-w-md bg-white" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
+
+                    <div className='flex flex-row gap-2 w-[200px] px-2 py-0 border rounded-lg border-blue-100 bg-blue-50'>
+                        {/* <div>
+                                                        {"Buses 50:"}
+                                                    </div> */}
+                        <div onClick={handleDownload} className='cursor-pointer font-bold text-green-400 flex justify-start items-center gap-2'>
+                            <File className="h-5 w-5 text-green-400" />
+                            <div>
+                                Excel_Pasajeros
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 
