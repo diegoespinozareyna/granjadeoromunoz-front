@@ -473,7 +473,7 @@ const verUsuarios = () => {
                         <div onClick={handleDownload} className='cursor-pointer font-bold text-green-400 flex justify-start items-center gap-2'>
                             <File className="h-5 w-5 text-green-400" />
                             <div>
-                                Excel_Pasajeros
+                                Excel_Usuarios
                             </div>
                         </div>
                     </div>
