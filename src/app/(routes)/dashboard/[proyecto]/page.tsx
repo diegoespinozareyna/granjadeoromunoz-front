@@ -14,7 +14,7 @@ const Dashboard = () => {
     const [session, setSession] = useState<any>(null);
     const { setValue, getValues } = useForm()
     const { apiCall } = useApi()
-    const topePedidos = 300;
+    const topePedidos = 50;
     const [isDayes, setIsDayes] = useState(false);
     const [images, setImages] = useState<any>([]);
 
@@ -43,7 +43,7 @@ const Dashboard = () => {
         console.log("isDay: ", isDay);
         if (
             (
-                isDay == 0 || isDay == 1 || isDay == 2
+                isDay == 0 || isDay == 1
                 // || isDay == 6
             )
             && hour >= 10
@@ -59,14 +59,14 @@ const Dashboard = () => {
                 setValue("fechaInicio", moment().tz("America/Lima").subtract(1, 'days').format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
-            if (isDay == 2) {
-                setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
-                setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
-            }
             // if (isDay == 6) {
             //     setValue("fechaInicio", moment().tz("America/Lima").subtract(6, 'days').format('DD-MM-YYYY'));
             //     setValue("fechaFin", moment().tz("America/Lima").subtract(4, 'days').format('DD-MM-YYYY'));
             // }
+        }
+        if (isDay == 2) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
         }
         if (isDay == 3) {
             setValue("fechaInicio", moment().tz("America/Lima").subtract(3, 'days').format('DD-MM-YYYY'));

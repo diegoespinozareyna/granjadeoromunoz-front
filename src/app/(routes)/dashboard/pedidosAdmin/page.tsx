@@ -751,7 +751,7 @@ const pedidosAdmin = () => {
         const hour = now.hour();
         const minute = now.minute();
         console.log("isDay: ", isDay);
-        if ((isDay == 0 || isDay == 1 || isDay == 2) && hour >= 10) {
+        if ((isDay == 0 || isDay == 1) && hour >= 10) {
             console.log("isDay: ", isDay);
             setValue("isPedidos", true);
             if (isDay == 0) {
@@ -762,10 +762,10 @@ const pedidosAdmin = () => {
                 setValue("fechaInicio", moment().tz("America/Lima").subtract(1, 'days').format('DD-MM-YYYY'));
                 setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
             }
-            if (isDay == 2) {
-                setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
-                setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
-            }
+        }
+        if (isDay == 2) {
+            setValue("fechaInicio", moment().tz("America/Lima").subtract(2, 'days').format('DD-MM-YYYY'));
+            setValue("fechaFin", moment().tz("America/Lima").format('DD-MM-YYYY'));
         }
         if (isDay == 3) {
             setValue("fechaInicio", moment().tz("America/Lima").subtract(3, 'days').format('DD-MM-YYYY'));
