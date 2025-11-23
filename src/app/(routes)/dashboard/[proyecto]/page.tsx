@@ -252,7 +252,9 @@ const Dashboard = () => {
     }
 
     useEffect(() => {
-        fetchPedidosFechasTrue()
+        if (user !== null && user !== undefined && session !== null && session !== undefined) {
+            fetchPedidosFechasTrue()
+        }
     }, [session, isDayes, user])
 
 
