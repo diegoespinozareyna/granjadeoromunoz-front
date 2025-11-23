@@ -43,6 +43,7 @@ interface User {
 interface Config {
   precioKiloHuevos: string;
   proyecto: string;
+  userChange: String,
   // Agrega aquí las propiedades reales de tu configuración
 }
 

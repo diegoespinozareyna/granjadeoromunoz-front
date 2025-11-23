@@ -71,6 +71,7 @@ const pedidosAdmin = () => {
             window.location.href = '/';
         }
         setPrecioKilos(Number(config?.precioKiloHuevos ?? 0));
+        setValue("userChangePrecioHuevos", config?.userChange ?? "");
     }, [config])
 
     const meses = [
@@ -441,6 +442,7 @@ const pedidosAdmin = () => {
             method: "patch", endpoint: url, data: {
                 precioKiloHuevos: precioKilos,
                 proyecto: Apis.PROYECTCURRENT,
+                userChange: `${user?.documentoUsuario}-${user?.nombres} ${user?.apellidoPaterno} ${user?.apellidoMaterno}`,
             }
         });
         console.log("response precioKilos", response);
@@ -988,7 +990,8 @@ const pedidosAdmin = () => {
             </div>
             <div className="flex justify-center items-center gap-1 px-1 py-1 rounded-lg my-1 ">
                 <div className="flex flex-col justify-start items-start gap-0 text-black">
-                    <label className="text-base font-bold text-white">Precio Kilo Huevos Actual:</label>
+                    <label className="text-xs font-bold text-white">{`Precio Kilo Huevos Actual`}</label>
+                    <label className="text-xs font-bold text-white">{`Actualizado por: ${getValues()?.userChangePrecioHuevos ?? ""}`}</label>
                     <div className="relative w-full max-w-md mb-4 mt-0">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-700">S/.</span>
                         <input

@@ -218,6 +218,7 @@ const Dashboard = () => {
                                 },
                             ]
                             :
+                            user?.role == "admin" &&
                             [
                                 {
                                     src: "/Tú decides Instagram post (1).png",
