@@ -20,7 +20,6 @@ const Dashboard = () => {
 
     const user = useUserStore((state) => state.user);
     console.log("user", user);
-    console.log("session", session);
 
     useEffect(() => {
         try {
@@ -151,7 +150,7 @@ const Dashboard = () => {
 
 
             setImages(
-                user?.role == "user client" && isDayes == true && pedidosTotales < topePedidos ?
+                session?.userType == "client" && isDayes == true && pedidosTotales < topePedidos ?
                     [
                         {
                             src: "/realizarpedido.jpg",
@@ -179,7 +178,7 @@ const Dashboard = () => {
                         },
                     ]
                     :
-                    user?.role == "user client" && isDayes == true && pedidosTotales >= topePedidos ?
+                    session?.userType == "client" && isDayes == true && pedidosTotales >= topePedidos ?
                         [
                             {
                                 src: "/Tú decides Instagram post (1).png",
@@ -199,7 +198,7 @@ const Dashboard = () => {
                             },
                         ]
                         :
-                        user?.role == "user client" && isDayes !== true ?
+                        session?.userType == "client" && isDayes !== true ?
                             [
                                 {
                                     src: "/Tú decides Instagram post (1).png",
@@ -219,52 +218,32 @@ const Dashboard = () => {
                                 },
                             ]
                             :
-                            user?.role == "admin" ?
-                                [
-                                    {
-                                        src: "/Tú decides Instagram post (1).png",
-                                        action: "VER PEDIDOS",
-                                        push: "pedidosAdmin",
-                                        alt: "Inmobiliaria Muñoz Logo",
-                                        width: 56,
-                                        height: 56,
-                                    },
-                                    {
-                                        src: "/COBRARUTILIDA2.png",
-                                        action: "COBRAR UTILIDAD",
-                                        push: "cobrarUtilidad",
-                                        alt: "Inmobiliaria Muñoz Logo",
-                                        width: 56,
-                                        height: 56,
-                                    },
-                                    {
-                                        src: "/verUsuarios.png",
-                                        action: "VER USUARIOS",
-                                        push: "verUsuarios",
-                                        alt: "Inmobiliaria Muñoz Logo",
-                                        width: 56,
-                                        height: 56,
-                                    },
-                                ]
-                                :
-                                [
-                                    {
-                                        src: "/Tú decides Instagram post (1).png",
-                                        action: "VER PEDIDOS",
-                                        push: "pedidosClientes",
-                                        alt: "Inmobiliaria Muñoz Logo",
-                                        width: 56,
-                                        height: 56,
-                                    },
-                                    {
-                                        src: "/COBRARUTILIDA2.png",
-                                        action: "COBRAR UTILIDAD",
-                                        push: "cobrarUtilidad",
-                                        alt: "Inmobiliaria Muñoz Logo",
-                                        width: 56,
-                                        height: 56,
-                                    },
-                                ]
+                            [
+                                {
+                                    src: "/Tú decides Instagram post (1).png",
+                                    action: "VER PEDIDOS",
+                                    push: "pedidosAdmin",
+                                    alt: "Inmobiliaria Muñoz Logo",
+                                    width: 56,
+                                    height: 56,
+                                },
+                                {
+                                    src: "/COBRARUTILIDA2.png",
+                                    action: "COBRAR UTILIDAD",
+                                    push: "cobrarUtilidad",
+                                    alt: "Inmobiliaria Muñoz Logo",
+                                    width: 56,
+                                    height: 56,
+                                },
+                                {
+                                    src: "/verUsuarios.png",
+                                    action: "VER USUARIOS",
+                                    push: "verUsuarios",
+                                    alt: "Inmobiliaria Muñoz Logo",
+                                    width: 56,
+                                    height: 56,
+                                },
+                            ]
             )
 
         } catch (error) {
@@ -274,9 +253,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetchPedidosFechasTrue()
-    }, [session, isDayes, user, topePedidos])
-
-    console.log("images", images);
+    }, [session, isDayes, user])
 
 
     const router = useRouter();
@@ -285,7 +262,7 @@ const Dashboard = () => {
         <>
             <div className="grid grid-cols-1 gap-2 mt-5 !overflow-x-hidden">
                 {images?.map((image: any, index: any) => (
-                    <div key={index} className="flex justify-center items-center">
+                    <div style={{ display: (user?.role == "user client" && image.action == "VER USUARIOS") ? "none" : "block" }} key={index} className="flex justify-center items-center">
                         <div
                             onClick={() => {
                                 if (getValues()?.membresia500Cantidad5Menor15 && image.action === "REALIZAR PEDIDO") {
