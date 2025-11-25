@@ -31,7 +31,7 @@ const EditarPedidos = () => {
     const fechaLimaFormateada = (fechaUTC: any) => {
         return moment(fechaUTC).tz("America/Lima").format("YYYY-MM-DD");
     }
-    
+
     const distritos = [
         //norte
         { value: "Santa Rosa", label: "Santa Rosa", zona: "Norte" },
@@ -137,6 +137,7 @@ const EditarPedidos = () => {
             departamentoEntrega: getValues()?.departamentoEntrega,
             celularEntrega: getValues()?.celularEntrega,
             zona: getValues()?.zona,
+            precioSemanal: getValues()?.precioSemanal,
         }
         const url = `${Apis.URL_APOIMENT_BACKEND_DEV}/api/auth/editarPedido`
         const response = await apiCall({
