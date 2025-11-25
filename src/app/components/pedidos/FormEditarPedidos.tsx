@@ -205,7 +205,7 @@ export const FormEditarPedidos = ({ getValues, setValue, control, apiCall, distr
                                         InputProps={{
                                             startAdornment: <InputAdornment position="start">S/.</InputAdornment>,
                                         }}
-                                        disabled={true}
+                                        // disabled={true}
                                         // required={(item.name == "direccionEntrega" && direccionObligatoria == true) ? true : item.required}
                                         type={"number"}
                                         InputLabelProps={{
@@ -232,6 +232,13 @@ export const FormEditarPedidos = ({ getValues, setValue, control, apiCall, distr
                                             let value = e.target.value;
                                             value = value.replace(/(?!^)-|[^0-9.,-]/g, "");// positivos y negativos
                                             field.onChange(value);
+                                            setValue(`kilos`, (Number(getValues(`cantidadPaquetes`)) ?? 0) * (Number(11) ?? 0));
+
+                                            setValue(`entregaDomicilio`, Number(getValues(`cantidadPaquetes`)) <= 3 ? Number(6) : Number(getValues(`cantidadPaquetes`)) <= 6 ? Number(10) : Number(getValues(`cantidadPaquetes`)) <= 10 ? Number(12) : Number(12));
+
+                                            setValue(`precio`, `${((Number(getValues(`precioSemanal`)) ?? 0) * (Number(getValues(`cantidadPaquetes`)) ?? 0) * (Number(11) ?? 0))?.toFixed(2)}`);
+
+                                            setValue(`pagoTotal`, ((Number(getValues(`precioSemanal`)) ?? 0) * (Number(getValues(`cantidadPaquetes`)) ?? 0) * (Number(11) ?? 0) + Number(getValues()?.entregaDomicilio ?? 0))?.toFixed(2))
                                         }}
                                     />
                                 )}
